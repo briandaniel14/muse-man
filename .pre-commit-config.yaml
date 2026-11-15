@@ -12,3 +12,11 @@ repos:
         entry: swiftlint lint --strict --quiet
         language: system
         types: [swift]
+
+      - id: swift-test
+        name: swift test
+        entry: swift test --package-path Packages/MuseManCore
+        language: system
+        files: ^Packages/MuseManCore/
+        types: [swift]
+        pass_filenames: false

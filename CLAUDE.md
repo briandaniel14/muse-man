@@ -6,19 +6,20 @@ Do not do any error handling unless asked
 iOS app built with SwiftUI in Xcode.
 
 ## Commands
-- Build: `xcodebuild -project muse-man.xcodeproj -scheme muse-man -destination 'platform=iOS Simulator,name=iPhone 16' build | xcbeautify`
-- Test: `xcodebuild test -project muse-man.xcodeproj -scheme muse-man -destination 'platform=iOS Simulator,name=iPhone 16' | xcbeautify`
+- Build: `xcodebuild -project muse-man.xcodeproj -scheme muse-man -destination 'platform=iOS Simulator,name=iPhone 17' build | xcbeautify`
+- Test: `swift test --package-path Packages/MuseManCore`
 - Lint: `swiftlint lint --strict`
 - Format: `swiftformat .`
 - List simulators: `xcrun simctl list devices available`
 
 ## Structure
 - `muse-man/`: app source (`MyApp.swift` is the entry point, `ContentView.swift` is the root view)
+- `Packages/MuseManCore/`: local Swift package holding app logic and views, tested with Swift Testing
 - `muse-man.xcodeproj/`: project file, do not edit by hand
 
 ## Conventions
 - SwiftUI only, no UIKit unless unavoidable
-- Minimum iOS 17
+- Minimum iOS 26.6 / macOS 26.6
 - Keep views small and extract subviews
 - Use `@Observable` for state, not `ObservableObject`
 - Prefer simple code over clever abstractions
