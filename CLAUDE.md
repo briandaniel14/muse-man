@@ -29,3 +29,17 @@ iOS app built with SwiftUI in Xcode.
 - After changes, run build, lint and tests, and fix any errors before finishing.
 - Only change whats asked for.
 - Commit messages: short, imperative.
+
+## Agent skills
+
+### Issue tracker
+
+Issues are tracked in GitHub Issues (briandaniel14/muse-man) via the `gh` CLI. See `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+Default five-role vocabulary: `needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`. See `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+Single-context: one `GLOSSARY.md` and `docs/adr/` at the repo root. See `docs/agents/domain.md`.
