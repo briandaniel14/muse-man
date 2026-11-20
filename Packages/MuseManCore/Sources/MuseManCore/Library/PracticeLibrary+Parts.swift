@@ -40,7 +40,7 @@ public extension PracticeLibrary {
         }
         object.label = part.label
         object.status = part.status.rawValue
-        if part.status == .learning, object.dueDate == nil {
+        if part.status != .wantToLearn, object.dueDate == nil {
             object.dueDate = today
         }
         object.note = part.note
