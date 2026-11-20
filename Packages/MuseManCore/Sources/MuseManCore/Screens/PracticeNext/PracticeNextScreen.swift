@@ -8,6 +8,7 @@ struct PracticeNextScreen: View {
             .navigationDestination(for: Part.self) { part in
                 PartScreen(part: part)
             }
+            .timedPracticeSessionToolbar()
             .paperScreen(title: Destination.practiceNext.title)
     }
 }

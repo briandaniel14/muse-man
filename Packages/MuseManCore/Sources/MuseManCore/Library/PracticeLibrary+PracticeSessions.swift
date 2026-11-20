@@ -25,10 +25,14 @@ public extension PracticeLibrary {
     }
 
     func finishPracticeSession(id: PracticeSession.ID) throws {
-        guard let object = object(id, as: PracticeSessionObject.self), object.entries?.isEmpty ?? true else {
+        guard let object = object(id, as: PracticeSessionObject.self) else {
             return
         }
-        context.delete(object)
+        if object.entries?.isEmpty ?? true {
+            context.delete(object)
+        } else if object.duration == nil, let startDate = object.startDate {
+            object.duration = NSNumber(value: now().timeIntervalSince(startDate))
+        }
         try save()
     }
 
