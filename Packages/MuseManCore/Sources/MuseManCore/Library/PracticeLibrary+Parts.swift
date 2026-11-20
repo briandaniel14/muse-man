@@ -15,6 +15,18 @@ public extension PracticeLibrary {
         return fetch(request).compactMap(Part.init)
     }
 
+    func parts(status: Part.Status? = nil, instrument: Instrument.ID? = nil) -> [Part] {
+        let request = NSFetchRequest<PartObject>(entityName: "Part")
+        request.predicate = NSCompoundPredicate(andPredicateWithSubpredicates: [
+            status.map { NSPredicate(format: "status == %d", $0.rawValue) },
+            instrument.map { NSPredicate(format: "instrument == %@", $0) },
+        ].compactMap(\.self))
+        request.sortDescriptors = ["song.title", "song.artist", "instrument.name", "label"].map {
+            NSSortDescriptor(key: $0, ascending: true, selector: #selector(NSString.localizedStandardCompare))
+        }
+        return fetch(request).compactMap(Part.init)
+    }
+
     func part(id: Part.ID) -> Part? {
         object(id, as: PartObject.self).flatMap(Part.init)
     }
