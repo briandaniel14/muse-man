@@ -13,7 +13,7 @@ public extension PracticeLibrary {
 
     func recording(identifier: UUID) -> Recording? {
         let request = NSFetchRequest<RecordingObject>(entityName: "Recording")
-        request.predicate = NSPredicate(format: "identifier == %@", identifier as CVarArg)
+        request.predicate = NSPredicate(format: "identifier == %@", identifier as NSUUID)
         request.fetchLimit = 1
         return fetch(request).first.flatMap(Recording.init)
     }
