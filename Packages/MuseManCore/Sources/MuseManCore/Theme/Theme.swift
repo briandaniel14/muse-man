@@ -11,15 +11,9 @@ public enum Theme {
         dark: Color(red: 0.937, green: 0.902, blue: 0.827),
     )
 
-    public static let fadedInk = ThemeColor(
-        light: Color(red: 0.137, green: 0.129, blue: 0.122).opacity(0.6),
-        dark: Color(red: 0.937, green: 0.902, blue: 0.827).opacity(0.6),
-    )
+    public static let fadedInk: ThemeColor = ink.opacity(0.6)
 
-    public static let hairline = ThemeColor(
-        light: Color(red: 0.137, green: 0.129, blue: 0.122).opacity(0.15),
-        dark: Color(red: 0.937, green: 0.902, blue: 0.827).opacity(0.15),
-    )
+    public static let hairline: ThemeColor = ink.opacity(0.15)
 
     public static let accent = ThemeColor(
         light: Color(red: 0.102, green: 0.478, blue: 0.467),
