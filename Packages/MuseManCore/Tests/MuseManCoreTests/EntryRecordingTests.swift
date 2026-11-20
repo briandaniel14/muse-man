@@ -3,20 +3,20 @@ import MuseManCore
 import Testing
 
 struct EntryRecordingTests {
-    let take = Data("tonight's take".utf8)
+    let audio = Data("tonight's recording".utf8)
 
     @Test func `a Recording made while logging a Practice Entry plays from the Part's practice history`() throws {
         let library = PracticeLibrary.inMemory()
         let part = try library.addGuitarPart()
         let session = try library.addPracticeSession(startDate: TestClock.start, duration: 1800)
-        let recording = try #require(try library.addRecording(audio: take, to: part.id))
+        let recording = try #require(try library.addRecording(audio: audio, to: part.id))
 
         try library.addPracticeEntry(to: session.id, part: part.id, rating: .good, recordingID: recording.identifier)
 
         let entry = try #require(library.practiceEntries(of: part.id).first)
         let attached = try #require(entry.recordingID.flatMap(library.recording(identifier:)))
         #expect(attached.id == recording.id)
-        #expect(library.audio(of: attached.id) == take)
+        #expect(library.audio(of: attached.id) == audio)
         #expect(library.recordings(of: part.id).map(\.id) == [recording.id])
     }
 
@@ -26,7 +26,7 @@ struct EntryRecordingTests {
         let part = try library.addGuitarPart()
         let older = try #require(try library.addRecording(audio: Data("monday".utf8), to: part.id))
         clock.advance(days: 1)
-        try library.addRecording(audio: take, to: part.id)
+        try library.addRecording(audio: audio, to: part.id)
         let session = try library.addPracticeSession(startDate: clock.now, duration: 1800)
         var entry = try #require(try library.addPracticeEntry(to: session.id, part: part.id, rating: .hard))
         #expect(entry.recordingID == nil)
@@ -45,7 +45,7 @@ struct EntryRecordingTests {
         let library = PracticeLibrary.inMemory()
         let part = try library.addGuitarPart()
         let session = try library.addPracticeSession(startDate: TestClock.start, duration: 1800)
-        let recording = try #require(try library.addRecording(audio: take, to: part.id))
+        let recording = try #require(try library.addRecording(audio: audio, to: part.id))
         let entry = try #require(try library.addPracticeEntry(
             to: session.id,
             part: part.id,
@@ -58,28 +58,28 @@ struct EntryRecordingTests {
         #expect(library.practiceEntries(of: part.id).isEmpty)
         #expect(library.recordings(of: part.id).map(\.id) == [recording.id])
         #expect(library.recording(identifier: recording.identifier) != nil)
-        #expect(library.audio(of: recording.id) == take)
+        #expect(library.audio(of: recording.id) == audio)
     }
 
     @Test func `deleting a Practice Session keeps its Practice Entries' Recordings on their Parts`() throws {
         let library = PracticeLibrary.inMemory()
         let part = try library.addGuitarPart()
         let session = try library.startPracticeSession()
-        let recording = try #require(try library.addRecording(audio: take, to: part.id))
+        let recording = try #require(try library.addRecording(audio: audio, to: part.id))
         try library.addPracticeEntry(to: session.id, part: part.id, rating: .easy, recordingID: recording.identifier)
 
         try library.deletePracticeSession(id: session.id)
 
         #expect(library.practiceSessions().isEmpty)
         #expect(library.recordings(of: part.id).map(\.id) == [recording.id])
-        #expect(library.audio(of: recording.id) == take)
+        #expect(library.audio(of: recording.id) == audio)
     }
 
     @Test func `a Practice Entry whose Recording was deleted still shows, without the Recording`() throws {
         let library = PracticeLibrary.inMemory()
         let part = try library.addGuitarPart()
         let session = try library.addPracticeSession(startDate: TestClock.start, duration: 1800)
-        let recording = try #require(try library.addRecording(audio: take, to: part.id))
+        let recording = try #require(try library.addRecording(audio: audio, to: part.id))
         let entry = try #require(try library.addPracticeEntry(
             to: session.id,
             part: part.id,

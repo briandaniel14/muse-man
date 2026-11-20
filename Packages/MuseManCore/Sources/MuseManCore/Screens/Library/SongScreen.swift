@@ -29,7 +29,10 @@ struct SongScreen: View {
                 dismiss()
             }
         } message: {
-            Text("Its Parts, Recordings and Resources go too, and it leaves its Collections. This can't be undone.")
+            Text(
+                "Its Parts, Recordings, Resources and practice history will be deleted too, "
+                    + "and it leaves its Collections. This can't be undone.",
+            )
         }
         .paperScreen(title: song.title.isEmpty ? "Song" : song.title)
     }

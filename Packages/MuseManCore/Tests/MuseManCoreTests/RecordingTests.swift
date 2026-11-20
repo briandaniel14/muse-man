@@ -3,7 +3,7 @@ import MuseManCore
 import Testing
 
 struct RecordingTests {
-    let take = Data("first take".utf8)
+    let audio = Data("first recording".utf8)
 
     @Test func `a Recording added to a Part is listed on that Part with its audio`() throws {
         let clock = TestClock()
@@ -11,12 +11,12 @@ struct RecordingTests {
         let part = try library.addGuitarPart()
         let other = try #require(try library.addPart(to: part.song.id, instrument: part.instrument.id, label: "Solo"))
 
-        try library.addRecording(audio: take, to: part.id)
+        try library.addRecording(audio: audio, to: part.id)
 
         let recording = try #require(library.recordings(of: part.id).first)
         #expect(library.recordings(of: part.id).count == 1)
         #expect(recording.date == clock.now)
-        #expect(library.audio(of: recording.id) == take)
+        #expect(library.audio(of: recording.id) == audio)
         #expect(library.recordings(of: other.id).isEmpty)
     }
 
@@ -41,8 +41,8 @@ struct RecordingTests {
     @Test func `a deleted Recording leaves its Part`() throws {
         let library = PracticeLibrary.inMemory()
         let part = try library.addGuitarPart()
-        let bad = try #require(try library.addRecording(audio: Data("bad take".utf8), to: part.id))
-        let good = try #require(try library.addRecording(audio: take, to: part.id))
+        let bad = try #require(try library.addRecording(audio: Data("bad recording".utf8), to: part.id))
+        let good = try #require(try library.addRecording(audio: audio, to: part.id))
 
         try library.deleteRecording(id: bad.id)
 
@@ -54,7 +54,7 @@ struct RecordingTests {
     @Test func `deleting a Part deletes its Recordings`() throws {
         let library = PracticeLibrary.inMemory()
         let part = try library.addGuitarPart()
-        let recording = try #require(try library.addRecording(audio: take, to: part.id))
+        let recording = try #require(try library.addRecording(audio: audio, to: part.id))
 
         try library.deletePart(id: part.id)
 
@@ -65,7 +65,7 @@ struct RecordingTests {
     @Test func `deleting a Song deletes its Parts' Recordings`() throws {
         let library = PracticeLibrary.inMemory()
         let part = try library.addGuitarPart()
-        let recording = try #require(try library.addRecording(audio: take, to: part.id))
+        let recording = try #require(try library.addRecording(audio: audio, to: part.id))
 
         try library.deleteSong(id: part.song.id)
 
@@ -76,7 +76,7 @@ struct RecordingTests {
     @Test func `a Recording is found by its identifier, with its Part`() throws {
         let library = PracticeLibrary.inMemory()
         let part = try library.addGuitarPart()
-        let recording = try #require(try library.addRecording(audio: take, to: part.id))
+        let recording = try #require(try library.addRecording(audio: audio, to: part.id))
 
         let found = try #require(library.recording(identifier: recording.identifier))
 
@@ -89,14 +89,14 @@ struct RecordingTests {
         let storeURL = URL.temporaryDirectory.appending(path: "\(UUID().uuidString).sqlite")
         let library = PracticeLibrary(container: PersistentStore.container(storeURL: storeURL))
         let part = try library.addGuitarPart()
-        let longTake = Data(repeating: 7, count: 2_000_000)
-        let recording = try #require(try library.addRecording(audio: longTake, to: part.id))
+        let longAudio = Data(repeating: 7, count: 2_000_000)
+        let recording = try #require(try library.addRecording(audio: longAudio, to: part.id))
 
         let relaunched = PracticeLibrary(container: PersistentStore.container(storeURL: storeURL))
 
         let reloaded = try #require(relaunched.recording(identifier: recording.identifier))
         #expect(reloaded.date == recording.date)
-        #expect(relaunched.audio(of: reloaded.id) == longTake)
+        #expect(relaunched.audio(of: reloaded.id) == longAudio)
     }
 }
 
