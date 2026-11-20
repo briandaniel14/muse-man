@@ -11,6 +11,7 @@ struct PartScreen: View {
             VStack(alignment: .leading, spacing: 32) {
                 PartFields(part: $part)
                 PartRecordingsSection(partID: part.id)
+                PartHistorySection(partID: part.id)
                 Button("Delete Part", role: .destructive) {
                     isConfirmingDelete = true
                 }

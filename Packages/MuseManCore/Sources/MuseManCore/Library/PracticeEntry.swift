@@ -8,11 +8,16 @@ public struct PracticeEntry: Identifiable, Hashable {
     public var note: String
     public let recordingID: UUID?
     public let date: Date
+    public let day: Date
 }
 
 extension PracticeEntry {
     init?(_ object: PracticeEntryObject) {
-        guard let session = object.session, let partID = object.partID, let date = object.date else {
+        guard let session = object.session,
+              let startDate = session.startDate,
+              let partID = object.partID,
+              let date = object.date
+        else {
             return nil
         }
         id = object.objectID
@@ -22,5 +27,6 @@ extension PracticeEntry {
         note = object.note ?? ""
         recordingID = object.recordingID
         self.date = date
+        day = Calendar.current.startOfDay(for: startDate)
     }
 }

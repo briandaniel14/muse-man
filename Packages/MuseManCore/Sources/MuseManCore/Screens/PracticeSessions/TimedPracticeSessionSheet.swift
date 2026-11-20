@@ -160,41 +160,7 @@ struct LoggedEntriesSection: View {
                     .foregroundStyle(Theme.fadedInk)
                     .padding(.vertical, 12)
             }
-            ForEach(entries) { entry in
-                LoggedEntryRow(entry: entry)
-                Hairline()
-            }
+            PracticeEntryList(entries: entries, heading: .part)
         }
-    }
-}
-
-struct LoggedEntryRow: View {
-    @Environment(PracticeLibrary.self) private var library
-    let entry: PracticeEntry
-
-    var body: some View {
-        HStack(alignment: .firstTextBaseline) {
-            VStack(alignment: .leading, spacing: 2) {
-                if let part = library.part(identifier: entry.partID) {
-                    Text(part.song.title)
-                    Text(part.displayName)
-                        .font(Theme.caption)
-                        .foregroundStyle(Theme.fadedInk)
-                } else {
-                    Text("Deleted Part")
-                        .foregroundStyle(Theme.fadedInk)
-                }
-                if !entry.note.isEmpty {
-                    Text(entry.note)
-                        .font(Theme.caption)
-                        .foregroundStyle(Theme.fadedInk)
-                }
-            }
-            Spacer()
-            Text(entry.rating.title)
-                .font(Theme.caption)
-                .foregroundStyle(Theme.accent)
-        }
-        .padding(.vertical, 12)
     }
 }

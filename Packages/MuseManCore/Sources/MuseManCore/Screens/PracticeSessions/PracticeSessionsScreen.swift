@@ -16,6 +16,9 @@ struct PracticeSessionsScreen: View {
             .sheet(isPresented: $isLoggingSession) {
                 LogPracticeSessionSheet()
             }
+            .navigationDestination(for: PracticeSession.self) { session in
+                PracticeSessionScreen(session: session)
+            }
             .timedPracticeSessionToolbar()
             .paperScreen(title: Destination.practiceSessions.title)
     }
@@ -27,9 +30,11 @@ struct PracticeSessionList: View {
 
     var body: some View {
         List(sessions) { session in
-            PracticeSessionRow(session: session)
-                .listRowBackground(Color.clear)
-                .listRowSeparatorTint(Theme.hairline.resolve(in: environment))
+            NavigationLink(value: session) {
+                PracticeSessionRow(session: session)
+            }
+            .listRowBackground(Color.clear)
+            .listRowSeparatorTint(Theme.hairline.resolve(in: environment))
         }
         .listStyle(.plain)
         .overlay {

@@ -42,6 +42,9 @@ public extension PracticeLibrary {
         guard let object = object(id, as: SongObject.self) else {
             return
         }
+        let parts = NSFetchRequest<PartObject>(entityName: "Part")
+        parts.predicate = NSPredicate(format: "song == %@", object)
+        deletePracticeEntries(ofParts: fetch(parts).map(\.identifier))
         context.delete(object)
         try save()
     }

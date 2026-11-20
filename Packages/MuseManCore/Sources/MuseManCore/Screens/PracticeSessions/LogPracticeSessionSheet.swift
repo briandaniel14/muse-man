@@ -71,7 +71,7 @@ struct DraftEntry: Identifiable {
 
 struct SessionFields: View {
     @Binding var startDate: Date
-    @Binding var minutes: Int?
+    let minutes: Binding<Int?>?
     @Binding var note: String
 
     var body: some View {
@@ -82,10 +82,15 @@ struct SessionFields: View {
                     .fixedSize()
             }
             FieldRow(label: "Duration (minutes)") {
-                TextField("Minutes", text: minutesText)
-                #if os(iOS)
-                    .keyboardType(.numberPad)
-                #endif
+                if let minutes {
+                    TextField("Minutes", text: minutesText(minutes))
+                    #if os(iOS)
+                        .keyboardType(.numberPad)
+                    #endif
+                } else {
+                    Text("Running")
+                        .foregroundStyle(Theme.accent)
+                }
             }
             FieldRow(label: "Note") {
                 TextField("Optional, such as tired, fingers sore", text: $note, axis: .vertical)
@@ -95,11 +100,11 @@ struct SessionFields: View {
         .textFieldStyle(.plain)
     }
 
-    private var minutesText: Binding<String> {
+    private func minutesText(_ minutes: Binding<Int?>) -> Binding<String> {
         Binding {
-            minutes.map(String.init) ?? ""
+            minutes.wrappedValue.map(String.init) ?? ""
         } set: {
-            minutes = Int($0.filter(\.isNumber))
+            minutes.wrappedValue = Int($0.filter(\.isNumber))
         }
     }
 }

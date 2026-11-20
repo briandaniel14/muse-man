@@ -63,6 +63,7 @@ public extension PracticeLibrary {
         guard let object = object(id, as: PartObject.self) else {
             return
         }
+        deletePracticeEntries(ofParts: [object.identifier])
         context.delete(object)
         try save()
     }
