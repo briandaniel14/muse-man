@@ -1,4 +1,4 @@
-# Music Manager
+# muse-man
 
 A practice journal and song library for a musician who plays several instruments: what they've learned, how they're progressing, and what to practise next.
 
@@ -23,7 +23,7 @@ A person who owns Parts and practises them; each person using the app is one Mus
 _Avoid_: User, player, member
 
 **Instrument**:
-An instrument the musician plays, such as guitar, piano or bass.
+An instrument the Musician plays, such as guitar, piano or bass; it lives in one Library or Shared Space, the same one as the Songs whose Parts use it.
 
 **Collection**:
 A named, ordered list of Songs, such as a gig setlist or a repertoire; a Song can be in many Collections within the same Library or Shared Space.
