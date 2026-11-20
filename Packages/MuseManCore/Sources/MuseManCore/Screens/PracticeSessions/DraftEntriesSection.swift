@@ -61,22 +61,24 @@ struct PartMenu: View {
 struct DraftEntryRow: View {
     @Binding var entry: DraftEntry
     let player: AudioPlayer
-    let remove: () -> Void
+    var remove: (() -> Void)?
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack(alignment: .firstTextBaseline) {
                 PartTitle(part: entry.part)
                 Spacer()
-                Button("Remove", systemImage: "xmark", action: remove)
-                    .labelStyle(.iconOnly)
-                    .buttonStyle(.plain)
-                    .foregroundStyle(Theme.fadedInk)
+                if let remove {
+                    Button("Remove", systemImage: "xmark", action: remove)
+                        .labelStyle(.iconOnly)
+                        .buttonStyle(.plain)
+                        .foregroundStyle(Theme.fadedInk)
+                }
             }
-            RatingButtons(selection: $entry.rating)
             TextField("Note, optional", text: $entry.note, axis: .vertical)
                 .textFieldStyle(.plain)
             EntryRecordingField(recordingID: $entry.recordingID, partID: entry.part.id, player: player)
+            RatingButtons(selection: $entry.rating)
         }
         .padding(.vertical, 12)
     }

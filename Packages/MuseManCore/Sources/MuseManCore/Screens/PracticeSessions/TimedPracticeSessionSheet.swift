@@ -96,6 +96,7 @@ struct PendingPartsSection: View {
     let log: (Part, Rating, String, UUID?) -> Void
     let pick: (Part) -> Void
     @State private var player = AudioPlayer()
+    @State private var drafts: [Part.ID: DraftEntry] = [:]
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -113,9 +114,7 @@ struct PendingPartsSection: View {
                     .padding(.vertical, 12)
             }
             ForEach(parts) { part in
-                PendingEntryRow(part: part, player: player) { rating, note, recordingID in
-                    log(part, rating, note, recordingID)
-                }
+                DraftEntryRow(entry: draft(for: part), player: player)
                 Hairline()
             }
         }
@@ -123,34 +122,18 @@ struct PendingPartsSection: View {
             player.stop()
         }
     }
-}
 
-struct PendingEntryRow: View {
-    let part: Part
-    let player: AudioPlayer
-    let log: (Rating, String, UUID?) -> Void
-    @State private var note = ""
-    @State private var recordingID: UUID?
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            PartTitle(part: part)
-            TextField("Note, optional", text: $note, axis: .vertical)
-                .textFieldStyle(.plain)
-            EntryRecordingField(recordingID: $recordingID, partID: part.id, player: player)
-            RatingButtons(selection: rating)
-        }
-        .padding(.vertical, 12)
-    }
-
-    private var rating: Binding<Rating?> {
+    private func draft(for part: Part) -> Binding<DraftEntry> {
         Binding {
-            nil
-        } set: { rating in
-            if let rating {
-                player.stop()
-                log(rating, note.trimmingCharacters(in: .whitespacesAndNewlines), recordingID)
+            drafts[part.id] ?? DraftEntry(part: part)
+        } set: { draft in
+            guard let rating = draft.rating else {
+                drafts[part.id] = draft
+                return
             }
+            player.stop()
+            drafts[part.id] = nil
+            log(part, rating, draft.note.trimmingCharacters(in: .whitespacesAndNewlines), draft.recordingID)
         }
     }
 }
