@@ -4,6 +4,7 @@ struct SongScreen: View {
     @Environment(PracticeLibrary.self) private var library
     @Environment(\.dismiss) private var dismiss
     @State var song: Song
+    @State private var isAddingPart = false
     @State private var isConfirmingDelete = false
 
     var body: some View {
@@ -22,6 +23,16 @@ struct SongScreen: View {
         }
         .onChange(of: song) {
             try? library.updateSong(song)
+        }
+        .toolbar {
+            ToolbarItem(placement: .primaryAction) {
+                Button("Add Part", systemImage: "plus") {
+                    isAddingPart = true
+                }
+            }
+        }
+        .sheet(isPresented: $isAddingPart) {
+            AddPartSheet(song: song)
         }
         .confirmationDialog("Delete \(song.title)?", isPresented: $isConfirmingDelete, titleVisibility: .visible) {
             Button("Delete Song", role: .destructive) {

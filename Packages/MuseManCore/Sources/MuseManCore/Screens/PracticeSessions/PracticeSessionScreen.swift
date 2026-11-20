@@ -11,13 +11,6 @@ struct PracticeSessionScreen: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 32) {
                 SessionFields(startDate: $session.startDate, minutes: minutes, note: $session.note)
-                if session.duration == nil {
-                    Button("Resume Practice Session", systemImage: "timer") {
-                        isResuming = true
-                    }
-                    .buttonStyle(.plain)
-                    .foregroundStyle(Theme.accent)
-                }
                 SessionEntriesSection(sessionID: session.id)
                 Button("Delete Practice Session", role: .destructive) {
                     isConfirmingDelete = true
@@ -30,6 +23,15 @@ struct PracticeSessionScreen: View {
         }
         .onChange(of: session) {
             try? library.updatePracticeSession(session)
+        }
+        .toolbar {
+            if session.duration == nil {
+                ToolbarItem(placement: .primaryAction) {
+                    Button("Resume Practice Session", systemImage: "timer") {
+                        isResuming = true
+                    }
+                }
+            }
         }
         .onChange(of: isGone) {
             if isGone {

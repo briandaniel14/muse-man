@@ -4,6 +4,8 @@ struct PartScreen: View {
     @Environment(PracticeLibrary.self) private var library
     @Environment(\.dismiss) private var dismiss
     @State var part: Part
+    @State private var isRecording = false
+    @State private var isImporting = false
     @State private var isConfirmingDelete = false
 
     var body: some View {
@@ -22,6 +24,19 @@ struct PartScreen: View {
         }
         .onChange(of: part) {
             try? library.updatePart(part)
+        }
+        .toolbar {
+            ToolbarItem(placement: .primaryAction) {
+                AddRecordingMenu(isRecording: $isRecording, isImporting: $isImporting)
+            }
+        }
+        .sheet(isPresented: $isRecording) {
+            RecordSheet { audio in
+                _ = try? library.addRecording(audio: audio, to: part.id)
+            }
+        }
+        .recordingImporter(isPresented: $isImporting) { audio, date in
+            _ = try? library.addRecording(audio: audio, date: date, to: part.id)
         }
         .confirmationDialog(
             "Delete \(part.displayName)?",
