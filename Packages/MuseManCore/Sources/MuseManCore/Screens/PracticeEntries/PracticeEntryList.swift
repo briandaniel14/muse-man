@@ -74,12 +74,7 @@ struct PracticeEntryPartName: View {
 
     var body: some View {
         if let part = library.part(identifier: partID) {
-            VStack(alignment: .leading, spacing: 2) {
-                Text(part.song.title)
-                Text(part.displayName)
-                    .font(Theme.caption)
-                    .foregroundStyle(Theme.fadedInk)
-            }
+            PartTitle(part: part)
         } else {
             Text("Deleted Part")
                 .foregroundStyle(Theme.fadedInk)

@@ -5,13 +5,8 @@ struct SongPartRow: View {
 
     var body: some View {
         HStack(alignment: .firstTextBaseline) {
-            VStack(alignment: .leading, spacing: 2) {
-                Text(part.song.title)
-                    .foregroundStyle(Theme.ink)
-                Text(part.displayName)
-                    .font(Theme.caption)
-                    .foregroundStyle(Theme.fadedInk)
-            }
+            PartTitle(part: part)
+                .foregroundStyle(Theme.ink)
             Spacer()
             Text(part.status.title)
                 .font(Theme.caption)

@@ -66,12 +66,7 @@ struct DraftEntryRow: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack(alignment: .firstTextBaseline) {
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(entry.part.song.title)
-                    Text(entry.part.displayName)
-                        .font(Theme.caption)
-                        .foregroundStyle(Theme.fadedInk)
-                }
+                PartTitle(part: entry.part)
                 Spacer()
                 Button("Remove", systemImage: "xmark", action: remove)
                     .labelStyle(.iconOnly)
