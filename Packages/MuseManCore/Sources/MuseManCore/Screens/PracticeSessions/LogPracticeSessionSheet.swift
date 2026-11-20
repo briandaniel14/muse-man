@@ -3,7 +3,7 @@ import SwiftUI
 struct LogPracticeSessionSheet: View {
     @Environment(PracticeLibrary.self) private var library
     @Environment(\.dismiss) private var dismiss
-    @State private var startDate = Date()
+    @State var startDate: Date
     @State private var minutes: Int? = 30
     @State private var note = ""
     @State private var entries: [DraftEntry] = []
@@ -72,6 +72,7 @@ struct DraftEntry: Identifiable {
 }
 
 struct SessionFields: View {
+    @Environment(PracticeLibrary.self) private var library
     @Binding var startDate: Date
     let minutes: Binding<Int?>?
     @Binding var note: String
@@ -79,7 +80,7 @@ struct SessionFields: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             FieldRow(label: "Started") {
-                DatePicker("Started", selection: $startDate, in: ...Date())
+                DatePicker("Started", selection: $startDate, in: ...library.now())
                     .labelsHidden()
                     .fixedSize()
             }

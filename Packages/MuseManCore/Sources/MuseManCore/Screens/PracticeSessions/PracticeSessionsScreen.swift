@@ -14,7 +14,7 @@ struct PracticeSessionsScreen: View {
                 }
             }
             .sheet(isPresented: $isLoggingSession) {
-                LogPracticeSessionSheet()
+                LogPracticeSessionSheet(startDate: library.now())
             }
             .navigationDestination(for: PracticeSession.self) { session in
                 PracticeSessionScreen(session: session)
