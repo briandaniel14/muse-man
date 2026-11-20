@@ -8,7 +8,7 @@ struct DestinationScreen: View {
         case .practiceNext: PracticeNextScreen()
         case .library: LibraryScreen()
         case .parts: PartsScreen()
-        case .collections: EmptyScreen(destination: .collections)
+        case .collections: CollectionsScreen()
         case .practiceSessions: EmptyScreen(destination: .practiceSessions)
         }
     }

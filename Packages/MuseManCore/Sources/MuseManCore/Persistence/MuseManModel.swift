@@ -9,6 +9,8 @@ enum MuseManModel {
         let instrument = instrumentEntity()
         let part = partEntity()
         let recording = recordingEntity()
+        let collection = collectionEntity()
+        let collectionItem = collectionItemEntity()
 
         relate(
             relationship("resources", to: resource, toMany: true, deleteRule: .cascadeDeleteRule),
@@ -21,6 +23,14 @@ enum MuseManModel {
         relate(
             relationship("parts", to: part, toMany: true),
             inverse: relationship("instrument", to: instrument, toMany: false),
+        )
+        relate(
+            relationship("items", to: collectionItem, toMany: true, deleteRule: .cascadeDeleteRule),
+            inverse: relationship("collection", to: collection, toMany: false),
+        )
+        relate(
+            relationship("collectionItems", to: collectionItem, toMany: true, deleteRule: .cascadeDeleteRule),
+            inverse: relationship("song", to: song, toMany: false),
         )
 
         relate(
@@ -35,6 +45,8 @@ enum MuseManModel {
             instrument,
             part,
             recording,
+            collection,
+            collectionItem,
         ]
         return model
     }
