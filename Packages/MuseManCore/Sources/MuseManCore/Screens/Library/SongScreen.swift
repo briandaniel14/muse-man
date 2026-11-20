@@ -11,6 +11,7 @@ struct SongScreen: View {
             VStack(alignment: .leading, spacing: 32) {
                 SongFields(title: $song.title, artist: $song.artist, key: $song.key, tempo: $song.tempo)
                 SongPartsSection(song: song)
+                SongResourcesSection(songID: song.id)
                 Button("Delete Song", role: .destructive) {
                     isConfirmingDelete = true
                 }

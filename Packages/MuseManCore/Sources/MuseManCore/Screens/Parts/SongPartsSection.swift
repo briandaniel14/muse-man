@@ -20,7 +20,13 @@ struct SongPartsSection: View {
             }
             .padding(.bottom, 4)
             Hairline()
-            ForEach(library.parts(of: song.id)) { part in
+            let parts = library.parts(of: song.id)
+            if parts.isEmpty {
+                Text("No Parts yet")
+                    .foregroundStyle(Theme.fadedInk)
+                    .padding(.vertical, 12)
+            }
+            ForEach(parts) { part in
                 NavigationLink(value: part) {
                     PartRow(part: part)
                 }
