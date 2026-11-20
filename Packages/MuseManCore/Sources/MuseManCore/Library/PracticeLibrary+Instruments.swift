@@ -15,4 +15,24 @@ public extension PracticeLibrary {
         try save()
         return Instrument(object)
     }
+
+    func updateInstrument(_ instrument: Instrument) throws {
+        guard let object = object(instrument.id, as: InstrumentObject.self) else {
+            return
+        }
+        object.name = instrument.name
+        try save()
+    }
+
+    func deleteInstrument(id: Instrument.ID) throws {
+        guard let object = object(id, as: InstrumentObject.self) else {
+            return
+        }
+        let partCount = parts(instrument: id).count
+        if partCount > 0 {
+            throw InstrumentInUseError(partCount: partCount)
+        }
+        context.delete(object)
+        try save()
+    }
 }
