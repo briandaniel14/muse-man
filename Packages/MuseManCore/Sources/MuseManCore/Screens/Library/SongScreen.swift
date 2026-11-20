@@ -29,7 +29,7 @@ struct SongScreen: View {
                 dismiss()
             }
         } message: {
-            Text("Its Parts, Recordings and Resources will be deleted too. This can't be undone.")
+            Text("Its Parts, Recordings and Resources go too, and it leaves its Collections. This can't be undone.")
         }
         .paperScreen(title: song.title.isEmpty ? "Song" : song.title)
     }
