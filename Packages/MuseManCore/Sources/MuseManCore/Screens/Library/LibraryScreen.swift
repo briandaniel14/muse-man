@@ -11,6 +11,9 @@ struct LibraryScreen: View {
             .navigationDestination(for: Song.self) { song in
                 SongScreen(song: song)
             }
+            .navigationDestination(for: Part.self) { part in
+                PartScreen(part: part)
+            }
             .toolbar {
                 ToolbarItem(placement: .primaryAction) {
                     Button("Add Song", systemImage: "plus") {

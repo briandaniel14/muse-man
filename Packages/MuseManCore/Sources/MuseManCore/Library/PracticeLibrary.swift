@@ -33,6 +33,10 @@ import Observation
         return object
     }
 
+    var today: Date {
+        Calendar.current.startOfDay(for: now())
+    }
+
     func save() throws {
         try context.save()
     }
