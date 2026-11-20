@@ -10,6 +10,7 @@ struct PartScreen: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 32) {
                 PartFields(part: $part)
+                PartRecordingsSection(partID: part.id)
                 Button("Delete Part", role: .destructive) {
                     isConfirmingDelete = true
                 }
@@ -31,7 +32,7 @@ struct PartScreen: View {
                 dismiss()
             }
         } message: {
-            Text("This can't be undone.")
+            Text("Its Recordings and practice history will be deleted too. This can't be undone.")
         }
         .paperScreen(title: part.displayName)
     }
