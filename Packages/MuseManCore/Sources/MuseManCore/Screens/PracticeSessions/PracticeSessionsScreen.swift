@@ -16,6 +16,7 @@ struct PracticeSessionsScreen: View {
             .sheet(isPresented: $isLoggingSession) {
                 LogPracticeSessionSheet()
             }
+            .timedPracticeSessionToolbar()
             .paperScreen(title: Destination.practiceSessions.title)
     }
 }
@@ -53,6 +54,10 @@ struct PracticeSessionRow: View {
                     Text(Duration.seconds(duration).formatted(.units(allowed: [.hours, .minutes], width: .abbreviated)))
                         .font(Theme.caption)
                         .foregroundStyle(Theme.fadedInk)
+                } else {
+                    Text("Running")
+                        .font(Theme.caption)
+                        .foregroundStyle(Theme.accent)
                 }
             }
             if !session.note.isEmpty {

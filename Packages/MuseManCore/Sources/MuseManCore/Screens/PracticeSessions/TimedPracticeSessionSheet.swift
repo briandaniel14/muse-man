@@ -1,0 +1,200 @@
+import SwiftUI
+
+struct TimedPracticeSessionSheet: View {
+    @Environment(PracticeLibrary.self) private var library
+    @Environment(\.dismiss) private var dismiss
+    let sessionID: PracticeSession.ID
+    @State private var picked: [Part] = []
+
+    var body: some View {
+        NavigationStack {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 32) {
+                    if let session = library.practiceSession(id: sessionID) {
+                        ElapsedTime(since: session.startDate, isEmpty: entries.isEmpty)
+                    }
+                    PendingPartsSection(parts: pending, log: log) { part in
+                        if !pending.contains(part) {
+                            picked.append(part)
+                        }
+                    }
+                    LoggedEntriesSection(entries: entries)
+                }
+                .padding(.horizontal, Theme.margin)
+                .padding(.bottom, 32)
+            }
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Close") {
+                        dismiss()
+                    }
+                }
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Finish") {
+                        try? library.finishPracticeSession(id: sessionID)
+                        dismiss()
+                    }
+                }
+            }
+            .paperScreen(title: "Practice Session")
+        }
+    }
+
+    private var entries: [PracticeEntry] {
+        library.practiceEntries(in: sessionID)
+    }
+
+    private var pending: [Part] {
+        let due = library.practiceNext()
+        return due + picked.filter { !due.contains($0) }
+    }
+
+    private func log(_ part: Part, _ rating: Rating, _ note: String) {
+        _ = try? library.addPracticeEntry(to: sessionID, part: part.id, rating: rating, note: note)
+        picked.removeAll { $0.id == part.id }
+    }
+}
+
+struct ElapsedTime: View {
+    let since: Date
+    let isEmpty: Bool
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            TimelineView(.periodic(from: .now, by: 1)) { context in
+                Text(elapsed(at: context.date))
+                    .font(Theme.largeTitle)
+                    .monospacedDigit()
+            }
+            Text(caption)
+                .font(Theme.caption)
+                .foregroundStyle(Theme.fadedInk)
+        }
+        .padding(.top, 16)
+    }
+
+    private func elapsed(at date: Date) -> String {
+        Duration.seconds(max(0, date.timeIntervalSince(since))).formatted(.time(pattern: .hourMinuteSecond))
+    }
+
+    private var caption: String {
+        isEmpty
+            ? "Finishing with no Practice Entries discards it"
+            : "Started \(since.formatted(date: .omitted, time: .shortened))"
+    }
+}
+
+struct PendingPartsSection: View {
+    @Environment(PracticeLibrary.self) private var library
+    let parts: [Part]
+    let log: (Part, Rating, String) -> Void
+    let pick: (Part) -> Void
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            HStack(alignment: .firstTextBaseline) {
+                Text("To Practise")
+                    .font(Theme.title)
+                Spacer()
+                PartMenu(parts: library.parts(), choose: pick)
+            }
+            .padding(.bottom, 4)
+            Hairline()
+            if parts.isEmpty {
+                Text("Nothing Due. Add a Part to practise it.")
+                    .foregroundStyle(Theme.fadedInk)
+                    .padding(.vertical, 12)
+            }
+            ForEach(parts) { part in
+                PendingEntryRow(part: part) { rating, note in
+                    log(part, rating, note)
+                }
+                Hairline()
+            }
+        }
+    }
+}
+
+struct PendingEntryRow: View {
+    let part: Part
+    let log: (Rating, String) -> Void
+    @State private var note = ""
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            VStack(alignment: .leading, spacing: 2) {
+                Text(part.song.title)
+                Text(part.displayName)
+                    .font(Theme.caption)
+                    .foregroundStyle(Theme.fadedInk)
+            }
+            TextField("Note, optional", text: $note, axis: .vertical)
+                .textFieldStyle(.plain)
+            RatingButtons(selection: rating)
+        }
+        .padding(.vertical, 12)
+    }
+
+    private var rating: Binding<Rating?> {
+        Binding {
+            nil
+        } set: { rating in
+            if let rating {
+                log(rating, note.trimmingCharacters(in: .whitespacesAndNewlines))
+            }
+        }
+    }
+}
+
+struct LoggedEntriesSection: View {
+    let entries: [PracticeEntry]
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            Text("Logged")
+                .font(Theme.title)
+                .padding(.bottom, 4)
+            Hairline()
+            if entries.isEmpty {
+                Text("Rate a Part to log it")
+                    .foregroundStyle(Theme.fadedInk)
+                    .padding(.vertical, 12)
+            }
+            ForEach(entries) { entry in
+                LoggedEntryRow(entry: entry)
+                Hairline()
+            }
+        }
+    }
+}
+
+struct LoggedEntryRow: View {
+    @Environment(PracticeLibrary.self) private var library
+    let entry: PracticeEntry
+
+    var body: some View {
+        HStack(alignment: .firstTextBaseline) {
+            VStack(alignment: .leading, spacing: 2) {
+                if let part = library.part(identifier: entry.partID) {
+                    Text(part.song.title)
+                    Text(part.displayName)
+                        .font(Theme.caption)
+                        .foregroundStyle(Theme.fadedInk)
+                } else {
+                    Text("Deleted Part")
+                        .foregroundStyle(Theme.fadedInk)
+                }
+                if !entry.note.isEmpty {
+                    Text(entry.note)
+                        .font(Theme.caption)
+                        .foregroundStyle(Theme.fadedInk)
+                }
+            }
+            Spacer()
+            Text(entry.rating.title)
+                .font(Theme.caption)
+                .foregroundStyle(Theme.accent)
+        }
+        .padding(.vertical, 12)
+    }
+}
