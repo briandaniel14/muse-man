@@ -10,7 +10,7 @@ struct DraftEntriesSection: View {
                 Text("Practice Entries")
                     .font(Theme.title)
                 Spacer()
-                PartMenu(parts: library.songs().flatMap { library.parts(of: $0.id) }) { part in
+                PartMenu(parts: library.parts()) { part in
                     entries.append(DraftEntry(part: part))
                 }
             }

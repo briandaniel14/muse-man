@@ -11,3 +11,11 @@ extension Instrument {
         name = object.name ?? ""
     }
 }
+
+public struct InstrumentInUseError: Error, Equatable {
+    public let partCount: Int
+
+    public init(partCount: Int) {
+        self.partCount = partCount
+    }
+}
