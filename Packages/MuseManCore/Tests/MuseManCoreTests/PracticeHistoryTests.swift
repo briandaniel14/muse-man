@@ -84,6 +84,35 @@ struct PracticeHistoryTests {
         #expect(library.practiceSessions().isEmpty)
     }
 
+    @Test func `deleting the only Practice Entry of a finished Practice Session would delete it`() throws {
+        let library = PracticeLibrary.inMemory()
+        let part = try library.addPart(song: "Wonderwall", instrument: "Guitar")
+        let session = try library.addPracticeSession(startDate: TestClock.start, duration: 1800)
+        let entry = try #require(try library.addPracticeEntry(to: session.id, part: part.id, rating: .good))
+
+        #expect(library.deletingPracticeEntryDeletesItsSession(id: entry.id))
+    }
+
+    @Test func `deleting one of several Practice Entries would keep the Practice Session`() throws {
+        let library = PracticeLibrary.inMemory()
+        let guitar = try library.addPart(song: "Wonderwall", instrument: "Guitar")
+        let piano = try library.addPart(song: "Yesterday", instrument: "Piano")
+        let session = try library.addPracticeSession(startDate: TestClock.start, duration: 1800)
+        let entry = try #require(try library.addPracticeEntry(to: session.id, part: guitar.id, rating: .good))
+        try library.addPracticeEntry(to: session.id, part: piano.id, rating: .good)
+
+        #expect(!library.deletingPracticeEntryDeletesItsSession(id: entry.id))
+    }
+
+    @Test func `deleting the only Practice Entry of a running Practice Session would keep it`() throws {
+        let library = PracticeLibrary.inMemory()
+        let part = try library.addPart(song: "Wonderwall", instrument: "Guitar")
+        let session = try library.startPracticeSession()
+        let entry = try #require(try library.addPracticeEntry(to: session.id, part: part.id, rating: .good))
+
+        #expect(!library.deletingPracticeEntryDeletesItsSession(id: entry.id))
+    }
+
     @Test func `deleting the last Practice Entry of a running Practice Session keeps it running`() throws {
         let library = PracticeLibrary.inMemory()
         let part = try library.addPart(song: "Wonderwall", instrument: "Guitar")

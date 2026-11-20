@@ -36,6 +36,13 @@ public extension PracticeLibrary {
         try save()
     }
 
+    func deletingPracticeEntryDeletesItsSession(id: PracticeEntry.ID) -> Bool {
+        guard let object = object(id, as: PracticeEntryObject.self), let session = object.session else {
+            return false
+        }
+        return isFinishedAndEmpty(session, without: object)
+    }
+
     func updatePracticeSession(_ session: PracticeSession) throws {
         guard let object = object(session.id, as: PracticeSessionObject.self) else {
             return
@@ -76,11 +83,13 @@ extension PracticeLibrary {
     }
 
     func deleteFinishedIfEmpty(_ sessions: some Sequence<PracticeSessionObject?>) {
-        for session in Set(sessions.compactMap(\.self)) where session.duration != nil {
-            if session.entries?.allSatisfy(\.isDeleted) ?? true {
-                context.delete(session)
-            }
+        for session in Set(sessions.compactMap(\.self)) where isFinishedAndEmpty(session) {
+            context.delete(session)
         }
+    }
+
+    func isFinishedAndEmpty(_ session: PracticeSessionObject, without removed: PracticeEntryObject? = nil) -> Bool {
+        session.duration != nil && (session.entries ?? []).allSatisfy { $0.isDeleted || $0 == removed }
     }
 
     func deletePracticeEntries(ofParts identifiers: [UUID?]) {

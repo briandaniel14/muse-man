@@ -54,8 +54,7 @@ struct PracticeEntrySheet: View {
     }
 
     private var deleteMessage: String {
-        let isLast = library.practiceSession(id: entry.session)?.duration != nil
-            && library.practiceEntries(in: entry.session).count == 1
+        let isLast = library.deletingPracticeEntryDeletesItsSession(id: entry.id)
         let hasRecording = entry.recordingID.flatMap(library.recording(identifier:)) != nil
         return [
             isLast ? "It's the only Practice Entry in its Practice Session, so that goes too." : nil,
