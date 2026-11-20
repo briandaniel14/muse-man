@@ -66,7 +66,7 @@ struct PracticeSessionTests {
         try library.move(yesterday, to: .learned)
         let session = try library.addPracticeSession(startDate: clock.now, duration: 30 * 60)
 
-        try library.addPracticeEntry(to: session.id, part: wonderwall.id, rating: .good)
+        try library.addPracticeEntry(to: session.id, part: wonderwall.id, rating: .again)
 
         #expect(library.practiceNext().map(\.id) == [yesterday.id])
         #expect(library.part(id: wonderwall.id)?.dueDate == day(2026, 1, 6))
@@ -96,7 +96,7 @@ struct PracticeSessionTests {
             duration: 60 * 60,
         )
 
-        try library.addPracticeEntry(to: session.id, part: part.id, rating: .good)
+        try library.addPracticeEntry(to: session.id, part: part.id, rating: .again)
 
         #expect(library.part(id: part.id)?.dueDate == day(2026, 1, 2))
         #expect(library.practiceNext().map(\.id) == [part.id])

@@ -36,6 +36,14 @@ extension PracticeLibrary {
     }
 
     func dueDate(after reviews: [Review]) -> Date? {
-        reviews.last.flatMap { Calendar.current.date(byAdding: .day, value: 1, to: $0.day) }
+        guard let first = reviews.first, let last = reviews.last else {
+            return nil
+        }
+        var memory = FSRS(rating: first.rating)
+        for (previous, review) in zip(reviews, reviews.dropFirst()) {
+            let elapsed = Calendar.current.dateComponents([.day], from: previous.day, to: review.day).day ?? 0
+            memory.review(review.rating, after: elapsed)
+        }
+        return Calendar.current.date(byAdding: .day, value: memory.interval, to: last.day)
     }
 }
