@@ -8,20 +8,8 @@ public extension PracticeLibrary {
             Part.Status.wantToLearn.rawValue,
             today as NSDate,
         )
-        request.sortDescriptors = [
-            NSSortDescriptor(key: "dueDate", ascending: true),
-            NSSortDescriptor(
-                key: "song.title",
-                ascending: true,
-                selector: #selector(NSString.localizedStandardCompare),
-            ),
-            NSSortDescriptor(
-                key: "instrument.name",
-                ascending: true,
-                selector: #selector(NSString.localizedStandardCompare),
-            ),
-            NSSortDescriptor(key: "label", ascending: true, selector: #selector(NSString.localizedStandardCompare)),
-        ]
+        request.sortDescriptors = [NSSortDescriptor(key: "dueDate", ascending: true)]
+            + localizedOrder("song.title", "instrument.name", "label")
         return fetch(request).compactMap(Part.init)
     }
 }

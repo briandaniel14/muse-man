@@ -7,10 +7,7 @@ public extension PracticeLibrary {
         if !search.isEmpty {
             request.predicate = NSPredicate(format: "title CONTAINS[cd] %@ OR artist CONTAINS[cd] %@", search, search)
         }
-        request.sortDescriptors = [
-            NSSortDescriptor(key: "title", ascending: true, selector: #selector(NSString.localizedStandardCompare)),
-            NSSortDescriptor(key: "artist", ascending: true, selector: #selector(NSString.localizedStandardCompare)),
-        ]
+        request.sortDescriptors = localizedOrder("title", "artist")
         return fetch(request).map(Song.init)
     }
 

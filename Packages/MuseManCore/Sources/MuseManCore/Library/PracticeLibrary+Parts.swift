@@ -4,14 +4,7 @@ public extension PracticeLibrary {
     func parts(of song: Song.ID) -> [Part] {
         let request = NSFetchRequest<PartObject>(entityName: "Part")
         request.predicate = NSPredicate(format: "song == %@", song)
-        request.sortDescriptors = [
-            NSSortDescriptor(
-                key: "instrument.name",
-                ascending: true,
-                selector: #selector(NSString.localizedStandardCompare),
-            ),
-            NSSortDescriptor(key: "label", ascending: true, selector: #selector(NSString.localizedStandardCompare)),
-        ]
+        request.sortDescriptors = localizedOrder("instrument.name", "label")
         return fetch(request).compactMap(Part.init)
     }
 
@@ -21,9 +14,7 @@ public extension PracticeLibrary {
             status.map { NSPredicate(format: "status == %d", $0.rawValue) },
             instrument.map { NSPredicate(format: "instrument == %@", $0) },
         ].compactMap(\.self))
-        request.sortDescriptors = ["song.title", "song.artist", "instrument.name", "label"].map {
-            NSSortDescriptor(key: $0, ascending: true, selector: #selector(NSString.localizedStandardCompare))
-        }
+        request.sortDescriptors = localizedOrder("song.title", "song.artist", "instrument.name", "label")
         return fetch(request).compactMap(Part.init)
     }
 

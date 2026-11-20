@@ -40,4 +40,8 @@ import Observation
     func save() throws {
         try context.save()
     }
+
+    func localizedOrder(_ keys: String...) -> [NSSortDescriptor] {
+        keys.map { NSSortDescriptor(key: $0, ascending: true, selector: #selector(NSString.localizedStandardCompare)) }
+    }
 }

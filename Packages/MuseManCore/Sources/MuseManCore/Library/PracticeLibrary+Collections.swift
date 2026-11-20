@@ -3,9 +3,7 @@ import CoreData
 public extension PracticeLibrary {
     func collections() -> [Collection] {
         let request = NSFetchRequest<CollectionObject>(entityName: "Collection")
-        request.sortDescriptors = [
-            NSSortDescriptor(key: "name", ascending: true, selector: #selector(NSString.localizedStandardCompare)),
-        ]
+        request.sortDescriptors = localizedOrder("name")
         return fetch(request).map(Collection.init)
     }
 
