@@ -1,24 +1,35 @@
 import SwiftUI
 
 struct PracticeEntryList: View {
+    @Environment(PracticeLibrary.self) private var library
     let entries: [PracticeEntry]
     let heading: PracticeEntryRow.Heading
     @State private var editing: PracticeEntry?
+    @State private var player = AudioPlayer()
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             ForEach(entries) { entry in
-                Button {
-                    editing = entry
-                } label: {
-                    PracticeEntryRow(entry: entry, heading: heading)
+                HStack {
+                    Button {
+                        player.stop()
+                        editing = entry
+                    } label: {
+                        PracticeEntryRow(entry: entry, heading: heading)
+                    }
+                    .buttonStyle(.plain)
+                    if let recording = entry.recordingID.flatMap(library.recording(identifier:)) {
+                        PlayRecordingButton(recording: recording, player: player)
+                    }
                 }
-                .buttonStyle(.plain)
                 Hairline()
             }
         }
         .sheet(item: $editing) { entry in
             PracticeEntrySheet(entry: entry)
+        }
+        .onDisappear {
+            player.stop()
         }
     }
 }

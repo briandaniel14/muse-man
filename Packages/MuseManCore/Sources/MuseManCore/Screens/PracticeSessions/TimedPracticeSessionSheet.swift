@@ -49,8 +49,14 @@ struct TimedPracticeSessionSheet: View {
         return due + picked.filter { !due.contains($0) }
     }
 
-    private func log(_ part: Part, _ rating: Rating, _ note: String) {
-        _ = try? library.addPracticeEntry(to: sessionID, part: part.id, rating: rating, note: note)
+    private func log(_ part: Part, _ rating: Rating, _ note: String, _ recordingID: UUID?) {
+        _ = try? library.addPracticeEntry(
+            to: sessionID,
+            part: part.id,
+            rating: rating,
+            note: note,
+            recordingID: recordingID,
+        )
         picked.removeAll { $0.id == part.id }
     }
 }
@@ -87,8 +93,9 @@ struct ElapsedTime: View {
 struct PendingPartsSection: View {
     @Environment(PracticeLibrary.self) private var library
     let parts: [Part]
-    let log: (Part, Rating, String) -> Void
+    let log: (Part, Rating, String, UUID?) -> Void
     let pick: (Part) -> Void
+    @State private var player = AudioPlayer()
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -106,19 +113,24 @@ struct PendingPartsSection: View {
                     .padding(.vertical, 12)
             }
             ForEach(parts) { part in
-                PendingEntryRow(part: part) { rating, note in
-                    log(part, rating, note)
+                PendingEntryRow(part: part, player: player) { rating, note, recordingID in
+                    log(part, rating, note, recordingID)
                 }
                 Hairline()
             }
+        }
+        .onDisappear {
+            player.stop()
         }
     }
 }
 
 struct PendingEntryRow: View {
     let part: Part
-    let log: (Rating, String) -> Void
+    let player: AudioPlayer
+    let log: (Rating, String, UUID?) -> Void
     @State private var note = ""
+    @State private var recordingID: UUID?
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -130,6 +142,7 @@ struct PendingEntryRow: View {
             }
             TextField("Note, optional", text: $note, axis: .vertical)
                 .textFieldStyle(.plain)
+            EntryRecordingField(recordingID: $recordingID, partID: part.id, player: player)
             RatingButtons(selection: rating)
         }
         .padding(.vertical, 12)
@@ -140,7 +153,8 @@ struct PendingEntryRow: View {
             nil
         } set: { rating in
             if let rating {
-                log(rating, note.trimmingCharacters(in: .whitespacesAndNewlines))
+                player.stop()
+                log(rating, note.trimmingCharacters(in: .whitespacesAndNewlines), recordingID)
             }
         }
     }

@@ -1,19 +1,13 @@
 import SwiftUI
 
 struct RecordingRow: View {
-    @Environment(PracticeLibrary.self) private var library
     let recording: Recording
     let player: AudioPlayer
     var onDelete: (() -> Void)?
 
     var body: some View {
         HStack {
-            Button(isPlaying ? "Stop" : "Play", systemImage: isPlaying ? "stop.fill" : "play.fill", action: toggle)
-                .labelStyle(.iconOnly)
-                .frame(minWidth: 44, minHeight: 44)
-                .contentShape(.rect)
-                .buttonStyle(.plain)
-                .foregroundStyle(Theme.accent)
+            PlayRecordingButton(recording: recording, player: player)
             Text(recording.date.formatted(date: .abbreviated, time: .shortened))
                 .frame(maxWidth: .infinity, alignment: .leading)
             if let onDelete {
@@ -26,6 +20,21 @@ struct RecordingRow: View {
             }
         }
         Hairline()
+    }
+}
+
+struct PlayRecordingButton: View {
+    @Environment(PracticeLibrary.self) private var library
+    let recording: Recording
+    let player: AudioPlayer
+
+    var body: some View {
+        Button(isPlaying ? "Stop" : "Play", systemImage: isPlaying ? "stop.fill" : "play.fill", action: toggle)
+            .labelStyle(.iconOnly)
+            .frame(minWidth: 44, minHeight: 44)
+            .contentShape(.rect)
+            .buttonStyle(.plain)
+            .foregroundStyle(Theme.accent)
     }
 
     private var isPlaying: Bool {

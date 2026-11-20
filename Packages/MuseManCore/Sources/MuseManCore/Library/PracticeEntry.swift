@@ -6,7 +6,7 @@ public struct PracticeEntry: Identifiable, Hashable {
     public let partID: UUID
     public var rating: Rating
     public var note: String
-    public let recordingID: UUID?
+    public var recordingID: UUID?
     public let date: Date
     public let day: Date
 }

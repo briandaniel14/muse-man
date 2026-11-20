@@ -48,6 +48,7 @@ public extension PracticeLibrary {
         part: Part.ID,
         rating: Rating,
         note: String = "",
+        recordingID: UUID? = nil,
     ) throws -> PracticeEntry? {
         guard let session = object(session, as: PracticeSessionObject.self),
               let part = object(part, as: PartObject.self),
@@ -60,6 +61,7 @@ public extension PracticeLibrary {
         entry.partID = partID
         entry.rating = rating.rawValue
         entry.note = note
+        entry.recordingID = recordingID
         entry.date = now()
         if part.status == Part.Status.wantToLearn.rawValue {
             part.status = Part.Status.learning.rawValue

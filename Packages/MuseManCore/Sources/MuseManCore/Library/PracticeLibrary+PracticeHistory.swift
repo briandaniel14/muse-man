@@ -20,6 +20,7 @@ public extension PracticeLibrary {
         }
         object.rating = entry.rating.rawValue
         object.note = entry.note
+        object.recordingID = entry.recordingID
         reschedule(partIdentifiers: [object.partID])
         try save()
     }

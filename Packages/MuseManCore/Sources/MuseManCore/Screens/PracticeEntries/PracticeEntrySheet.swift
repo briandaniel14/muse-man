@@ -5,12 +5,13 @@ struct PracticeEntrySheet: View {
     @Environment(\.dismiss) private var dismiss
     @State var entry: PracticeEntry
     @State private var isConfirmingDelete = false
+    @State private var player = AudioPlayer()
 
     var body: some View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 32) {
-                    PracticeEntryFields(entry: $entry)
+                    PracticeEntryFields(entry: $entry, player: player)
                     Button("Delete Practice Entry", role: .destructive) {
                         isConfirmingDelete = true
                     }
@@ -45,6 +46,9 @@ struct PracticeEntrySheet: View {
             } message: {
                 Text(deleteMessage)
             }
+            .onDisappear {
+                player.stop()
+            }
             .paperScreen(title: "Practice Entry")
         }
     }
@@ -52,14 +56,21 @@ struct PracticeEntrySheet: View {
     private var deleteMessage: String {
         let isLast = library.practiceSession(id: entry.session)?.duration != nil
             && library.practiceEntries(in: entry.session).count == 1
-        return isLast
-            ? "It's the only Practice Entry in its Practice Session, so that goes too. This can't be undone."
-            : "This can't be undone."
+        let hasRecording = entry.recordingID.flatMap(library.recording(identifier:)) != nil
+        return [
+            isLast ? "It's the only Practice Entry in its Practice Session, so that goes too." : nil,
+            hasRecording ? "Its Recording stays on the Part." : nil,
+            "This can't be undone.",
+        ]
+        .compactMap(\.self)
+        .joined(separator: " ")
     }
 }
 
 struct PracticeEntryFields: View {
+    @Environment(PracticeLibrary.self) private var library
     @Binding var entry: PracticeEntry
+    let player: AudioPlayer
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -76,6 +87,13 @@ struct PracticeEntryFields: View {
                 TextField("Optional", text: $entry.note, axis: .vertical)
                     .textFieldStyle(.plain)
                     .lineLimit(2...)
+            }
+            FieldRow(label: "Recording") {
+                EntryRecordingField(
+                    recordingID: $entry.recordingID,
+                    partID: library.part(identifier: entry.partID)?.id,
+                    player: player,
+                )
             }
         }
     }

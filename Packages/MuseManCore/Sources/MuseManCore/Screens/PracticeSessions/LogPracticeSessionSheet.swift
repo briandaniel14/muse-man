@@ -56,6 +56,7 @@ struct LogPracticeSessionSheet: View {
                 part: entry.part.id,
                 rating: rating,
                 note: entry.note.trimmingCharacters(in: .whitespacesAndNewlines),
+                recordingID: entry.recordingID,
             )
         }
         try? library.finishPracticeSession(id: session.id)
@@ -67,6 +68,7 @@ struct DraftEntry: Identifiable {
     let part: Part
     var rating: Rating?
     var note = ""
+    var recordingID: UUID?
 }
 
 struct SessionFields: View {
