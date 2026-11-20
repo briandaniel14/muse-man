@@ -10,6 +10,7 @@ let package = Package(
     targets: [
         .target(
             name: "MuseManCore",
+            resources: [.process("Resources")],
             swiftSettings: [.defaultIsolation(MainActor.self)],
         ),
         .testTarget(
