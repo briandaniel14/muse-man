@@ -8,6 +8,8 @@ enum MuseManModel {
         let resource = resourceEntity()
         let instrument = instrumentEntity()
         let part = partEntity()
+        let practiceSession = practiceSessionEntity()
+        let practiceEntry = practiceEntryEntity()
 
         relate(
             relationship("resources", to: resource, toMany: true, deleteRule: .cascadeDeleteRule),
@@ -21,6 +23,10 @@ enum MuseManModel {
             relationship("parts", to: part, toMany: true),
             inverse: relationship("instrument", to: instrument, toMany: false),
         )
+        relate(
+            relationship("entries", to: practiceEntry, toMany: true, deleteRule: .cascadeDeleteRule),
+            inverse: relationship("session", to: practiceSession, toMany: false),
+        )
 
         let model = NSManagedObjectModel()
         model.entities = [
@@ -28,6 +34,8 @@ enum MuseManModel {
             resource,
             instrument,
             part,
+            practiceSession,
+            practiceEntry,
         ]
         return model
     }
