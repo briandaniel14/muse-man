@@ -2,6 +2,8 @@ import MuseManCore
 import SwiftUI
 
 @main struct MyApp: App {
+    @State private var library = PracticeLibrary(container: PersistentStore.app())
+
     init() {
         Fonts.register()
     }
@@ -9,6 +11,7 @@ import SwiftUI
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .environment(library)
         }
     }
 }

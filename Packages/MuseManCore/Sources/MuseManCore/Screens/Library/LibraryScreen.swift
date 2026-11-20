@@ -1,0 +1,49 @@
+import SwiftUI
+
+struct LibraryScreen: View {
+    @Environment(PracticeLibrary.self) private var library
+    @State private var search = ""
+    @State private var isAddingSong = false
+
+    var body: some View {
+        SongList(songs: library.songs(matching: search), isSearching: !search.isEmpty)
+            .searchable(text: $search, prompt: "Title or artist")
+            .navigationDestination(for: Song.self) { song in
+                SongScreen(song: song)
+            }
+            .toolbar {
+                ToolbarItem(placement: .primaryAction) {
+                    Button("Add Song", systemImage: "plus") {
+                        isAddingSong = true
+                    }
+                }
+            }
+            .sheet(isPresented: $isAddingSong) {
+                AddSongSheet()
+            }
+            .paperScreen(title: Destination.library.title)
+    }
+}
+
+struct SongList: View {
+    @Environment(\.self) private var environment
+    let songs: [Song]
+    let isSearching: Bool
+
+    var body: some View {
+        List(songs) { song in
+            NavigationLink(value: song) {
+                SongRow(song: song)
+            }
+            .listRowBackground(Color.clear)
+            .listRowSeparatorTint(Theme.hairline.resolve(in: environment))
+        }
+        .listStyle(.plain)
+        .overlay {
+            if songs.isEmpty {
+                Text(isSearching ? "No matching Songs" : "No Songs yet")
+                    .foregroundStyle(Theme.fadedInk)
+            }
+        }
+    }
+}

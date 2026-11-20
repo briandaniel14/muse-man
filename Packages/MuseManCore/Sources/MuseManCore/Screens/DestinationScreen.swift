@@ -6,7 +6,7 @@ struct DestinationScreen: View {
     var body: some View {
         switch destination {
         case .practiceNext: EmptyScreen(destination: .practiceNext)
-        case .library: EmptyScreen(destination: .library)
+        case .library: LibraryScreen()
         case .parts: EmptyScreen(destination: .parts)
         case .collections: EmptyScreen(destination: .collections)
         case .practiceSessions: EmptyScreen(destination: .practiceSessions)
