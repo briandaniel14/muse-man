@@ -29,11 +29,12 @@ struct PracticeSessionTests {
         try library.addPracticeEntry(to: session.id, part: piano.id, rating: .easy)
 
         let entries = library.practiceEntries(in: session.id)
-        #expect(entries.map(\.partID) == [guitar.identifier, piano.identifier])
+        #expect(entries.map(\.partIdentifier) == [guitar.identifier, piano.identifier])
         #expect(entries.map(\.rating) == [.hard, .easy])
         #expect(entries.map(\.note) == ["chorus strumming", ""])
         #expect(entries.map(\.session) == [session.id, session.id])
-        #expect(entries.compactMap { library.part(identifier: $0.partID)?.instrument.name } == ["Guitar", "Piano"])
+        let instruments = entries.compactMap { library.part(identifier: $0.partIdentifier)?.instrument.name }
+        #expect(instruments == ["Guitar", "Piano"])
     }
 
     @Test func `several Practice Sessions on the same day are kept separate`() throws {
@@ -129,11 +130,11 @@ struct PracticeSessionTests {
         let part = try library.addPart(song: "Wonderwall", instrument: "Guitar")
         let session = try library.addPracticeSession(startDate: TestClock.start, duration: 10 * 60)
         let entry = try #require(try library.addPracticeEntry(to: session.id, part: part.id, rating: .good))
-        #expect(library.part(identifier: entry.partID)?.id == part.id)
+        #expect(library.part(identifier: entry.partIdentifier)?.id == part.id)
 
         try library.deletePart(id: part.id)
 
-        #expect(library.part(identifier: entry.partID) == nil)
+        #expect(library.part(identifier: entry.partIdentifier) == nil)
         #expect(try library.addPracticeEntry(to: session.id, part: part.id, rating: .good) == nil)
     }
 }

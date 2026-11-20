@@ -75,7 +75,7 @@ struct PracticeEntryFields: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             FieldRow(label: "Part") {
-                PracticeEntryPartName(partID: entry.partID)
+                PracticeEntryPartName(partIdentifier: entry.partIdentifier)
             }
             FieldRow(label: "Practised") {
                 Text(entry.day.formatted(date: .complete, time: .omitted))
@@ -91,7 +91,7 @@ struct PracticeEntryFields: View {
             FieldRow(label: "Recording") {
                 EntryRecordingField(
                     recordingID: $entry.recordingID,
-                    partID: library.part(identifier: entry.partID)?.id,
+                    partID: library.part(identifier: entry.partIdentifier)?.id,
                     player: player,
                 )
             }

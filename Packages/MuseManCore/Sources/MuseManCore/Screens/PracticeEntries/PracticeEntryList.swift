@@ -48,7 +48,7 @@ struct PracticeEntryRow: View {
             VStack(alignment: .leading, spacing: 2) {
                 switch heading {
                 case .part:
-                    PracticeEntryPartName(partID: entry.partID)
+                    PracticeEntryPartName(partIdentifier: entry.partIdentifier)
                 case .day:
                     Text(entry.day.formatted(date: .abbreviated, time: .omitted))
                 }
@@ -70,10 +70,10 @@ struct PracticeEntryRow: View {
 
 struct PracticeEntryPartName: View {
     @Environment(PracticeLibrary.self) private var library
-    let partID: UUID
+    let partIdentifier: UUID
 
     var body: some View {
-        if let part = library.part(identifier: partID) {
+        if let part = library.part(identifier: partIdentifier) {
             PartTitle(part: part)
         } else {
             Text("Deleted Part")

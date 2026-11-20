@@ -13,9 +13,9 @@ extension PracticeLibrary {
         part.dueDate = dueDate(after: reviews(of: identifier)) ?? today
     }
 
-    func reviews(of partID: UUID) -> [Review] {
+    func reviews(of partIdentifier: UUID) -> [Review] {
         let request = NSFetchRequest<PracticeEntryObject>(entityName: "PracticeEntry")
-        request.predicate = NSPredicate(format: "partID == %@", partID as NSUUID)
+        request.predicate = NSPredicate(format: "partID == %@", partIdentifier as NSUUID)
         let entries = fetch(request).sorted { order($0) < order($1) }
         var reviews: [Review] = []
         for entry in entries {

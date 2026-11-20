@@ -52,13 +52,13 @@ public extension PracticeLibrary {
     ) throws -> PracticeEntry? {
         guard let session = object(session, as: PracticeSessionObject.self),
               let part = object(part, as: PartObject.self),
-              let partID = part.identifier
+              let partIdentifier = part.identifier
         else {
             return nil
         }
         let entry = PracticeEntryObject(context: context)
         entry.session = session
-        entry.partID = partID
+        entry.partID = partIdentifier
         entry.rating = rating.rawValue
         entry.note = note
         entry.recordingID = recordingID
