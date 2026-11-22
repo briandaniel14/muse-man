@@ -8,10 +8,9 @@ struct DraftEntriesSection: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             HStack(alignment: .firstTextBaseline) {
-                Text("Practice Entries")
-                    .font(Theme.title)
+                SectionTitle("Practice Entries")
                 Spacer()
-                PartMenu(parts: library.parts()) { part in
+                PartPickerButton(excluding: Set(entries.map(\.part.id))) { part in
                     entries.append(DraftEntry(part: part))
                 }
             }
@@ -32,29 +31,6 @@ struct DraftEntriesSection: View {
         .onDisappear {
             player.stop()
         }
-    }
-}
-
-struct PartMenu: View {
-    let parts: [Part]
-    let choose: (Part) -> Void
-
-    var body: some View {
-        Menu {
-            ForEach(parts) { part in
-                Button("\(part.song.title) · \(part.displayName)") {
-                    choose(part)
-                }
-            }
-        } label: {
-            Label("Add Practice Entry", systemImage: "plus")
-                .labelStyle(.iconOnly)
-                .foregroundStyle(Theme.accent)
-        }
-        .menuStyle(.button)
-        .buttonStyle(.plain)
-        .fixedSize()
-        .disabled(parts.isEmpty)
     }
 }
 

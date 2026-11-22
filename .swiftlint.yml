@@ -4,3 +4,10 @@ excluded:
 
 disabled_rules:
   - trailing_comma
+
+custom_rules:
+  no_debug_logging:
+    included: "Packages/MuseManCore/Sources/.*\\.swift"
+    regex: "\\b(print|debugPrint|NSLog)\\("
+    message: "Remove debug logging before committing"
+    severity: error

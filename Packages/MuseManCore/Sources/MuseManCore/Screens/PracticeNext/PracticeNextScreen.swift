@@ -14,7 +14,6 @@ struct PracticeNextScreen: View {
 }
 
 struct DuePartList: View {
-    @Environment(\.self) private var environment
     let parts: [Part]
 
     var body: some View {
@@ -22,8 +21,7 @@ struct DuePartList: View {
             NavigationLink(value: part) {
                 DuePartRow(part: part)
             }
-            .listRowBackground(Color.clear)
-            .listRowSeparatorTint(Theme.hairline.resolve(in: environment))
+            .paperRow()
         }
         .listStyle(.plain)
         .overlay {

@@ -48,7 +48,7 @@ struct ResourceSheet: View {
                     .disabled(url == nil)
                 }
             }
-            .paperScreen(title: resource == nil ? "New Resource" : "Edit Resource")
+            .sheetScreen(title: resource == nil ? "New Resource" : "Edit Resource")
         }
     }
 

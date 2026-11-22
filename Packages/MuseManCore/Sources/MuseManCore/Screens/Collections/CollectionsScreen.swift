@@ -2,7 +2,6 @@ import SwiftUI
 
 struct CollectionsScreen: View {
     @Environment(PracticeLibrary.self) private var library
-    @Environment(\.self) private var environment
     @State private var isAddingCollection = false
 
     var body: some View {
@@ -11,8 +10,7 @@ struct CollectionsScreen: View {
             NavigationLink(value: collection) {
                 CollectionRow(collection: collection)
             }
-            .listRowBackground(Color.clear)
-            .listRowSeparatorTint(Theme.hairline.resolve(in: environment))
+            .paperRow()
         }
         .listStyle(.plain)
         .overlay {
@@ -51,6 +49,7 @@ struct CollectionRow: View {
     var body: some View {
         HStack(alignment: .firstTextBaseline) {
             Text(collection.name)
+                .font(Theme.body)
                 .foregroundStyle(Theme.ink)
             Spacer()
             Text(songCount)

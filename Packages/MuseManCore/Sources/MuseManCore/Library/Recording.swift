@@ -4,6 +4,7 @@ public struct Recording: Identifiable, Hashable {
     public let id: NSManagedObjectID
     public let identifier: UUID
     public let date: Date
+    public let name: String?
     public let part: Part.ID
 }
 
@@ -15,6 +16,7 @@ extension Recording {
         id = object.objectID
         self.identifier = identifier
         self.date = date
+        name = object.name
         self.part = part.objectID
     }
 }

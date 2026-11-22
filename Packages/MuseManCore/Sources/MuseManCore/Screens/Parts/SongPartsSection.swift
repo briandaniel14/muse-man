@@ -3,12 +3,21 @@ import SwiftUI
 struct SongPartsSection: View {
     @Environment(PracticeLibrary.self) private var library
     let song: Song
+    @State private var isAdding = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            Text("Parts")
-                .font(Theme.title)
-                .padding(.bottom, 4)
+            HStack {
+                SectionTitle("Parts")
+                Spacer()
+                Button("Add Part", systemImage: "plus") {
+                    isAdding = true
+                }
+                .labelStyle(.iconOnly)
+                .buttonStyle(.plain)
+                .foregroundStyle(Theme.accent)
+            }
+            .padding(.bottom, 4)
             Hairline()
             let parts = library.parts(of: song.id)
             if parts.isEmpty {
@@ -23,6 +32,9 @@ struct SongPartsSection: View {
                 .buttonStyle(.plain)
                 Hairline()
             }
+        }
+        .sheet(isPresented: $isAdding) {
+            AddPartSheet(song: song)
         }
     }
 }

@@ -4,35 +4,28 @@ struct SongScreen: View {
     @Environment(PracticeLibrary.self) private var library
     @Environment(\.dismiss) private var dismiss
     @State var song: Song
-    @State private var isAddingPart = false
     @State private var isConfirmingDelete = false
 
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 32) {
-                SongFields(title: $song.title, artist: $song.artist, key: $song.key, tempo: $song.tempo)
-                SongPartsSection(song: song)
-                SongResourcesSection(songID: song.id)
-                Button("Delete Song", role: .destructive) {
-                    isConfirmingDelete = true
+            VStack(alignment: .leading, spacing: 0) {
+                SongHero(song: $song)
+                TwoColumns {
+                    SongPartsSection(song: song)
+                } trailing: {
+                    SongResourcesSection(songID: song.id)
                 }
-                .buttonStyle(.plain)
-                .foregroundStyle(.red)
             }
-            .padding(.horizontal, Theme.margin)
         }
         .onChange(of: song) {
             try? library.updateSong(song)
         }
         .toolbar {
-            ToolbarItem(placement: .primaryAction) {
-                Button("Add Part", systemImage: "plus") {
-                    isAddingPart = true
+            MoreMenu {
+                Button("Delete Song", systemImage: "trash", role: .destructive) {
+                    isConfirmingDelete = true
                 }
             }
-        }
-        .sheet(isPresented: $isAddingPart) {
-            AddPartSheet(song: song)
         }
         .confirmationDialog("Delete \(song.title)?", isPresented: $isConfirmingDelete, titleVisibility: .visible) {
             Button("Delete Song", role: .destructive) {
@@ -45,6 +38,49 @@ struct SongScreen: View {
                     + "and it leaves its Collections. This can't be undone.",
             )
         }
-        .paperScreen(title: song.title.isEmpty ? "Song" : song.title)
+        .heroScreen(title: song.title.isEmpty ? "Song" : song.title)
+    }
+}
+
+struct SongHero: View {
+    @Binding var song: Song
+
+    var body: some View {
+        Hero {
+            HStack(alignment: .center, spacing: 24) {
+                VStack(alignment: .leading, spacing: 8) {
+                    HeroTextField(label: "Title", placeholder: "Title", text: $song.title, axis: .vertical)
+                        .font(Theme.heroTitle)
+                    HeroTextField(label: "Artist", placeholder: "Artist", text: $song.artist)
+                        .font(Theme.heroSubtitle)
+                }
+                if let artworkURL = song.artworkURL {
+                    SongArtwork(url: artworkURL, size: 120)
+                        .shadow(radius: 12, y: 6)
+                }
+            }
+            HeroPanel {
+                HStack(alignment: .top, spacing: 48) {
+                    HeroDetail(label: "Key", systemImage: "music.quarternote.3") {
+                        HeroTextField(label: "Key", placeholder: "Add", text: $song.key.orEmpty)
+                    }
+                    .fixedSize()
+                    HeroDetail(label: "Tempo", systemImage: "metronome") {
+                        HStack(alignment: .firstTextBaseline, spacing: 4) {
+                            HeroTextField(label: "Tempo", placeholder: "Add", text: $song.tempo.digits)
+                            #if os(iOS)
+                                .keyboardType(.numberPad)
+                            #endif
+                            Text("BPM")
+                                .font(Theme.caption)
+                                .foregroundStyle(Theme.bandFadedInk)
+                                .fixedSize()
+                        }
+                    }
+                    .fixedSize()
+                }
+            }
+            .fixedSize()
+        }
     }
 }

@@ -5,6 +5,7 @@ import CoreData
     @NSManaged var artist: String?
     @NSManaged var key: String?
     @NSManaged var tempo: NSNumber?
+    @NSManaged var artworkURL: URL?
 }
 
 extension MuseManModel {
@@ -14,6 +15,7 @@ extension MuseManModel {
             attribute("artist", .string),
             attribute("key", .string),
             attribute("tempo", .integer32),
+            attribute("artworkURL", .uri),
         ])
     }
 }

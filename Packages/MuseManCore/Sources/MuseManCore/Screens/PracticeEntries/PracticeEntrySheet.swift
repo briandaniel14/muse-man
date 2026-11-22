@@ -10,17 +10,15 @@ struct PracticeEntrySheet: View {
     var body: some View {
         NavigationStack {
             ScrollView {
-                VStack(alignment: .leading, spacing: 32) {
-                    PracticeEntryFields(entry: $entry, player: player)
-                    Button("Delete Practice Entry", role: .destructive) {
-                        isConfirmingDelete = true
-                    }
-                    .buttonStyle(.plain)
-                    .foregroundStyle(.red)
-                }
-                .padding(.horizontal, Theme.margin)
+                PracticeEntryFields(entry: $entry, player: player)
+                    .padding(.horizontal, Theme.margin)
             }
             .toolbar {
+                MoreMenu(isOnHero: false, placement: .destructiveAction) {
+                    Button("Delete Practice Entry", systemImage: "trash", role: .destructive) {
+                        isConfirmingDelete = true
+                    }
+                }
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") {
                         dismiss()
@@ -49,7 +47,7 @@ struct PracticeEntrySheet: View {
             .onDisappear {
                 player.stop()
             }
-            .paperScreen(title: "Practice Entry")
+            .sheetScreen(title: "Practice Entry")
         }
     }
 

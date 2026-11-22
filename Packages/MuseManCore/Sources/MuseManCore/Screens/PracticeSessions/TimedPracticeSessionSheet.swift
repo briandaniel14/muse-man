@@ -36,7 +36,7 @@ struct TimedPracticeSessionSheet: View {
                     }
                 }
             }
-            .paperScreen(title: "Practice Session")
+            .sheetScreen(title: "Practice Session")
         }
     }
 
@@ -101,10 +101,9 @@ struct PendingPartsSection: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             HStack(alignment: .firstTextBaseline) {
-                Text("To Practise")
-                    .font(Theme.title)
+                SectionTitle("To Practise")
                 Spacer()
-                PartMenu(parts: library.parts(), choose: pick)
+                PartPickerButton(excluding: Set(parts.map(\.id)), choose: pick)
             }
             .padding(.bottom, 4)
             Hairline()
@@ -143,8 +142,7 @@ struct LoggedEntriesSection: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            Text("Logged")
-                .font(Theme.title)
+            SectionTitle("Logged")
                 .padding(.bottom, 4)
             Hairline()
             if entries.isEmpty {

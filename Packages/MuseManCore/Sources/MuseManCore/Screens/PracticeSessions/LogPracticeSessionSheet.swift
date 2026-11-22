@@ -3,7 +3,8 @@ import SwiftUI
 struct LogPracticeSessionSheet: View {
     @Environment(PracticeLibrary.self) private var library
     @Environment(\.dismiss) private var dismiss
-    @State var startDate: Date
+    @State private var hoursAgo: Int? = 0
+    @State private var minutesAgo: Int? = 30
     @State private var minutes: Int? = 30
     @State private var note = ""
     @State private var entries: [DraftEntry] = []
@@ -12,7 +13,7 @@ struct LogPracticeSessionSheet: View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 32) {
-                    SessionFields(startDate: $startDate, minutes: $minutes, note: $note)
+                    SessionFields(hoursAgo: $hoursAgo, minutesAgo: $minutesAgo, minutes: $minutes, note: $note)
                     DraftEntriesSection(entries: $entries)
                 }
                 .padding(.horizontal, Theme.margin)
@@ -31,7 +32,7 @@ struct LogPracticeSessionSheet: View {
                     .disabled(isIncomplete)
                 }
             }
-            .paperScreen(title: "Log Practice Session")
+            .sheetScreen(title: "Log Practice Session")
         }
     }
 
@@ -40,8 +41,9 @@ struct LogPracticeSessionSheet: View {
     }
 
     private func save() {
+        let minutesAgo = (hoursAgo ?? 0) * 60 + (minutesAgo ?? 0)
         guard let session = try? library.addPracticeSession(
-            startDate: startDate,
+            startDate: library.now().addingTimeInterval(-TimeInterval(minutesAgo * 60)),
             duration: TimeInterval((minutes ?? 0) * 60),
             note: note.trimmingCharacters(in: .whitespacesAndNewlines),
         ) else {
@@ -72,42 +74,48 @@ struct DraftEntry: Identifiable {
 }
 
 struct SessionFields: View {
-    @Environment(PracticeLibrary.self) private var library
-    @Binding var startDate: Date
-    let minutes: Binding<Int?>?
+    @Binding var hoursAgo: Int?
+    @Binding var minutesAgo: Int?
+    @Binding var minutes: Int?
     @Binding var note: String
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             FieldRow(label: "Started") {
-                DatePicker("Started", selection: $startDate, in: ...library.now())
-                    .labelsHidden()
-                    .fixedSize()
+                HStack(alignment: .firstTextBaseline, spacing: 8) {
+                    NumberField(value: $hoursAgo)
+                    Text(hoursAgo == 1 ? "hour" : "hours")
+                    NumberField(value: $minutesAgo)
+                    Text(minutesAgo == 1 ? "minute ago" : "minutes ago")
+                }
             }
-            FieldRow(label: "Duration (minutes)") {
-                if let minutes {
-                    TextField("Minutes", text: minutesText(minutes))
-                    #if os(iOS)
-                        .keyboardType(.numberPad)
-                    #endif
-                } else {
-                    Text("Running")
-                        .foregroundStyle(Theme.accent)
+            FieldRow(label: "Duration") {
+                HStack(alignment: .firstTextBaseline, spacing: 8) {
+                    NumberField(value: $minutes)
+                    Text(minutes == 1 ? "minute" : "minutes")
                 }
             }
             FieldRow(label: "Note") {
-                TextField("Optional, such as tired, fingers sore", text: $note, axis: .vertical)
+                TextField("Optional", text: $note, axis: .vertical)
                     .lineLimit(2...)
             }
         }
         .textFieldStyle(.plain)
     }
+}
 
-    private func minutesText(_ minutes: Binding<Int?>) -> Binding<String> {
-        Binding {
-            minutes.wrappedValue.map(String.init) ?? ""
-        } set: {
-            minutes.wrappedValue = Int($0.filter(\.isNumber))
-        }
+struct NumberField: View {
+    @Binding var value: Int?
+
+    var body: some View {
+        TextField("0", text: $value.digits)
+            .textFieldStyle(.plain)
+            .multilineTextAlignment(.center)
+            .frame(width: 48)
+            .padding(.vertical, 4)
+            .background(Theme.sidebar, in: .rect(cornerRadius: 6))
+        #if os(iOS)
+            .keyboardType(.numberPad)
+        #endif
     }
 }

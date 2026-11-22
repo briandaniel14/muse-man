@@ -6,6 +6,7 @@ struct EntryRecordingField: View {
     let partID: Part.ID?
     let player: AudioPlayer
     @State private var isRecording = false
+    @State private var isImporting = false
 
     var body: some View {
         HStack {
@@ -22,6 +23,7 @@ struct EntryRecordingField: View {
                     recordings: library.recordings(of: partID),
                     isAttached: recording != nil,
                     isRecording: $isRecording,
+                    isImporting: $isImporting,
                 ) { identifier in
                     player.stop()
                     recordingID = identifier
@@ -35,6 +37,12 @@ struct EntryRecordingField: View {
                 }
             }
         }
+        .recordingImporter(isPresented: $isImporting) { audio, date in
+            if let partID, let recording = try? library.addRecording(audio: audio, date: date, to: partID) {
+                player.stop()
+                recordingID = recording.identifier
+            }
+        }
     }
 
     private var recording: Recording? {
@@ -46,12 +54,16 @@ struct AttachRecordingMenu: View {
     let recordings: [Recording]
     let isAttached: Bool
     @Binding var isRecording: Bool
+    @Binding var isImporting: Bool
     let attach: (UUID?) -> Void
 
     var body: some View {
         Menu {
             Button("Record", systemImage: "mic") {
                 isRecording = true
+            }
+            Button("Import Audio…", systemImage: "square.and.arrow.down") {
+                isImporting = true
             }
             if !recordings.isEmpty {
                 Section("The Part's Recordings") {

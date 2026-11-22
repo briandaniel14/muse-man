@@ -4,9 +4,11 @@ struct SongRow: View {
     let song: Song
 
     var body: some View {
-        HStack(alignment: .firstTextBaseline) {
+        HStack(spacing: 12) {
+            SongArtwork(url: song.artworkURL, size: 44)
             VStack(alignment: .leading, spacing: 2) {
                 Text(song.title)
+                    .font(Theme.body)
                     .foregroundStyle(Theme.ink)
                 Text(song.artist)
                     .font(Theme.caption)

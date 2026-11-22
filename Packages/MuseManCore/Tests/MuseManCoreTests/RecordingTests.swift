@@ -38,6 +38,38 @@ struct RecordingTests {
         })
     }
 
+    @Test func `a new Recording has no name`() throws {
+        let library = PracticeLibrary.inMemory()
+        let part = try library.addGuitarPart()
+
+        let recording = try #require(try library.addRecording(audio: audio, to: part.id))
+
+        #expect(recording.name == nil)
+    }
+
+    @Test func `a renamed Recording keeps its trimmed name and date`() throws {
+        let library = PracticeLibrary.inMemory()
+        let part = try library.addGuitarPart()
+        let recording = try #require(try library.addRecording(audio: audio, to: part.id))
+
+        try library.renameRecording(id: recording.id, to: "  Solo take 2 ")
+
+        let renamed = try #require(library.recordings(of: part.id).first)
+        #expect(renamed.name == "Solo take 2")
+        #expect(renamed.date == recording.date)
+    }
+
+    @Test func `renaming a Recording to blank clears its name`() throws {
+        let library = PracticeLibrary.inMemory()
+        let part = try library.addGuitarPart()
+        let recording = try #require(try library.addRecording(audio: audio, to: part.id))
+        try library.renameRecording(id: recording.id, to: "Solo take 2")
+
+        try library.renameRecording(id: recording.id, to: "  ")
+
+        #expect(library.recordings(of: part.id).first?.name == nil)
+    }
+
     @Test func `a deleted Recording leaves its Part`() throws {
         let library = PracticeLibrary.inMemory()
         let part = try library.addGuitarPart()

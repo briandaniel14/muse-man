@@ -5,12 +5,14 @@ struct PartsScreen: View {
     @State private var status: Part.Status?
     @State private var instrumentID: Instrument.ID?
     @State private var isManagingInstruments = false
+    @State private var isAddingPart = false
 
     var body: some View {
         let instruments = library.instruments()
         VStack(spacing: 0) {
             PartsFilter(status: $status, instrumentID: $instrumentID, instruments: instruments)
             Hairline()
+                .padding(.horizontal, Theme.margin)
             PartList(
                 parts: library.parts(status: status, instrument: instrumentID),
                 isFiltered: status != nil || instrumentID != nil,
@@ -25,14 +27,20 @@ struct PartsScreen: View {
             PartScreen(part: part)
         }
         .toolbar {
-            ToolbarItem(placement: .primaryAction) {
+            ToolbarItemGroup(placement: .primaryAction) {
                 Button("Instruments", systemImage: "guitars") {
                     isManagingInstruments = true
+                }
+                Button("Add Part", systemImage: "plus") {
+                    isAddingPart = true
                 }
             }
         }
         .sheet(isPresented: $isManagingInstruments) {
             InstrumentsSheet()
+        }
+        .sheet(isPresented: $isAddingPart) {
+            AddPartSheet()
         }
         .paperScreen(title: Destination.parts.title)
     }
@@ -69,7 +77,6 @@ struct PartsFilter: View {
 }
 
 struct PartList: View {
-    @Environment(\.self) private var environment
     let parts: [Part]
     let isFiltered: Bool
 
@@ -78,8 +85,7 @@ struct PartList: View {
             NavigationLink(value: part) {
                 SongPartRow(part: part)
             }
-            .listRowBackground(Color.clear)
-            .listRowSeparatorTint(Theme.hairline.resolve(in: environment))
+            .paperRow()
         }
         .listStyle(.plain)
         .overlay {

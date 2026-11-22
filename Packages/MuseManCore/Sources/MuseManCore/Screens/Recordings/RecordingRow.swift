@@ -3,23 +3,70 @@ import SwiftUI
 struct RecordingRow: View {
     let recording: Recording
     let player: AudioPlayer
+    var file: RecordingFile?
+    var onDownload: (() -> Void)?
     var onDelete: (() -> Void)?
 
     var body: some View {
-        HStack {
+        HStack(spacing: 0) {
             PlayRecordingButton(recording: recording, player: player)
-            Text(recording.date.formatted(date: .abbreviated, time: .shortened))
+            if player.playing == recording.id {
+                PlaybackMeter(player: player)
+                    .padding(.trailing, 10)
+            }
+            RecordingNameField(recording: recording)
                 .frame(maxWidth: .infinity, alignment: .leading)
+            Text(recording.date.formatted(date: .abbreviated, time: .shortened))
+                .font(Theme.caption)
+                .foregroundStyle(Theme.fadedInk)
+                .lineLimit(1)
+                .padding(.horizontal, 8)
+            if let file {
+                ShareLink(item: file, preview: SharePreview(file.fileName)) {
+                    Label("Share Recording", systemImage: "square.and.arrow.up")
+                }
+                .modifier(RecordingRowAction())
+            }
+            if let onDownload {
+                Button("Download Recording", systemImage: "arrow.down", action: onDownload)
+                    .modifier(RecordingRowAction())
+            }
             if let onDelete {
                 Button("Delete Recording", systemImage: "trash", role: .destructive, action: onDelete)
-                    .labelStyle(.iconOnly)
-                    .frame(minWidth: 44, minHeight: 44)
-                    .contentShape(.rect)
-                    .buttonStyle(.plain)
-                    .foregroundStyle(Theme.fadedInk)
+                    .modifier(RecordingRowAction())
             }
         }
         Hairline()
+    }
+}
+
+struct RecordingNameField: View {
+    @Environment(PracticeLibrary.self) private var library
+    let recording: Recording
+    @State private var name = ""
+
+    var body: some View {
+        TextField("Recording name", text: $name, prompt: Text("Untitled").foregroundStyle(Theme.fadedInk))
+            .textFieldStyle(.plain)
+            .onAppear {
+                name = recording.name ?? ""
+            }
+            .onChange(of: name) {
+                if name != (recording.name ?? "") {
+                    try? library.renameRecording(id: recording.id, to: name)
+                }
+            }
+    }
+}
+
+struct RecordingRowAction: ViewModifier {
+    func body(content: Content) -> some View {
+        content
+            .labelStyle(.iconOnly)
+            .frame(minWidth: 44, minHeight: 44)
+            .contentShape(.rect)
+            .buttonStyle(.plain)
+            .foregroundStyle(Theme.fadedInk)
     }
 }
 
@@ -47,5 +94,27 @@ struct PlayRecordingButton: View {
         } else if let audio = library.audio(of: recording.id) {
             try? player.play(audio, of: recording.id)
         }
+    }
+}
+
+struct PlaybackMeter: View {
+    let player: AudioPlayer
+    @State private var levels = Array(repeating: 0.0, count: 10)
+
+    var body: some View {
+        TimelineView(.animation(minimumInterval: 1.0 / 30)) { context in
+            HStack(spacing: 2) {
+                ForEach(levels.indices, id: \.self) { index in
+                    Capsule()
+                        .fill(Theme.accent)
+                        .frame(width: 3, height: 3 + CGFloat(levels[index]) * 19)
+                }
+            }
+            .frame(height: 22)
+            .onChange(of: context.date) {
+                levels = Array(levels.dropFirst()) + [player.level()]
+            }
+        }
+        .accessibilityHidden(true)
     }
 }

@@ -9,8 +9,7 @@ struct SongResourcesSection: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             HStack {
-                Text("Resources")
-                    .font(Theme.title)
+                SectionTitle("Resources")
                 Spacer()
                 Button("Add Resource", systemImage: "plus") {
                     isAdding = true

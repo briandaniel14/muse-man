@@ -55,7 +55,7 @@ struct InstrumentsSheet: View {
             } message: { blocked in
                 Text("^[\(blocked.partCount) Part](inflect: true) still use it. Delete those Parts first.")
             }
-            .paperScreen(title: "Instruments")
+            .sheetScreen(title: "Instruments")
         }
     }
 

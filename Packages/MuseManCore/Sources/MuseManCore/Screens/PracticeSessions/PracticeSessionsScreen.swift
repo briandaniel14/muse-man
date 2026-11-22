@@ -14,7 +14,7 @@ struct PracticeSessionsScreen: View {
                 }
             }
             .sheet(isPresented: $isLoggingSession) {
-                LogPracticeSessionSheet(startDate: library.now())
+                LogPracticeSessionSheet()
             }
             .navigationDestination(for: PracticeSession.self) { session in
                 PracticeSessionScreen(session: session)
@@ -25,7 +25,6 @@ struct PracticeSessionsScreen: View {
 }
 
 struct PracticeSessionList: View {
-    @Environment(\.self) private var environment
     let sessions: [PracticeSession]
 
     var body: some View {
@@ -33,8 +32,7 @@ struct PracticeSessionList: View {
             NavigationLink(value: session) {
                 PracticeSessionRow(session: session)
             }
-            .listRowBackground(Color.clear)
-            .listRowSeparatorTint(Theme.hairline.resolve(in: environment))
+            .paperRow()
         }
         .listStyle(.plain)
         .overlay {
@@ -53,6 +51,7 @@ struct PracticeSessionRow: View {
         VStack(alignment: .leading, spacing: 2) {
             HStack(alignment: .firstTextBaseline) {
                 Text(session.startDate.formatted(date: .abbreviated, time: .shortened))
+                    .font(Theme.body)
                     .foregroundStyle(Theme.ink)
                 Spacer()
                 if let duration = session.duration {

@@ -25,7 +25,7 @@ iOS app built with SwiftUI in Xcode.
 - Prefer simple code over clever abstractions
 
 ## Rules
-- Never edit `project.pbxproj` directly. Tell me when a new file or target needs adding in Xcode.
+- Never edit `muse-man.xcodeproj/project.xcproj` directly. Tell me when a new file or target needs adding in Xcode.
 - Add dependencies via SPM through Xcode, not CocoaPods.
 - After changes, run build, lint and tests, and fix any errors before finishing.
 - Only change whats asked for.

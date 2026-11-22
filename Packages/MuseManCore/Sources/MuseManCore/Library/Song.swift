@@ -6,6 +6,7 @@ public struct Song: Identifiable, Hashable {
     public var artist: String
     public var key: String?
     public var tempo: Int?
+    public var artworkURL: URL?
 }
 
 extension Song {
@@ -15,5 +16,6 @@ extension Song {
         artist = object.artist ?? ""
         key = object.key
         tempo = object.tempo?.intValue
+        artworkURL = object.artworkURL
     }
 }

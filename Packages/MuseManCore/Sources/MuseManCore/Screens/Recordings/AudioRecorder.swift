@@ -3,6 +3,7 @@ import Observation
 
 @Observable final class AudioRecorder {
     private(set) var isRecording = false
+    private(set) var levels: [Float] = []
     @ObservationIgnored private var recorder: AVAudioRecorder?
 
     var currentTime: TimeInterval {
@@ -23,9 +24,20 @@ import Observation
             AVNumberOfChannelsKey: 1,
             AVEncoderAudioQualityKey: AVAudioQuality.high.rawValue,
         ])
+        recorder.isMeteringEnabled = true
         recorder.record()
         self.recorder = recorder
+        levels = []
         isRecording = true
+    }
+
+    func sampleLevel() {
+        guard let recorder else {
+            return
+        }
+        recorder.updateMeters()
+        let power = recorder.averagePower(forChannel: 0)
+        levels.append(min(1, max(0, (power + 60) / 60)))
     }
 
     func stop() throws -> Data? {
@@ -42,6 +54,7 @@ import Observation
         recorder?.stop()
         recorder?.deleteRecording()
         recorder = nil
+        levels = []
         isRecording = false
     }
 }

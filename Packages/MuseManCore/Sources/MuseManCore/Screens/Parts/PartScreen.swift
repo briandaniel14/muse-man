@@ -4,39 +4,27 @@ struct PartScreen: View {
     @Environment(PracticeLibrary.self) private var library
     @Environment(\.dismiss) private var dismiss
     @State var part: Part
-    @State private var isRecording = false
-    @State private var isImporting = false
     @State private var isConfirmingDelete = false
 
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 32) {
-                PartFields(part: $part)
-                PartRecordingsSection(partID: part.id)
-                PartHistorySection(partID: part.id)
-                Button("Delete Part", role: .destructive) {
-                    isConfirmingDelete = true
+            VStack(alignment: .leading, spacing: 0) {
+                PartHero(part: $part)
+                PageColumn {
+                    PartRecordingsSection(part: part)
+                    PartHistorySection(partID: part.id)
                 }
-                .buttonStyle(.plain)
-                .foregroundStyle(.red)
             }
-            .padding(.horizontal, Theme.margin)
         }
         .onChange(of: part) {
             try? library.updatePart(part)
         }
         .toolbar {
-            ToolbarItem(placement: .primaryAction) {
-                AddRecordingMenu(isRecording: $isRecording, isImporting: $isImporting)
+            MoreMenu {
+                Button("Delete Part", systemImage: "trash", role: .destructive) {
+                    isConfirmingDelete = true
+                }
             }
-        }
-        .sheet(isPresented: $isRecording) {
-            RecordSheet { audio in
-                _ = try? library.addRecording(audio: audio, to: part.id)
-            }
-        }
-        .recordingImporter(isPresented: $isImporting) { audio, date in
-            _ = try? library.addRecording(audio: audio, date: date, to: part.id)
         }
         .confirmationDialog(
             "Delete \(part.displayName)?",
@@ -50,31 +38,59 @@ struct PartScreen: View {
         } message: {
             Text("Its Recordings and practice history will be deleted too. This can't be undone.")
         }
-        .paperScreen(title: part.displayName)
+        .heroScreen(title: part.displayName)
     }
 }
 
-struct PartFields: View {
+struct PartHero: View {
     @Binding var part: Part
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            FieldRow(label: "Song") {
-                Text(part.song.title)
-            }
-            FieldRow(label: "Status") {
-                Picker("Status", selection: $part.status) {
-                    ForEach(Part.Status.allCases) { status in
-                        Text(status.title).tag(status)
-                    }
+        Hero {
+            HStack(alignment: .center, spacing: 24) {
+                VStack(alignment: .leading, spacing: 8) {
+                    Text(part.song.title)
+                        .font(Theme.heroTitle)
+                    Text(part.displayName)
+                        .font(Theme.heroSubtitle)
                 }
-                .pickerStyle(.segmented)
-                .labelsHidden()
+                .frame(maxWidth: .infinity, alignment: .leading)
+                if let artworkURL = part.song.artworkURL {
+                    SongArtwork(url: artworkURL, size: 120)
+                        .shadow(radius: 12, y: 6)
+                }
             }
-            FieldRow(label: "Part Note") {
-                TextField("Chord shapes, reminders…", text: $part.note, axis: .vertical)
-                    .textFieldStyle(.plain)
-                    .lineLimit(4...)
+            HeroPanel {
+                HeroDetail(label: "Status", systemImage: "chart.line.uptrend.xyaxis") {
+                    StatusChips(status: $part.status)
+                        .padding(.top, 4)
+                }
+                HeroDetail(label: "Part Note", systemImage: "note.text") {
+                    HeroTextField(
+                        label: "Part Note",
+                        placeholder: "Chord shapes, reminders…",
+                        text: $part.note,
+                        axis: .vertical,
+                    )
+                    .lineLimit(2...)
+                }
+            }
+        }
+    }
+}
+
+struct StatusChips: View {
+    @Binding var status: Part.Status
+
+    var body: some View {
+        HStack(spacing: 8) {
+            ForEach(Part.Status.allCases) { option in
+                Button {
+                    status = option
+                } label: {
+                    HeroChip(title: option.title, isSelected: option == status)
+                }
+                .buttonStyle(.plain)
             }
         }
     }

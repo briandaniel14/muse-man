@@ -13,9 +13,19 @@ import Observation
         #endif
         let player = try AVAudioPlayer(data: audio)
         player.delegate = self
+        player.isMeteringEnabled = true
         player.play()
         self.player = player
         playing = recording
+    }
+
+    func level() -> Double {
+        guard let player else {
+            return 0
+        }
+        player.updateMeters()
+        let decibels = Double(player.averagePower(forChannel: 0))
+        return min(max((decibels + 60) / 60, 0), 1)
     }
 
     func stop() {

@@ -1,0 +1,97 @@
+#!/bin/bash
+set -euo pipefail
+
+ROOT=$(cd "$(dirname "$0")/.." && pwd)
+OUT="$ROOT/.build/mac-app"
+APP="$OUT/DerivedData/Build/Products/Debug/muse-man.app"
+LOG="$OUT/app.log"
+HELPER="$OUT/helper"
+SOURCE="$ROOT/scripts/mac-app-helper.swift"
+
+usage() {
+    cat <<EOF
+usage: scripts/mac-app <command>
+  build             build the macOS app
+  launch            quit any copy this script started, launch fresh, log stdout/stderr
+  quit              quit the app this script launched
+  screenshot [png]  capture the main window (default $OUT/screenshot.png)
+  click <x> <y>     click at pixel x,y of the screenshot PNG (full-size pixels)
+  type <text>       type text into the focused field
+  log               print the app's stdout/stderr since launch
+EOF
+    exit 1
+}
+
+pid() {
+    pgrep -f "$APP/Contents/MacOS/muse-man" | head -1 || true
+}
+
+helper() {
+    if [[ ! -x "$HELPER" || "$SOURCE" -nt "$HELPER" ]]; then
+        mkdir -p "$OUT"
+        swiftc -O -o "$HELPER" "$SOURCE"
+    fi
+    "$HELPER" "$@"
+}
+
+focus() {
+    osascript -e "tell application \"System Events\" to set frontmost of (first process whose unix id is $(pid)) to true"
+    sleep 0.3
+}
+
+running_pid() {
+    local p
+    p=$(pid)
+    [[ -n "$p" ]] || { echo "app not running: scripts/mac-app launch" >&2; exit 1; }
+    echo "$p"
+}
+
+case "${1:-}" in
+build)
+    mkdir -p "$OUT"
+    xcodebuild -project "$ROOT/muse-man.xcodeproj" -scheme muse-man -destination 'platform=macOS' \
+        -derivedDataPath "$OUT/DerivedData" build | xcbeautify --quiet
+    ;;
+launch)
+    pkill -f "$APP/Contents/MacOS/muse-man" || true
+    : >"$LOG"
+    open -n --stdout "$LOG" --stderr "$LOG" "$APP"
+    for _ in $(seq 20); do
+        p=$(pid)
+        if [[ -n "$p" ]] && helper window "$p" >/dev/null 2>&1; then
+            focus
+            echo "launched pid $p, log at $LOG"
+            exit 0
+        fi
+        sleep 0.5
+    done
+    echo "no window after 10s" >&2
+    exit 1
+    ;;
+quit)
+    pkill -f "$APP/Contents/MacOS/muse-man" || true
+    ;;
+screenshot)
+    file="${2:-$OUT/screenshot.png}"
+    screencapture -o -x -l "$(helper window "$(running_pid)")" "$file"
+    echo "$file"
+    ;;
+click)
+    [[ $# -eq 3 ]] || usage
+    p=$(running_pid)
+    focus
+    helper click "$p" "$2" "$3"
+    ;;
+type)
+    [[ $# -eq 2 ]] || usage
+    running_pid >/dev/null
+    focus
+    osascript -e "tell application \"System Events\" to keystroke \"${2//\"/\\\"}\""
+    ;;
+log)
+    cat "$LOG"
+    ;;
+*)
+    usage
+    ;;
+esac

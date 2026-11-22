@@ -25,6 +25,19 @@ struct SongTests {
         #expect(song.tempo == 94)
     }
 
+    @Test func `a Song keeps its artwork`() throws {
+        let library = PracticeLibrary.inMemory()
+        let artwork = try #require(URL(string: "https://example.com/cover.jpg"))
+        let replacement = try #require(URL(string: "https://example.com/other.jpg"))
+
+        var song = try library.addSong(title: "Creep", artist: "Radiohead", artworkURL: artwork)
+        #expect(library.song(id: song.id)?.artworkURL == artwork)
+
+        song.artworkURL = replacement
+        try library.updateSong(song)
+        #expect(library.song(id: song.id)?.artworkURL == replacement)
+    }
+
     @Test func `every Song is listed by title`() throws {
         let library = PracticeLibrary.inMemory()
 

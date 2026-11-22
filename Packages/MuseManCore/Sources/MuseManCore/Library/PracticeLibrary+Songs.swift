@@ -20,9 +20,10 @@ public extension PracticeLibrary {
         artist: String,
         key: String? = nil,
         tempo: Int? = nil,
+        artworkURL: URL? = nil,
     ) throws -> Song {
         let object = SongObject(context: context)
-        object.set(title: title, artist: artist, key: key, tempo: tempo)
+        object.set(title: title, artist: artist, key: key, tempo: tempo, artworkURL: artworkURL)
         try save()
         return Song(object)
     }
@@ -31,7 +32,13 @@ public extension PracticeLibrary {
         guard let object = object(song.id, as: SongObject.self) else {
             return
         }
-        object.set(title: song.title, artist: song.artist, key: song.key, tempo: song.tempo)
+        object.set(
+            title: song.title,
+            artist: song.artist,
+            key: song.key,
+            tempo: song.tempo,
+            artworkURL: song.artworkURL,
+        )
         try save()
     }
 
@@ -48,10 +55,11 @@ public extension PracticeLibrary {
 }
 
 private extension SongObject {
-    func set(title: String, artist: String, key: String?, tempo: Int?) {
+    func set(title: String, artist: String, key: String?, tempo: Int?, artworkURL: URL?) {
         self.title = title
         self.artist = artist
         self.key = key
         self.tempo = tempo.map { NSNumber(value: $0) }
+        self.artworkURL = artworkURL
     }
 }

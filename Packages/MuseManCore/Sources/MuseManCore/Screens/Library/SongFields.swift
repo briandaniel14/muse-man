@@ -15,32 +15,16 @@ struct SongFields: View {
                 TextField("Artist", text: $artist)
             }
             FieldRow(label: "Key") {
-                TextField("Optional", text: keyText)
+                TextField("Optional", text: $key.orEmpty)
             }
             FieldRow(label: "Tempo (BPM)") {
-                TextField("Optional", text: tempoText)
+                TextField("Optional", text: $tempo.digits)
                 #if os(iOS)
                     .keyboardType(.numberPad)
                 #endif
             }
         }
         .textFieldStyle(.plain)
-    }
-
-    private var keyText: Binding<String> {
-        Binding {
-            key ?? ""
-        } set: {
-            key = $0.isEmpty ? nil : $0
-        }
-    }
-
-    private var tempoText: Binding<String> {
-        Binding {
-            tempo.map(String.init) ?? ""
-        } set: {
-            tempo = Int($0.filter(\.isNumber))
-        }
     }
 }
 
@@ -57,5 +41,25 @@ struct FieldRow<Content: View>: View {
         }
         .padding(.vertical, 12)
         Hairline()
+    }
+}
+
+extension Binding<String?> {
+    var orEmpty: Binding<String> {
+        Binding<String> {
+            wrappedValue ?? ""
+        } set: {
+            wrappedValue = $0.isEmpty ? nil : $0
+        }
+    }
+}
+
+extension Binding<Int?> {
+    var digits: Binding<String> {
+        Binding<String> {
+            wrappedValue.map(String.init) ?? ""
+        } set: {
+            wrappedValue = Int($0.filter(\.isNumber))
+        }
     }
 }

@@ -18,6 +18,20 @@ public extension PracticeLibrary {
         return fetch(request).compactMap(Part.init)
     }
 
+    func parts(matching search: String) -> [Part] {
+        let words = search.split(whereSeparator: \.isWhitespace).map(String.init)
+        let request = NSFetchRequest<PartObject>(entityName: "Part")
+        request.predicate = NSCompoundPredicate(andPredicateWithSubpredicates: words.map { word in
+            NSPredicate(
+                format: "song.title CONTAINS[cd] %@ OR song.artist CONTAINS[cd] %@ "
+                    + "OR instrument.name CONTAINS[cd] %@ OR label CONTAINS[cd] %@",
+                word, word, word, word,
+            )
+        })
+        request.sortDescriptors = localizedOrder("song.title", "song.artist", "instrument.name", "label")
+        return fetch(request).compactMap(Part.init)
+    }
+
     func part(id: Part.ID) -> Part? {
         object(id, as: PartObject.self).flatMap(Part.init)
     }

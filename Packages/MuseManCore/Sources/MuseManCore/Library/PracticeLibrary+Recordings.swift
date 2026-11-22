@@ -35,6 +35,15 @@ public extension PracticeLibrary {
         return Recording(object)
     }
 
+    func renameRecording(id: Recording.ID, to name: String) throws {
+        guard let object = object(id, as: RecordingObject.self) else {
+            return
+        }
+        let name = name.trimmingCharacters(in: .whitespaces)
+        object.name = name.isEmpty ? nil : name
+        try save()
+    }
+
     func deleteRecording(id: Recording.ID) throws {
         guard let object = object(id, as: RecordingObject.self) else {
             return

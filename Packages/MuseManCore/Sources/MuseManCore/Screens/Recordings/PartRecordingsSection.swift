@@ -2,28 +2,57 @@ import SwiftUI
 
 struct PartRecordingsSection: View {
     @Environment(PracticeLibrary.self) private var library
-    let partID: Part.ID
+    let part: Part
     @State private var player = AudioPlayer()
     @State private var deleting: Recording?
+    @State private var isRecording = false
+    @State private var isImporting = false
+    @State private var downloading: RecordingFile?
+    @AppStorage("showsPartRecordings") private var isExpanded = true
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            Text("Recordings")
-                .font(Theme.title)
-                .padding(.bottom, 4)
-            Hairline()
-            let recordings = library.recordings(of: partID)
-            if recordings.isEmpty {
-                Text("No Recordings yet")
-                    .foregroundStyle(Theme.fadedInk)
-                    .padding(.vertical, 12)
+            CollapsibleSectionHeader(title: "Recordings", isExpanded: $isExpanded) {
+                AddRecordingMenu(isRecording: $isRecording, isImporting: $isImporting)
+                    .labelStyle(.iconOnly)
+                    .buttonStyle(.plain)
+                    .foregroundStyle(Theme.accent)
+                    .fixedSize()
             }
-            ForEach(recordings) { recording in
-                RecordingRow(recording: recording, player: player) {
-                    deleting = recording
+            if isExpanded {
+                let recordings = library.recordings(of: part.id)
+                if recordings.isEmpty {
+                    Text("No Recordings yet")
+                        .foregroundStyle(Theme.fadedInk)
+                        .padding(.vertical, 12)
+                }
+                ForEach(recordings) { recording in
+                    RecordingRow(recording: recording, player: player, file: file(for: recording)) {
+                        downloading = file(for: recording)
+                    } onDelete: {
+                        deleting = recording
+                    }
                 }
             }
         }
+        .sheet(isPresented: $isRecording) {
+            RecordSheet { audio in
+                _ = try? library.addRecording(audio: audio, to: part.id)
+            }
+        }
+        .recordingImporter(isPresented: $isImporting) { audio, date in
+            _ = try? library.addRecording(audio: audio, date: date, to: part.id)
+        }
+        .fileExporter(
+            isPresented: Binding { downloading != nil } set: {
+                if !$0 {
+                    downloading = nil
+                }
+            },
+            item: downloading,
+            contentTypes: [.audio],
+            defaultFilename: downloading?.fileName,
+        ) { _ in }
         .confirmationDialog(
             "Delete Recording?",
             isPresented: Binding { deleting != nil } set: {
@@ -45,6 +74,17 @@ struct PartRecordingsSection: View {
         }
         .onDisappear {
             player.stop()
+        }
+    }
+
+    private func file(for recording: Recording) -> RecordingFile? {
+        library.audio(of: recording.id).map {
+            RecordingFile(
+                audio: $0,
+                name: recording.name,
+                partName: "\(part.song.title) \(part.displayName)",
+                date: recording.date,
+            )
         }
     }
 }

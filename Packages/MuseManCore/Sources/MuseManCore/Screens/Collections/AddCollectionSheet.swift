@@ -28,7 +28,7 @@ struct AddCollectionSheet: View {
                     .disabled(trimmedName.isEmpty)
                 }
             }
-            .paperScreen(title: "New Collection")
+            .sheetScreen(title: "New Collection")
         }
     }
 

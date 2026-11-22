@@ -3,48 +3,27 @@ import SwiftUI
 struct CollectionScreen: View {
     @Environment(PracticeLibrary.self) private var library
     @Environment(\.dismiss) private var dismiss
-    @Environment(\.self) private var environment
     @State var collection: Collection
-    @State private var isAddingSongs = false
     @State private var isConfirmingDelete = false
 
     var body: some View {
-        List {
-            VStack(alignment: .leading, spacing: 4) {
-                Text("Name")
-                    .font(Theme.caption)
-                    .foregroundStyle(Theme.fadedInk)
-                TextField("Name", text: $collection.name)
-                    .textFieldStyle(.plain)
+        ScrollView {
+            VStack(alignment: .leading, spacing: 0) {
+                CollectionHero(collection: $collection)
+                PageColumn {
+                    CollectionSongs(collectionID: collection.id)
+                }
             }
-            .padding(.vertical, 4)
-            .modifier(CollectionListRowStyle(environment: environment))
-            CollectionSongs(collectionID: collection.id)
-            Button("Delete Collection", role: .destructive) {
-                isConfirmingDelete = true
-            }
-            .buttonStyle(.plain)
-            .foregroundStyle(.red)
-            .padding(.top, 20)
-            .listRowSeparator(.hidden)
-            .listRowBackground(Color.clear)
         }
-        .listStyle(.plain)
         .onChange(of: collection) {
             try? library.updateCollection(collection)
         }
         .toolbar {
-            ToolbarItemGroup(placement: .primaryAction) {
-                #if os(iOS)
-                    EditButton()
-                #endif
-                Button("Add Songs", systemImage: "plus") {
-                    isAddingSongs = true
+            MoreMenu {
+                Button("Delete Collection", systemImage: "trash", role: .destructive) {
+                    isConfirmingDelete = true
                 }
             }
-        }
-        .sheet(isPresented: $isAddingSongs) {
-            AddCollectionSongsSheet(collectionID: collection.id)
         }
         .confirmationDialog(
             "Delete \(collection.name)?",
@@ -58,39 +37,91 @@ struct CollectionScreen: View {
         } message: {
             Text("Its Songs stay in the Library.")
         }
-        .paperScreen(title: collection.name.isEmpty ? "Collection" : collection.name)
+        .heroScreen(title: collection.name.isEmpty ? "Collection" : collection.name)
     }
 }
 
 struct CollectionSongs: View {
     @Environment(PracticeLibrary.self) private var library
-    @Environment(\.self) private var environment
     let collectionID: Collection.ID
 
     var body: some View {
         let songs = library.songs(in: collectionID)
-        Text("Songs")
-            .font(Theme.title)
-            .padding(.top, 20)
-            .modifier(CollectionListRowStyle(environment: environment))
-        if songs.isEmpty {
-            Text("No Songs yet")
-                .foregroundStyle(Theme.fadedInk)
-                .modifier(CollectionListRowStyle(environment: environment))
-        }
-        ForEach(songs) { song in
-            NavigationLink(value: song) {
-                CollectionSongRow(song: song)
-            }
-            .swipeActions {
-                Button("Remove", systemImage: "minus.circle", role: .destructive) {
-                    try? library.removeSong(song.id, from: collectionID)
+        VStack(alignment: .leading, spacing: 0) {
+            HStack {
+                SectionTitle("Songs")
+                Spacer()
+                AddPopoverButton(title: "Add Songs") {
+                    SearchPicker(
+                        prompt: "Title or artist",
+                        emptyText: "Every Song is in this Collection",
+                        items: { search in
+                            library.songs(matching: search).filter { !songs.map(\.id).contains($0.id) }
+                        },
+                        choose: { song in
+                            try? library.addSong(song.id, to: collectionID)
+                        },
+                        label: { song in
+                            SongRow(song: song)
+                        },
+                    )
                 }
             }
-            .modifier(CollectionListRowStyle(environment: environment))
+            .padding(.bottom, 4)
+            Hairline()
+            if songs.isEmpty {
+                Text("No Songs yet")
+                    .foregroundStyle(Theme.fadedInk)
+                    .padding(.vertical, 12)
+            }
+            ForEach(Array(songs.enumerated()), id: \.element.id) { index, song in
+                NavigationLink(value: song) {
+                    CollectionSongRow(song: song)
+                        .padding(.vertical, 12)
+                        .contentShape(.rect)
+                }
+                .buttonStyle(.plain)
+                .draggable(song.dragIdentifier)
+                .dropDestination(for: String.self) { identifiers, _ in
+                    move(identifiers.first, to: index, in: songs)
+                }
+                .contextMenu {
+                    Button("Remove from Collection", systemImage: "minus.circle", role: .destructive) {
+                        try? library.removeSong(song.id, from: collectionID)
+                    }
+                }
+                Hairline()
+            }
         }
-        .onMove { offsets, destination in
-            try? library.moveSongs(in: collectionID, fromOffsets: offsets, toOffset: destination)
+    }
+
+    private func move(_ identifier: String?, to index: Int, in songs: [Song]) -> Bool {
+        guard let source = songs.firstIndex(where: { $0.dragIdentifier == identifier }), source != index else {
+            return false
+        }
+        try? library.moveSongs(in: collectionID, fromOffsets: [source], toOffset: index > source ? index + 1 : index)
+        return true
+    }
+}
+
+private extension Song {
+    var dragIdentifier: String {
+        id.uriRepresentation().absoluteString
+    }
+}
+
+struct CollectionHero: View {
+    @Environment(PracticeLibrary.self) private var library
+    @Binding var collection: Collection
+
+    var body: some View {
+        Hero {
+            VStack(alignment: .leading, spacing: 8) {
+                HeroTextField(label: "Name", placeholder: "Name", text: $collection.name, axis: .vertical)
+                    .font(Theme.heroTitle)
+                Text("^[\(library.songs(in: collection.id).count) Song](inflect: true)")
+                    .font(Theme.heroSubtitle)
+            }
         }
     }
 }
@@ -119,15 +150,5 @@ struct CollectionSongRow: View {
             }
         }
         .padding(.bottom, 4)
-    }
-}
-
-struct CollectionListRowStyle: ViewModifier {
-    let environment: EnvironmentValues
-
-    func body(content: Content) -> some View {
-        content
-            .listRowBackground(Color.clear)
-            .listRowSeparatorTint(Theme.hairline.resolve(in: environment))
     }
 }

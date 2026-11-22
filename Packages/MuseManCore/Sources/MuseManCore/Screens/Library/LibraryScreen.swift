@@ -29,7 +29,6 @@ struct LibraryScreen: View {
 }
 
 struct SongList: View {
-    @Environment(\.self) private var environment
     let songs: [Song]
     let isSearching: Bool
 
@@ -38,8 +37,7 @@ struct SongList: View {
             NavigationLink(value: song) {
                 SongRow(song: song)
             }
-            .listRowBackground(Color.clear)
-            .listRowSeparatorTint(Theme.hairline.resolve(in: environment))
+            .paperRow()
         }
         .listStyle(.plain)
         .overlay {
