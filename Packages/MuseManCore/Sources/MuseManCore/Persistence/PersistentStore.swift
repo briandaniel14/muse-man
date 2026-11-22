@@ -5,10 +5,16 @@ public enum PersistentStore {
     public static let cloudKitContainerIdentifier = "iCloud.com.briandaniel.museman"
 
     public static func app() -> NSPersistentCloudKitContainer {
-        container(
+        let container = container(
             storeURL: NSPersistentContainer.defaultDirectoryURL().appending(path: "Private.sqlite"),
             cloudKitContainerIdentifier: cloudKitContainerIdentifier,
         )
+        #if DEBUG
+            if ProcessInfo.processInfo.arguments.contains("-initializeCloudKitSchema") {
+                try? container.initializeCloudKitSchema()
+            }
+        #endif
+        return container
     }
 
     public static func container(
