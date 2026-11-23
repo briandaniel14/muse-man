@@ -53,7 +53,7 @@ struct PracticeEntrySheet: View {
 
     private var deleteMessage: String {
         let isLast = library.deletingPracticeEntryDeletesItsSession(id: entry.id)
-        let hasRecording = entry.recordingID.flatMap(library.recording(identifier:)) != nil
+        let hasRecording = entry.recording != nil
         return [
             isLast ? "It's the only Practice Entry in its Practice Session, so that goes too." : nil,
             hasRecording ? "Its Recording stays on the Part." : nil,
@@ -65,14 +65,13 @@ struct PracticeEntrySheet: View {
 }
 
 struct PracticeEntryFields: View {
-    @Environment(PracticeLibrary.self) private var library
     @Binding var entry: PracticeEntry
     let player: AudioPlayer
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             FieldRow(label: "Part") {
-                PracticeEntryPartName(partIdentifier: entry.partIdentifier)
+                PracticeEntryPartName(part: entry.part)
             }
             FieldRow(label: "Practised") {
                 Text(entry.day.formatted(date: .complete, time: .omitted))
@@ -87,8 +86,8 @@ struct PracticeEntryFields: View {
             }
             FieldRow(label: "Recording") {
                 EntryRecordingField(
-                    recordingID: $entry.recordingID,
-                    partID: library.part(identifier: entry.partIdentifier)?.id,
+                    recording: $entry.recording,
+                    partID: entry.part?.id,
                     player: player,
                 )
             }

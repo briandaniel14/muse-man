@@ -14,7 +14,7 @@ struct EntryRecordingTests {
         try library.addPracticeEntry(to: session.id, part: part.id, rating: .good, recordingID: recording.identifier)
 
         let entry = try #require(library.practiceEntries(of: part.id).first)
-        let attached = try #require(entry.recordingID.flatMap(library.recording(identifier:)))
+        let attached = try #require(entry.recording)
         #expect(attached.id == recording.id)
         #expect(library.audio(of: attached.id) == audio)
         #expect(library.recordings(of: part.id).map(\.id) == [recording.id])
@@ -29,15 +29,15 @@ struct EntryRecordingTests {
         try library.addRecording(audio: audio, to: part.id)
         let session = try library.addPracticeSession(startDate: clock.now, duration: 1800)
         var entry = try #require(try library.addPracticeEntry(to: session.id, part: part.id, rating: .hard))
-        #expect(entry.recordingID == nil)
+        #expect(entry.recording == nil)
 
-        entry.recordingID = older.identifier
+        entry.recording = older
         try library.updatePracticeEntry(entry)
-        #expect(library.practiceEntries(of: part.id).first?.recordingID == older.identifier)
+        #expect(library.practiceEntries(of: part.id).first?.recording?.id == older.id)
 
-        entry.recordingID = nil
+        entry.recording = nil
         try library.updatePracticeEntry(entry)
-        #expect(library.practiceEntries(of: part.id).first?.recordingID == nil)
+        #expect(library.practiceEntries(of: part.id).first?.recording == nil)
         #expect(library.recordings(of: part.id).count == 2)
     }
 
@@ -94,7 +94,8 @@ struct EntryRecordingTests {
         #expect(shown.id == entry.id)
         #expect(shown.note == "rushed the chorus")
         #expect(library.practiceEntries(in: session.id).map(\.id) == [entry.id])
-        #expect(shown.recordingID.flatMap(library.recording(identifier:)) == nil)
+        #expect(shown.part?.id == part.id)
+        #expect(shown.recording == nil)
     }
 }
 

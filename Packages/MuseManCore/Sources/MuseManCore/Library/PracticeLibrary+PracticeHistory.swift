@@ -11,7 +11,7 @@ public extension PracticeLibrary {
             NSSortDescriptor(key: "session.startDate", ascending: false),
             NSSortDescriptor(key: "date", ascending: false),
         ]
-        return fetch(request).compactMap(PracticeEntry.init)
+        return practiceEntries(fetch(request))
     }
 
     func updatePracticeEntry(_ entry: PracticeEntry) throws {
@@ -72,6 +72,32 @@ public extension PracticeLibrary {
 }
 
 extension PracticeLibrary {
+    func practiceEntries(_ objects: [PracticeEntryObject]) -> [PracticeEntry] {
+        let parts = parts(identifiers: objects.compactMap(\.partID))
+        let recordings = recordings(identifiers: objects.compactMap(\.recordingID))
+        return objects.compactMap { PracticeEntry($0, parts: parts, recordings: recordings) }
+    }
+
+    private func parts(identifiers: [UUID]) -> [UUID: Part] {
+        guard !identifiers.isEmpty else {
+            return [:]
+        }
+        let request = NSFetchRequest<PartObject>(entityName: "Part")
+        request.predicate = NSPredicate(format: "identifier IN %@", identifiers.map { $0 as NSUUID })
+        let parts = fetch(request).compactMap(Part.init)
+        return Dictionary(parts.map { ($0.identifier, $0) }) { first, _ in first }
+    }
+
+    private func recordings(identifiers: [UUID]) -> [UUID: Recording] {
+        guard !identifiers.isEmpty else {
+            return [:]
+        }
+        let request = NSFetchRequest<RecordingObject>(entityName: "Recording")
+        request.predicate = NSPredicate(format: "identifier IN %@", identifiers.map { $0 as NSUUID })
+        let recordings = fetch(request).compactMap(Recording.init)
+        return Dictionary(recordings.map { ($0.identifier, $0) }) { first, _ in first }
+    }
+
     func reschedule(partIdentifiers: some Sequence<UUID?>) {
         let identifiers = Set(partIdentifiers.compactMap(\.self))
         guard !identifiers.isEmpty else {
