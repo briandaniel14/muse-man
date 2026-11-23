@@ -7,14 +7,24 @@ public struct CatalogSong: Identifiable, Hashable {
     public let artist: String
     public let album: String?
     public let artworkURL: URL?
+    public let thumbnailURL: URL?
     public let isrc: String?
 
-    public init(id: String, title: String, artist: String, album: String?, artworkURL: URL?, isrc: String?) {
+    public init(
+        id: String,
+        title: String,
+        artist: String,
+        album: String?,
+        artworkURL: URL?,
+        thumbnailURL: URL? = nil,
+        isrc: String?,
+    ) {
         self.id = id
         self.title = title
         self.artist = artist
         self.album = album
         self.artworkURL = artworkURL
+        self.thumbnailURL = thumbnailURL
         self.isrc = isrc
     }
 }
@@ -35,6 +45,7 @@ extension CatalogSong {
         artist = song.artistName
         album = song.albumTitle
         artworkURL = song.artwork?.url(width: 600, height: 600)
+        thumbnailURL = song.artwork?.url(width: 132, height: 132)
         isrc = song.isrc
     }
 }
