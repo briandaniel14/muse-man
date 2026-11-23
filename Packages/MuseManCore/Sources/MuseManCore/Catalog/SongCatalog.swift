@@ -3,17 +3,17 @@ import MusicKit
 
 enum SongCatalog {
     static func search(_ term: String) async -> [CatalogSong] {
-        guard await isAuthorized() else {
+        guard await requestAuthorization() else {
             return []
         }
         return await songs(matching: term, limit: 15)
     }
 
     static func warmUp() async {
-        guard MusicAuthorization.currentStatus == .authorized else {
+        guard isAuthorized else {
             return
         }
-        _ = await songs(matching: "song", limit: 1)
+        _ = await songs(matching: warmUpTerm, limit: 1)
     }
 
     static func details(isrcs: [String]) async -> SongDetails? {
@@ -29,8 +29,14 @@ enum SongCatalog {
 }
 
 private extension SongCatalog {
-    static func isAuthorized() async -> Bool {
-        if MusicAuthorization.currentStatus == .authorized {
+    static let warmUpTerm = "song"
+
+    static var isAuthorized: Bool {
+        MusicAuthorization.currentStatus == .authorized
+    }
+
+    static func requestAuthorization() async -> Bool {
+        if isAuthorized {
             return true
         }
         return await MusicAuthorization.request() == .authorized
