@@ -108,6 +108,20 @@ struct DraftRecordingTests {
         #expect(library.recordings(of: part.id).map(\.id) == [made.id])
         #expect(library.audio(of: made.id) == audio)
     }
+
+    @Test func `rating a draft in a timed Practice Session keeps the Recording made for it`() throws {
+        let library = PracticeLibrary.inMemory()
+        let part = try library.addGuitarPart()
+        let session = try library.startPracticeSession()
+        var draft = PracticeEntryDraft(part: part, rating: .hard)
+        try library.replaceRecording(of: &draft, withAudio: audio)
+        let made = try #require(draft.recording)
+
+        try library.logPracticeEntry(draft, in: session.id)
+
+        #expect(library.practiceEntries(in: session.id).first?.recording?.id == made.id)
+        #expect(library.recordings(of: part.id).map(\.id) == [made.id])
+    }
 }
 
 private extension PracticeLibrary {

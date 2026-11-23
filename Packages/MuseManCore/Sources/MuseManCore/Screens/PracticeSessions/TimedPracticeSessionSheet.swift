@@ -15,10 +15,8 @@ struct TimedPracticeSessionSheet: View {
                     if let session = library.practiceSession(id: sessionID) {
                         ElapsedTime(since: session.startDate, isEmpty: entries.isEmpty)
                     }
-                    PendingPartsSection(parts: pending, drafts: $drafts, log: log) { part in
-                        if !pending.contains(part) {
-                            picked.append(part)
-                        }
+                    PendingPartsSection(parts: toPractise, drafts: $drafts, logged: entries, log: log) { part in
+                        picked.append(part)
                     }
                     LoggedEntriesSection(entries: entries)
                 }
@@ -53,20 +51,12 @@ struct TimedPracticeSessionSheet: View {
         library.practiceEntries(in: sessionID)
     }
 
-    private var pending: [Part] {
-        let due = library.practiceNext()
-        return due + picked.filter { !due.contains($0) }
+    private var toPractise: [Part] {
+        library.partsToPractise(in: sessionID, picked: picked)
     }
 
-    private func log(_ part: Part, _ rating: Rating, _ note: String, _ recordingID: UUID?) {
-        _ = try? library.addPracticeEntry(
-            to: sessionID,
-            part: part.id,
-            rating: rating,
-            note: note,
-            recordingID: recordingID,
-        )
-        picked.removeAll { $0.id == part.id }
+    private func log(_ draft: PracticeEntryDraft) {
+        _ = try? library.logPracticeEntry(draft, in: sessionID)
     }
 }
 
@@ -103,7 +93,8 @@ struct PendingPartsSection: View {
     @Environment(PracticeLibrary.self) private var library
     let parts: [Part]
     @Binding var drafts: [Part.ID: PracticeEntryDraft]
-    let log: (Part, Rating, String, UUID?) -> Void
+    let logged: [PracticeEntry]
+    let log: (PracticeEntryDraft) -> Void
     let pick: (Part) -> Void
 
     var body: some View {
@@ -111,7 +102,7 @@ struct PendingPartsSection: View {
             HStack(alignment: .firstTextBaseline) {
                 SectionTitle("To Practise")
                 Spacer()
-                PartPickerButton(excluding: Set(parts.map(\.id)), choose: pick)
+                PartPickerButton(excluding: excluded, choose: pick)
             }
             .padding(.bottom, 4)
             Hairline()
@@ -122,21 +113,25 @@ struct PendingPartsSection: View {
             }
             ForEach(parts) { part in
                 DraftEntryRow(entry: draft(for: part))
+                    .onChange(of: drafts[part.id]?.rating) { _, rating in
+                        if rating != nil, let draft = drafts.removeValue(forKey: part.id) {
+                            log(draft)
+                        }
+                    }
                 Hairline()
             }
         }
+    }
+
+    private var excluded: Set<Part.ID> {
+        Set(parts.map(\.id) + logged.compactMap(\.part?.id))
     }
 
     private func draft(for part: Part) -> Binding<PracticeEntryDraft> {
         Binding {
             drafts[part.id] ?? PracticeEntryDraft(part: part)
         } set: { draft in
-            guard let rating = draft.rating else {
-                drafts[part.id] = draft
-                return
-            }
-            drafts[part.id] = nil
-            log(part, rating, draft.note.trimmingCharacters(in: .whitespacesAndNewlines), draft.recording?.identifier)
+            drafts[part.id] = draft
         }
     }
 }
