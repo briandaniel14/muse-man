@@ -8,10 +8,12 @@ description: Run, screenshot, click and type in the muse-man macOS app, and read
 ## Loop
 
 1. `scripts/mac-app build`, then `scripts/mac-app launch` (see Stores for `--scratch`).
-2. `scripts/mac-app screenshot` prints a PNG path; Read it.
+2. `scripts/mac-app screenshot <name>` prints a PNG path; Read it. Shots land outside the repo, per branch, so they survive worktree cleanup: name them after what they show (`after-song-screen`) and quote the paths in your report as evidence.
 3. `scripts/mac-app click <x> <y>` takes full-size PNG pixels. When the Read result says "multiply coordinates by N", multiply the displayed coordinates by N first.
 4. `scripts/mac-app type "<text>"` types into the focused field. Wait for network-backed results before the next screenshot: Apple Music search takes up to 9 seconds.
 5. `scripts/mac-app quit` when done.
+
+On "screen locked", stop and ask the user to unlock the Mac: nothing can be captured until they do.
 
 ## Diagnosing
 

@@ -6,6 +6,7 @@ OUT="$ROOT/.build/mac-app"
 APP="$OUT/DerivedData/Build/Products/Debug/muse-man.app"
 LOG="$OUT/app.log"
 HELPER="$OUT/helper"
+SHOTS="${TMPDIR:-/tmp}"; SHOTS="${SHOTS%/}/muse-man-screenshots/$(git -C "$ROOT" branch --show-current 2>/dev/null || true)"
 SOURCE="$ROOT/scripts/mac-app-helper.swift"
 
 usage() {
@@ -15,7 +16,8 @@ usage: scripts/mac-app <command>
   launch [--scratch]  quit any copy this script started, launch fresh, log stdout/stderr;
                     --scratch opens a seeded in-memory store instead of the real one
   quit              quit the app this script launched
-  screenshot [png]  capture the main window (default $OUT/screenshot.png)
+  screenshot [name] capture the main window to $SHOTS/<name>.png
+                    (outside the repo, so it survives worktree cleanup; default name is a timestamp)
   click <x> <y>     click at pixel x,y of the screenshot PNG (full-size pixels)
   type <text>       type text into the focused field
   log               print the app's stdout/stderr since launch
@@ -36,8 +38,22 @@ helper() {
 }
 
 focus() {
-    osascript -e "tell application \"System Events\" to set frontmost of (first process whose unix id is $(pid)) to true"
-    sleep 0.3
+    local p
+    p=$(pid)
+    for _ in 1 2 3; do
+        osascript -e "tell application \"System Events\" to set frontmost of (first process whose unix id is $p) to true"
+        sleep 0.3
+        helper front "$p" && return 0
+    done
+    echo "another app keeps taking focus; is another agent driving its own copy?" >&2
+    exit 1
+}
+
+unlocked() {
+    if helper locked; then
+        echo "screen locked: ask the user to unlock the Mac" >&2
+        exit 1
+    fi
 }
 
 running_pid() {
@@ -54,6 +70,7 @@ build)
         -derivedDataPath "$OUT/DerivedData" build | xcbeautify --quiet
     ;;
 launch)
+    unlocked
     pkill -f "$APP/Contents/MacOS/muse-man" || true
     : >"$LOG"
     args=()
@@ -75,19 +92,24 @@ quit)
     pkill -f "$APP/Contents/MacOS/muse-man" || true
     ;;
 screenshot)
-    file="${2:-$OUT/screenshot.png}"
+    unlocked
+    mkdir -p "$SHOTS"
+    file="$SHOTS/${2:-$(date +%H%M%S)}"
+    [[ "$file" == *.png ]] || file="$file.png"
     screencapture -o -x -l "$(helper window "$(running_pid)")" "$file"
     echo "$file"
     ;;
 click)
     [[ $# -eq 3 ]] || usage
     p=$(running_pid)
+    unlocked
     focus
     helper click "$p" "$2" "$3"
     ;;
 type)
     [[ $# -eq 2 ]] || usage
     running_pid >/dev/null
+    unlocked
     focus
     osascript -e "tell application \"System Events\" to keystroke \"${2//\"/\\\"}\""
     ;;

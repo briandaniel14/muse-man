@@ -19,14 +19,23 @@ func mainWindow(pid: Int32) -> (id: Int, bounds: CGRect)? {
 }
 
 let arguments = CommandLine.arguments.dropFirst().map(\.self)
+
+if arguments.first == "locked" {
+    let session = CGSessionCopyCurrentDictionary() as? [String: Any]
+    exit(session?["CGSSessionScreenIsLocked"] as? Bool == true ? 0 : 1)
+}
+
 guard let pid = arguments.dropFirst().first.flatMap(Int32.init), let window = mainWindow(pid: pid) else {
-    FileHandle.standardError.write(Data("usage: helper window <pid> | click <pid> <x> <y>; no window found\n".utf8))
+    let usage = "usage: helper locked | window <pid> | front <pid> | click <pid> <x> <y>; no window found\n"
+    FileHandle.standardError.write(Data(usage.utf8))
     exit(1)
 }
 
 switch arguments.first {
 case "window":
     print(window.id)
+case "front":
+    exit(NSWorkspace.shared.frontmostApplication?.processIdentifier == pid ? 0 : 1)
 case "click":
     let scale = NSScreen.main?.backingScaleFactor ?? 2
     let point = CGPoint(

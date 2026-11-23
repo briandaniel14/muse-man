@@ -1,6 +1,7 @@
 excluded:
   - "**/.build"
   - DerivedData
+  - .claude/worktrees
 
 disabled_rules:
   - trailing_comma
