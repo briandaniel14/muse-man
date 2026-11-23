@@ -91,6 +91,94 @@ struct TimedPracticeSessionTests {
         #expect(library.practiceNext().isEmpty)
         #expect(library.runningPracticeSession()?.id == session.id)
     }
+
+    @Test func `a timed Practice Session has its Due Parts to practise, most overdue first`() throws {
+        let clock = TestClock()
+        let library = PracticeLibrary.inMemory(clock: clock)
+        let guitar = try library.addGuitarPart()
+        let piano = try library.addPart(song: "Yesterday", instrument: "Piano")
+        try library.addPart(song: "Hey Jude", instrument: "Bass")
+        try library.move(piano, to: .learned)
+        clock.advance(days: 1)
+        try library.move(guitar, to: .learning)
+        let session = try library.startPracticeSession()
+
+        let toPractise = library.partsToPractise(in: session.id, picked: [])
+
+        #expect(toPractise.map(\.id) == [piano.id, guitar.id])
+    }
+
+    @Test func `picked Parts are to practise after the Due Parts, each once`() throws {
+        let library = PracticeLibrary.inMemory()
+        let guitar = try library.addGuitarPart()
+        let piano = try library.addPart(song: "Yesterday", instrument: "Piano")
+        let bass = try library.addPart(song: "Hey Jude", instrument: "Bass")
+        try library.move(guitar, to: .learning)
+        let session = try library.startPracticeSession()
+
+        let toPractise = library.partsToPractise(in: session.id, picked: [bass, guitar, piano])
+
+        #expect(toPractise.map(\.id) == [guitar.id, bass.id, piano.id])
+    }
+
+    @Test func `a Part logged in a timed Practice Session is no longer to practise in it`() throws {
+        let library = PracticeLibrary.inMemory()
+        let guitar = try library.addGuitarPart()
+        let piano = try library.addPart(song: "Yesterday", instrument: "Piano")
+        let bass = try library.addPart(song: "Hey Jude", instrument: "Bass")
+        try library.move(guitar, to: .learning)
+        try library.move(piano, to: .learning)
+        let session = try library.startPracticeSession()
+
+        try library.addPracticeEntry(to: session.id, part: guitar.id, rating: .again)
+        try library.addPracticeEntry(to: session.id, part: bass.id, rating: .good)
+
+        #expect(library.partsToPractise(in: session.id, picked: [bass]).map(\.id) == [piano.id])
+    }
+
+    @Test func `a rated Practice Entry Draft is logged with its trimmed note and Recording`() throws {
+        let library = PracticeLibrary.inMemory()
+        let guitar = try library.addGuitarPart()
+        let recording = try #require(try library.addRecording(audio: Data("take one".utf8), to: guitar.id))
+        let session = try library.startPracticeSession()
+        let draft = PracticeEntryDraft(part: guitar, rating: .hard, note: "  chorus \n", recording: recording)
+
+        try library.logPracticeEntry(draft, in: session.id)
+
+        let entries = library.practiceEntries(in: session.id)
+        #expect(entries.map(\.partIdentifier) == [guitar.identifier])
+        #expect(entries.first?.rating == .hard)
+        #expect(entries.first?.note == "chorus")
+        #expect(entries.first?.recordingID == recording.identifier)
+        #expect(library.partsToPractise(in: session.id, picked: [guitar]).isEmpty)
+    }
+
+    @Test func `a Practice Entry Draft with no Rating is not logged`() throws {
+        let library = PracticeLibrary.inMemory()
+        let guitar = try library.addGuitarPart()
+        let session = try library.startPracticeSession()
+
+        let entry = try library.logPracticeEntry(PracticeEntryDraft(part: guitar, note: "warm-up"), in: session.id)
+
+        #expect(entry == nil)
+        #expect(library.practiceEntries(in: session.id).isEmpty)
+        #expect(library.partsToPractise(in: session.id, picked: [guitar]).map(\.id) == [guitar.id])
+    }
+
+    @Test func `a Part rated after midnight in a session started before it is no longer to practise`() throws {
+        let beforeMidnight = DateComponents(year: 2026, month: 1, day: 5, hour: 23, minute: 50)
+        let clock = try TestClock(now: #require(Calendar.current.date(from: beforeMidnight)))
+        let library = PracticeLibrary.inMemory(clock: clock)
+        let guitar = try library.addGuitarPart()
+        try library.move(guitar, to: .learning)
+        let session = try library.startPracticeSession()
+        clock.now += 20 * 60
+
+        try library.logPracticeEntry(PracticeEntryDraft(part: guitar, rating: .again), in: session.id)
+
+        #expect(library.practiceNext().map(\.id) == [guitar.id])
+        #expect(library.partsToPractise(in: session.id, picked: []).isEmpty)
+    }
 }
 
 private extension PracticeLibrary {
@@ -98,7 +186,7 @@ private extension PracticeLibrary {
         try addPart(song: "Wonderwall", instrument: "Guitar")
     }
 
-    func addPart(song title: String, instrument name: String) throws -> Part {
+    @discardableResult func addPart(song title: String, instrument name: String) throws -> Part {
         let song = try addSong(title: title, artist: "")
         let instrument = try addInstrument(name: name)
         return try #require(try addPart(to: song.id, instrument: instrument.id))
