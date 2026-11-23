@@ -3,15 +3,17 @@ import SwiftUI
 struct PaperScreen: ViewModifier {
     let title: String
     let hasHero: Bool
+    var hasTitleBand = false
 
     func body(content: Content) -> some View {
         content
             .font(Theme.body)
             .foregroundStyle(Theme.ink)
             .scrollContentBackground(.hidden)
-            .modifier(PageHeading(title: title, isVisible: !hasHero))
+            .modifier(PageHeading(title: title, isVisible: !hasHero && !hasTitleBand))
             .frame(maxWidth: hasHero ? .infinity : Theme.readableWidth)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
+            .modifier(TitleBand(title: title, isVisible: hasTitleBand))
             .background {
                 PaperBackground(hasHero: hasHero)
             }
@@ -78,6 +80,33 @@ struct PageHeading: ViewModifier {
     }
 }
 
+struct TitleBand: ViewModifier {
+    let title: String
+    let isVisible: Bool
+
+    func body(content: Content) -> some View {
+        #if os(macOS)
+            content.overlay(alignment: .top) {
+                if isVisible {
+                    GeometryReader { proxy in
+                        Text(title)
+                            .font(Theme.title)
+                            .foregroundStyle(Theme.bandInk)
+                            .padding(.horizontal, Theme.margin)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .frame(height: proxy.safeAreaInsets.top)
+                            .background(Theme.band)
+                            .offset(y: -proxy.safeAreaInsets.top)
+                    }
+                    .allowsHitTesting(false)
+                }
+            }
+        #else
+            content
+        #endif
+    }
+}
+
 struct PaperRow: ViewModifier {
     @Environment(\.self) private var environment
 
@@ -96,7 +125,7 @@ struct PaperRow: ViewModifier {
 
 public extension View {
     func paperScreen(title: String) -> some View {
-        modifier(PaperScreen(title: title, hasHero: false))
+        modifier(PaperScreen(title: title, hasHero: false, hasTitleBand: true))
     }
 
     func sheetScreen(title: String) -> some View {
