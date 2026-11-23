@@ -1,3 +1,6 @@
+default_install_hook_types: [pre-commit, pre-merge-commit, pre-push]
+default_stages: [pre-commit, pre-merge-commit]
+
 repos:
   - repo: local
     hooks:
@@ -19,4 +22,12 @@ repos:
         language: system
         files: ^Packages/MuseManCore/
         types: [swift]
+        pass_filenames: false
+
+      - id: xcodebuild
+        name: build app for iOS
+        entry: bash -c "set -o pipefail; xcodebuild -project muse-man.xcodeproj -scheme muse-man -destination 'platform=iOS Simulator,name=iPhone 17' SWIFT_TREAT_WARNINGS_AS_ERRORS=YES build | xcbeautify --quiet"
+        language: system
+        stages: [pre-push]
+        always_run: true
         pass_filenames: false

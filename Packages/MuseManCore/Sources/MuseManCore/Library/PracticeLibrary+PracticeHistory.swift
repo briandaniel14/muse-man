@@ -1,0 +1,127 @@
+import CoreData
+
+public extension PracticeLibrary {
+    func practiceEntries(of part: Part.ID) -> [PracticeEntry] {
+        guard let identifier = object(part, as: PartObject.self)?.identifier else {
+            return []
+        }
+        let request = NSFetchRequest<PracticeEntryObject>(entityName: "PracticeEntry")
+        request.predicate = NSPredicate(format: "partID == %@", identifier as NSUUID)
+        request.sortDescriptors = [
+            NSSortDescriptor(key: "session.startDate", ascending: false),
+            NSSortDescriptor(key: "date", ascending: false),
+        ]
+        return practiceEntries(fetch(request))
+    }
+
+    func updatePracticeEntry(_ entry: PracticeEntry) throws {
+        guard let object = object(entry.id, as: PracticeEntryObject.self) else {
+            return
+        }
+        object.rating = entry.rating.rawValue
+        object.note = entry.note
+        object.recordingID = entry.recordingID
+        reschedule(partIdentifiers: [object.partID])
+        try save()
+    }
+
+    func deletePracticeEntry(id: PracticeEntry.ID) throws {
+        guard let object = object(id, as: PracticeEntryObject.self) else {
+            return
+        }
+        let session = object.session
+        context.delete(object)
+        reschedule(partIdentifiers: [object.partID])
+        deleteFinishedIfEmpty([session])
+        try save()
+    }
+
+    func deletingPracticeEntryDeletesItsSession(id: PracticeEntry.ID) -> Bool {
+        guard let object = object(id, as: PracticeEntryObject.self), let session = object.session else {
+            return false
+        }
+        return isFinishedAndEmpty(session, without: object)
+    }
+
+    func updatePracticeSession(_ session: PracticeSession) throws {
+        guard let object = object(session.id, as: PracticeSessionObject.self) else {
+            return
+        }
+        let moved = object.startDate != session.startDate
+        object.startDate = session.startDate
+        if let duration = session.duration {
+            object.duration = NSNumber(value: duration)
+        }
+        object.note = session.note
+        if moved {
+            reschedule(partIdentifiers: object.entries?.map(\.partID) ?? [])
+        }
+        try save()
+    }
+
+    func deletePracticeSession(id: PracticeSession.ID) throws {
+        guard let object = object(id, as: PracticeSessionObject.self) else {
+            return
+        }
+        let entries = object.entries ?? []
+        entries.forEach(context.delete)
+        context.delete(object)
+        reschedule(partIdentifiers: entries.map(\.partID))
+        try save()
+    }
+}
+
+extension PracticeLibrary {
+    func practiceEntries(_ objects: [PracticeEntryObject]) -> [PracticeEntry] {
+        let parts = parts(identifiers: objects.compactMap(\.partID))
+        let recordings = recordings(identifiers: objects.compactMap(\.recordingID))
+        return objects.compactMap { PracticeEntry($0, parts: parts, recordings: recordings) }
+    }
+
+    private func parts(identifiers: [UUID]) -> [UUID: Part] {
+        let parts = fetch("Part", identifiers: identifiers, as: PartObject.self).compactMap(Part.init)
+        return Dictionary(parts.map { ($0.identifier, $0) }) { first, _ in first }
+    }
+
+    private func recordings(identifiers: [UUID]) -> [UUID: Recording] {
+        let recordings = fetch("Recording", identifiers: identifiers, as: RecordingObject.self)
+            .compactMap(Recording.init)
+        return Dictionary(recordings.map { ($0.identifier, $0) }) { first, _ in first }
+    }
+
+    private func fetch<Object: NSManagedObject>(
+        _ entityName: String,
+        identifiers: some Swift.Collection<UUID>,
+        as _: Object.Type,
+    ) -> [Object] {
+        guard !identifiers.isEmpty else {
+            return []
+        }
+        let request = NSFetchRequest<Object>(entityName: entityName)
+        request.predicate = NSPredicate(format: "identifier IN %@", identifiers.map { $0 as NSUUID })
+        return fetch(request)
+    }
+
+    func reschedule(partIdentifiers: some Sequence<UUID?>) {
+        let identifiers = Set(partIdentifiers.compactMap(\.self))
+        fetch("Part", identifiers: identifiers, as: PartObject.self).forEach(reschedule)
+    }
+
+    func deleteFinishedIfEmpty(_ sessions: some Sequence<PracticeSessionObject?>) {
+        for session in Set(sessions.compactMap(\.self)) where isFinishedAndEmpty(session) {
+            context.delete(session)
+        }
+    }
+
+    func isFinishedAndEmpty(_ session: PracticeSessionObject, without removed: PracticeEntryObject? = nil) -> Bool {
+        session.duration != nil && (session.entries ?? []).allSatisfy { $0.isDeleted || $0 == removed }
+    }
+
+    func deletePracticeEntries(ofParts identifiers: [UUID?]) {
+        let request = NSFetchRequest<PracticeEntryObject>(entityName: "PracticeEntry")
+        request.predicate = NSPredicate(format: "partID IN %@", identifiers.compactMap { $0 as NSUUID? })
+        let entries = fetch(request)
+        entries.forEach(context.delete)
+        deleteFinishedIfEmpty(entries.map(\.session))
+    }
+}
