@@ -35,6 +35,7 @@ public extension PracticeLibrary {
             tempo: song.tempo,
             artworkURL: song.artworkURL,
         )
+        object.note = song.note
         try save()
     }
 

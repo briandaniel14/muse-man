@@ -74,8 +74,16 @@ struct SongHero: View {
                     }
                     .fixedSize()
                 }
+                HeroDetail(label: "Song Note", systemImage: "note.text") {
+                    HeroTextField(
+                        label: "Song Note",
+                        placeholder: "Structure, reminders…",
+                        text: $song.note,
+                        axis: .vertical,
+                    )
+                    .lineLimit(2...)
+                }
             }
-            .fixedSize()
         }
     }
 }

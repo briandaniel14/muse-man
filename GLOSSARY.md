@@ -18,6 +18,10 @@ _Avoid_: Arrangement, version, entry
 A single standing note on a Part, such as chord shapes or reminders, edited over time rather than dated.
 _Avoid_: Notes, description
 
+**Song Note**:
+A single standing note on a Song, such as its structure or reminders that apply to every Part, edited over time rather than dated.
+_Avoid_: Notes, description
+
 **Musician**:
 A person who owns Parts and practises them; each person using the app is one Musician.
 _Avoid_: User, player, member
