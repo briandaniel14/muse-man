@@ -5,11 +5,13 @@ public struct AppShell: View {
         @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     #endif
     @State private var selection: Destination = .practiceNext
+    @State private var player = AudioPlayer()
 
     public init() {}
 
     public var body: some View {
         shell
+            .environment(player)
             .tint(Theme.accent)
     }
 

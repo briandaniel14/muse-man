@@ -3,7 +3,6 @@ import SwiftUI
 struct DraftEntriesSection: View {
     @Environment(PracticeLibrary.self) private var library
     @Binding var entries: [DraftEntry]
-    @State private var player = AudioPlayer()
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -22,21 +21,17 @@ struct DraftEntriesSection: View {
                     .padding(.vertical, 12)
             }
             ForEach($entries) { $entry in
-                DraftEntryRow(entry: $entry, player: player) {
+                DraftEntryRow(entry: $entry) {
                     entries.removeAll { $0.id == entry.id }
                 }
                 Hairline()
             }
-        }
-        .onDisappear {
-            player.stop()
         }
     }
 }
 
 struct DraftEntryRow: View {
     @Binding var entry: DraftEntry
-    let player: AudioPlayer
     var remove: (() -> Void)?
 
     var body: some View {
@@ -53,7 +48,7 @@ struct DraftEntryRow: View {
             }
             TextField("Note, optional", text: $entry.note, axis: .vertical)
                 .textFieldStyle(.plain)
-            EntryRecordingField(recordingID: $entry.recordingID, partID: entry.part.id, player: player)
+            EntryRecordingField(recordingID: $entry.recordingID, partID: entry.part.id)
             RatingButtons(selection: $entry.rating)
         }
         .padding(.vertical, 12)

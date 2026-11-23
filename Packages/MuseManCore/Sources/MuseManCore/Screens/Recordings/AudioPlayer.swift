@@ -4,8 +4,9 @@ import Observation
 @Observable final class AudioPlayer: NSObject, AVAudioPlayerDelegate {
     private(set) var playing: Recording.ID?
     @ObservationIgnored private var player: AVAudioPlayer?
+    @ObservationIgnored private var startedBy: UUID?
 
-    func play(_ audio: Data, of recording: Recording.ID) throws {
+    func play(_ audio: Data, of recording: Recording.ID, from source: UUID) throws {
         stop()
         #if os(iOS)
             try AVAudioSession.sharedInstance().setCategory(.playback)
@@ -17,6 +18,7 @@ import Observation
         player.play()
         self.player = player
         playing = recording
+        startedBy = source
     }
 
     func level() -> Double {
@@ -28,10 +30,17 @@ import Observation
         return min(max((decibels + 60) / 60, 0), 1)
     }
 
+    func stop(from source: UUID) {
+        if startedBy == source {
+            stop()
+        }
+    }
+
     func stop() {
         player?.stop()
         player = nil
         playing = nil
+        startedBy = nil
     }
 
     nonisolated func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully _: Bool) {

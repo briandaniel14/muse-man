@@ -95,7 +95,6 @@ struct PendingPartsSection: View {
     let parts: [Part]
     let log: (Part, Rating, String, UUID?) -> Void
     let pick: (Part) -> Void
-    @State private var player = AudioPlayer()
     @State private var drafts: [Part.ID: DraftEntry] = [:]
 
     var body: some View {
@@ -113,12 +112,9 @@ struct PendingPartsSection: View {
                     .padding(.vertical, 12)
             }
             ForEach(parts) { part in
-                DraftEntryRow(entry: draft(for: part), player: player)
+                DraftEntryRow(entry: draft(for: part))
                 Hairline()
             }
-        }
-        .onDisappear {
-            player.stop()
         }
     }
 
@@ -130,7 +126,6 @@ struct PendingPartsSection: View {
                 drafts[part.id] = draft
                 return
             }
-            player.stop()
             drafts[part.id] = nil
             log(part, rating, draft.note.trimmingCharacters(in: .whitespacesAndNewlines), draft.recordingID)
         }

@@ -3,7 +3,6 @@ import SwiftUI
 struct PartRecordingsSection: View {
     @Environment(PracticeLibrary.self) private var library
     let part: Part
-    @State private var player = AudioPlayer()
     @State private var deleting: Recording?
     @State private var isRecording = false
     @State private var isImporting = false
@@ -27,7 +26,7 @@ struct PartRecordingsSection: View {
                         .padding(.vertical, 12)
                 }
                 ForEach(recordings) { recording in
-                    RecordingRow(recording: recording, player: player, file: file(for: recording)) {
+                    RecordingRow(recording: recording, file: file(for: recording)) {
                         downloading = file(for: recording)
                     } onDelete: {
                         deleting = recording
@@ -64,16 +63,10 @@ struct PartRecordingsSection: View {
             presenting: deleting,
         ) { recording in
             Button("Delete Recording", role: .destructive) {
-                if player.playing == recording.id {
-                    player.stop()
-                }
                 try? library.deleteRecording(id: recording.id)
             }
         } message: { _ in
             Text("This can't be undone.")
-        }
-        .onDisappear {
-            player.stop()
         }
     }
 
