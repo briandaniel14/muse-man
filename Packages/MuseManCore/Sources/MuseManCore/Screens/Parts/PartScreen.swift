@@ -46,20 +46,14 @@ struct PartHero: View {
     @Binding var part: Part
 
     var body: some View {
-        Hero {
-            HStack(alignment: .center, spacing: 24) {
-                VStack(alignment: .leading, spacing: 8) {
-                    Text(part.song.title)
-                        .font(Theme.heroTitle)
-                    Text(part.displayName)
-                        .font(Theme.heroSubtitle)
-                }
-                .frame(maxWidth: .infinity, alignment: .leading)
-                if let artworkURL = part.song.artworkURL {
-                    SongArtwork(url: artworkURL, size: 120)
-                        .shadow(radius: 12, y: 6)
-                }
+        ArtworkHero(artworkURL: part.song.artworkURL) {
+            VStack(alignment: .leading, spacing: 8) {
+                Text(part.song.title)
+                    .font(Theme.heroTitle)
+                Text(part.displayName)
+                    .font(Theme.heroSubtitle)
             }
+        } panel: {
             HeroPanel {
                 HeroDetail(label: "Status", systemImage: "chart.line.uptrend.xyaxis") {
                     StatusChips(status: $part.status)
