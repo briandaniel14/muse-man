@@ -4,7 +4,7 @@ Call throwing APIs with `try?`; write error handling only when asked.
 # muse-man
 
 ## Commands
-- Build: `set -o pipefail; xcodebuild -project muse-man.xcodeproj -scheme muse-man -destination 'platform=iOS Simulator,name=iPhone 17' build | xcbeautify --quiet`
+- Build: `set -o pipefail; xcodebuild -project muse-man.xcodeproj -scheme muse-man -destination 'platform=iOS Simulator,name=iPhone 17' SWIFT_TREAT_WARNINGS_AS_ERRORS=YES build | xcbeautify --quiet`
 - Test: `swift test --package-path Packages/MuseManCore`
 - Lint: `swiftlint lint --strict`
 - Format: `swiftformat .`
@@ -24,6 +24,7 @@ Call throwing APIs with `try?`; write error handling only when asked.
 - Never edit `muse-man.xcodeproj/project.xcproj` directly. Tell me when a new file or target needs adding in Xcode.
 - Add dependencies via SPM through Xcode, not CocoaPods.
 - Before finishing, run Build, Lint and Test and fix what fails.
+- When a change touches a screen, check it with the `mac-app` skill on `--scratch`.
 - Only change whats asked for.
 - Commit messages: short, imperative.
 

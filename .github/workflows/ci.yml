@@ -26,4 +26,4 @@ jobs:
           set -o pipefail
           xcodebuild -project muse-man.xcodeproj -scheme muse-man \
             -destination 'platform=iOS Simulator,name=iPhone 17' \
-            CODE_SIGNING_ALLOWED=NO build | xcbeautify --quiet
+            CODE_SIGNING_ALLOWED=NO SWIFT_TREAT_WARNINGS_AS_ERRORS=YES build | xcbeautify --quiet

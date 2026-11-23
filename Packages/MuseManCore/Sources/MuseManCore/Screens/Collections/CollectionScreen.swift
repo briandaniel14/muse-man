@@ -95,12 +95,11 @@ struct CollectionSongs: View {
         }
     }
 
-    private func move(_ identifier: String?, to index: Int, in songs: [Song]) -> Bool {
+    private func move(_ identifier: String?, to index: Int, in songs: [Song]) {
         guard let source = songs.firstIndex(where: { $0.dragIdentifier == identifier }), source != index else {
-            return false
+            return
         }
         try? library.moveSongs(in: collectionID, fromOffsets: [source], toOffset: index > source ? index + 1 : index)
-        return true
     }
 }
 
