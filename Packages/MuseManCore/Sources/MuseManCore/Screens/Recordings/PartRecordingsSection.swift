@@ -4,15 +4,14 @@ struct PartRecordingsSection: View {
     @Environment(PracticeLibrary.self) private var library
     let part: Part
     @State private var deleting: Recording?
-    @State private var isRecording = false
-    @State private var isImporting = false
+    @State private var capture: RecordingCapture?
     @State private var downloading: RecordingFile?
     @AppStorage("showsPartRecordings") private var isExpanded = true
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             CollapsibleSectionHeader(title: "Recordings", isExpanded: $isExpanded) {
-                AddRecordingMenu(isRecording: $isRecording, isImporting: $isImporting)
+                AddRecordingMenu(capture: $capture)
                     .labelStyle(.iconOnly)
                     .buttonStyle(.plain)
                     .foregroundStyle(Theme.accent)
@@ -34,12 +33,7 @@ struct PartRecordingsSection: View {
                 }
             }
         }
-        .sheet(isPresented: $isRecording) {
-            RecordSheet { audio in
-                _ = try? library.addRecording(audio: audio, to: part.id)
-            }
-        }
-        .recordingImporter(isPresented: $isImporting) { audio, date in
+        .recordingCapture($capture, importsSeveral: true) { audio, date in
             _ = try? library.addRecording(audio: audio, date: date, to: part.id)
         }
         .fileExporter(
@@ -83,17 +77,11 @@ struct PartRecordingsSection: View {
 }
 
 struct AddRecordingMenu: View {
-    @Binding var isRecording: Bool
-    @Binding var isImporting: Bool
+    @Binding var capture: RecordingCapture?
 
     var body: some View {
         Menu("Add Recording", systemImage: "plus") {
-            Button("Record", systemImage: "mic") {
-                isRecording = true
-            }
-            Button("Import Audio…", systemImage: "square.and.arrow.down") {
-                isImporting = true
-            }
+            RecordingCaptureButtons(capture: $capture)
         }
         .menuIndicator(.hidden)
     }

@@ -61,6 +61,7 @@ struct PracticeEntrySheet: View {
 }
 
 struct PracticeEntryFields: View {
+    @Environment(PracticeLibrary.self) private var library
     @Binding var entry: PracticeEntry
 
     var body: some View {
@@ -80,11 +81,21 @@ struct PracticeEntryFields: View {
                     .lineLimit(2...)
             }
             FieldRow(label: "Recording") {
-                EntryRecordingField(
-                    recording: $entry.recording,
-                    partID: entry.part?.id,
-                )
+                EntryRecordingField(recording: entry.recording, partID: entry.part?.id) { recording in
+                    entry.recording = recording
+                } onCapture: { audio, date in
+                    addRecording(audio: audio, date: date)
+                }
             }
+        }
+    }
+
+    private func addRecording(audio: Data, date: Date?) {
+        guard let partID = entry.part?.id else {
+            return
+        }
+        if let added = try? library.addRecording(audio: audio, date: date, to: partID) {
+            entry.recording = added
         }
     }
 

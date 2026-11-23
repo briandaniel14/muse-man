@@ -2,10 +2,11 @@ import SwiftUI
 
 struct EntryRecordingField: View {
     @Environment(PracticeLibrary.self) private var library
-    @Binding var recording: Recording?
+    let recording: Recording?
     let partID: Part.ID?
-    @State private var isRecording = false
-    @State private var isImporting = false
+    let attach: (Recording?) -> Void
+    let onCapture: (Data, Date?) -> Void
+    @State private var capture: RecordingCapture?
 
     var body: some View {
         HStack {
@@ -21,43 +22,24 @@ struct EntryRecordingField: View {
                 AttachRecordingMenu(
                     recordings: library.recordings(of: partID),
                     isAttached: recording != nil,
-                    isRecording: $isRecording,
-                    isImporting: $isImporting,
-                ) { attached in
-                    recording = attached
-                }
+                    capture: $capture,
+                    attach: attach,
+                )
             }
         }
-        .sheet(isPresented: $isRecording) {
-            RecordSheet { audio in
-                if let partID, let added = try? library.addRecording(audio: audio, to: partID) {
-                    recording = added
-                }
-            }
-        }
-        .recordingImporter(isPresented: $isImporting) { audio, date in
-            if let partID, let added = try? library.addRecording(audio: audio, date: date, to: partID) {
-                recording = added
-            }
-        }
+        .recordingCapture($capture, onCapture: onCapture)
     }
 }
 
 struct AttachRecordingMenu: View {
     let recordings: [Recording]
     let isAttached: Bool
-    @Binding var isRecording: Bool
-    @Binding var isImporting: Bool
+    @Binding var capture: RecordingCapture?
     let attach: (Recording?) -> Void
 
     var body: some View {
         Menu {
-            Button("Record", systemImage: "mic") {
-                isRecording = true
-            }
-            Button("Import Audio…", systemImage: "square.and.arrow.down") {
-                isImporting = true
-            }
+            RecordingCaptureButtons(capture: $capture)
             if !recordings.isEmpty {
                 Section("The Part's Recordings") {
                     ForEach(recordings) { recording in
