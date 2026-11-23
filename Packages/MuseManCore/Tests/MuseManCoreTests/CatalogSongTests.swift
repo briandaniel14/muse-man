@@ -24,6 +24,6 @@ struct CatalogSongTests {
     }
 
     private func song(_ title: String, by artist: String, isrc: String?) -> CatalogSong {
-        CatalogSong(id: title + artist, title: title, artist: artist, album: nil, artworkURL: nil, isrc: isrc)
+        CatalogSong(id: title + artist, title: title, artist: artist, album: nil, artwork: nil, isrc: isrc)
     }
 }

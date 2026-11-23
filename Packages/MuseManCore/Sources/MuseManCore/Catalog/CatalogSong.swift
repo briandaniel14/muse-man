@@ -6,8 +6,7 @@ public struct CatalogSong: Identifiable, Hashable {
     public let title: String
     public let artist: String
     public let album: String?
-    public let artworkURL: URL?
-    public let thumbnailURL: URL?
+    public let artwork: Artwork?
     public let isrc: String?
 
     public init(
@@ -15,21 +14,27 @@ public struct CatalogSong: Identifiable, Hashable {
         title: String,
         artist: String,
         album: String?,
-        artworkURL: URL?,
-        thumbnailURL: URL? = nil,
+        artwork: Artwork?,
         isrc: String?,
     ) {
         self.id = id
         self.title = title
         self.artist = artist
         self.album = album
-        self.artworkURL = artworkURL
-        self.thumbnailURL = thumbnailURL
+        self.artwork = artwork
         self.isrc = isrc
     }
 }
 
 public extension CatalogSong {
+    var artworkURL: URL? {
+        artwork?.url(width: 600, height: 600)
+    }
+
+    var thumbnailURL: URL? {
+        artwork?.url(width: 132, height: 132)
+    }
+
     func versionISRCs(in results: [CatalogSong]) -> [String] {
         var seen = Set<String>()
         return ([self] + results.filter(isVersion))
@@ -44,8 +49,7 @@ extension CatalogSong {
         title = song.title
         artist = song.artistName
         album = song.albumTitle
-        artworkURL = song.artwork?.url(width: 600, height: 600)
-        thumbnailURL = song.artwork?.url(width: 132, height: 132)
+        artwork = song.artwork
         isrc = song.isrc
     }
 }
