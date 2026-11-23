@@ -70,4 +70,7 @@ public enum Theme {
 
     public static let margin: CGFloat = 20
     public static let readableWidth: CGFloat = 960
+    public nonisolated static let wideHeroWidth: CGFloat = 640
+    public static let heroArtworkSize: CGFloat = 200
+    public static let compactHeroArtworkSize: CGFloat = 120
 }

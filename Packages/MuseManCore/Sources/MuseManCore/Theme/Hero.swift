@@ -32,17 +32,17 @@ struct ArtworkHero<Heading: View, Panel: View>: View {
                         heading
                             .frame(maxWidth: .infinity, alignment: .leading)
                         if !isWide {
-                            artwork(size: 120)
+                            artwork(size: Theme.compactHeroArtworkSize)
                         }
                     }
                     panel
                 }
                 if isWide {
-                    artwork(size: 200)
+                    artwork(size: Theme.heroArtworkSize)
                 }
             }
             .onGeometryChange(for: Bool.self) { geometry in
-                geometry.size.width >= 640
+                geometry.size.width >= Theme.wideHeroWidth
             } action: { isWide in
                 self.isWide = isWide
             }
