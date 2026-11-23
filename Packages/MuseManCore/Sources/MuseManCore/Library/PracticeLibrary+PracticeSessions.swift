@@ -40,7 +40,7 @@ public extension PracticeLibrary {
         let request = NSFetchRequest<PracticeEntryObject>(entityName: "PracticeEntry")
         request.predicate = NSPredicate(format: "session == %@", session)
         request.sortDescriptors = [NSSortDescriptor(key: "date", ascending: true)]
-        return fetch(request).compactMap(PracticeEntry.init)
+        return practiceEntries(fetch(request))
     }
 
     @discardableResult func addPracticeEntry(
@@ -68,13 +68,6 @@ public extension PracticeLibrary {
         }
         reschedule(part)
         try save()
-        return PracticeEntry(entry)
-    }
-
-    func part(identifier: UUID) -> Part? {
-        let request = NSFetchRequest<PartObject>(entityName: "Part")
-        request.predicate = NSPredicate(format: "identifier == %@", identifier as NSUUID)
-        request.fetchLimit = 1
-        return fetch(request).first.flatMap(Part.init)
+        return practiceEntries([entry]).first
     }
 }

@@ -127,7 +127,7 @@ struct PendingPartsSection: View {
                 return
             }
             drafts[part.id] = nil
-            log(part, rating, draft.note.trimmingCharacters(in: .whitespacesAndNewlines), draft.recordingID)
+            log(part, rating, draft.note.trimmingCharacters(in: .whitespacesAndNewlines), draft.recording?.identifier)
         }
     }
 }

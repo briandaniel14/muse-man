@@ -48,7 +48,7 @@ struct DraftEntryRow: View {
             }
             TextField("Note, optional", text: $entry.note, axis: .vertical)
                 .textFieldStyle(.plain)
-            EntryRecordingField(recordingID: $entry.recordingID, partID: entry.part.id)
+            EntryRecordingField(recording: $entry.recording, partID: entry.part.id)
             RatingButtons(selection: $entry.rating)
         }
         .padding(.vertical, 12)

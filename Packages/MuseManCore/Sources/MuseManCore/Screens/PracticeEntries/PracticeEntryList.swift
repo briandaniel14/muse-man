@@ -1,7 +1,6 @@
 import SwiftUI
 
 struct PracticeEntryList: View {
-    @Environment(PracticeLibrary.self) private var library
     let entries: [PracticeEntry]
     let heading: PracticeEntryRow.Heading
     @State private var editing: PracticeEntry?
@@ -16,7 +15,7 @@ struct PracticeEntryList: View {
                         PracticeEntryRow(entry: entry, heading: heading)
                     }
                     .buttonStyle(.plain)
-                    if let recording = entry.recordingID.flatMap(library.recording(identifier:)) {
+                    if let recording = entry.recording {
                         PlayRecordingButton(recording: recording)
                     }
                 }
@@ -43,7 +42,7 @@ struct PracticeEntryRow: View {
             VStack(alignment: .leading, spacing: 2) {
                 switch heading {
                 case .part:
-                    PracticeEntryPartName(partIdentifier: entry.partIdentifier)
+                    PracticeEntryPartName(part: entry.part)
                 case .day:
                     Text(entry.day.formatted(date: .abbreviated, time: .omitted))
                 }
@@ -64,11 +63,10 @@ struct PracticeEntryRow: View {
 }
 
 struct PracticeEntryPartName: View {
-    @Environment(PracticeLibrary.self) private var library
-    let partIdentifier: UUID
+    let part: Part?
 
     var body: some View {
-        if let part = library.part(identifier: partIdentifier) {
+        if let part {
             PartTitle(part: part)
         } else {
             Text("Deleted Part")

@@ -33,7 +33,7 @@ struct PracticeSessionTests {
         #expect(entries.map(\.rating) == [.hard, .easy])
         #expect(entries.map(\.note) == ["chorus strumming", ""])
         #expect(entries.map(\.session) == [session.id, session.id])
-        let instruments = entries.compactMap { library.part(identifier: $0.partIdentifier)?.instrument.name }
+        let instruments = entries.compactMap(\.part?.instrument.name)
         #expect(instruments == ["Guitar", "Piano"])
     }
 
@@ -125,16 +125,15 @@ struct PracticeSessionTests {
         #expect(library.practiceEntries(in: session.id).count == 1)
     }
 
-    @Test func `a Practice Entry's Part is found by identifier, and is missing once deleted`() throws {
+    @Test func `a Practice Entry comes with its Part, and none can be added once the Part is deleted`() throws {
         let library = PracticeLibrary.inMemory()
         let part = try library.addPart(song: "Wonderwall", instrument: "Guitar")
         let session = try library.addPracticeSession(startDate: TestClock.start, duration: 10 * 60)
         let entry = try #require(try library.addPracticeEntry(to: session.id, part: part.id, rating: .good))
-        #expect(library.part(identifier: entry.partIdentifier)?.id == part.id)
+        #expect(entry.part?.id == part.id)
 
         try library.deletePart(id: part.id)
 
-        #expect(library.part(identifier: entry.partIdentifier) == nil)
         #expect(try library.addPracticeEntry(to: session.id, part: part.id, rating: .good) == nil)
     }
 }

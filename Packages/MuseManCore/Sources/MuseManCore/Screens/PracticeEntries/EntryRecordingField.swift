@@ -2,7 +2,7 @@ import SwiftUI
 
 struct EntryRecordingField: View {
     @Environment(PracticeLibrary.self) private var library
-    @Binding var recordingID: UUID?
+    @Binding var recording: Recording?
     let partID: Part.ID?
     @State private var isRecording = false
     @State private var isImporting = false
@@ -23,27 +23,23 @@ struct EntryRecordingField: View {
                     isAttached: recording != nil,
                     isRecording: $isRecording,
                     isImporting: $isImporting,
-                ) { identifier in
-                    recordingID = identifier
+                ) { attached in
+                    recording = attached
                 }
             }
         }
         .sheet(isPresented: $isRecording) {
             RecordSheet { audio in
-                if let partID, let recording = try? library.addRecording(audio: audio, to: partID) {
-                    recordingID = recording.identifier
+                if let partID, let added = try? library.addRecording(audio: audio, to: partID) {
+                    recording = added
                 }
             }
         }
         .recordingImporter(isPresented: $isImporting) { audio, date in
-            if let partID, let recording = try? library.addRecording(audio: audio, date: date, to: partID) {
-                recordingID = recording.identifier
+            if let partID, let added = try? library.addRecording(audio: audio, date: date, to: partID) {
+                recording = added
             }
         }
-    }
-
-    private var recording: Recording? {
-        recordingID.flatMap(library.recording(identifier:))
     }
 }
 
@@ -52,7 +48,7 @@ struct AttachRecordingMenu: View {
     let isAttached: Bool
     @Binding var isRecording: Bool
     @Binding var isImporting: Bool
-    let attach: (UUID?) -> Void
+    let attach: (Recording?) -> Void
 
     var body: some View {
         Menu {
@@ -66,7 +62,7 @@ struct AttachRecordingMenu: View {
                 Section("The Part's Recordings") {
                     ForEach(recordings) { recording in
                         Button(recording.date.formatted(date: .abbreviated, time: .shortened)) {
-                            attach(recording.identifier)
+                            attach(recording)
                         }
                     }
                 }
