@@ -1,3 +1,4 @@
+import CoreData
 import Foundation
 import MuseManCore
 import Testing
@@ -36,6 +37,17 @@ struct SongTests {
         song.artworkURL = replacement
         try library.updateSong(song)
         #expect(library.song(id: song.id)?.artworkURL == replacement)
+    }
+
+    @Test func `a Song keeps its Song Note, empty until written`() throws {
+        let library = PracticeLibrary.inMemory()
+        var song = try library.addSong(title: "Wonderwall", artist: "Oasis")
+        #expect(library.song(id: song.id)?.note == "")
+
+        song.note = "Capo 2\nStrum loosely in the chorus"
+        try library.updateSong(song)
+
+        #expect(library.song(id: song.id)?.note == "Capo 2\nStrum loosely in the chorus")
     }
 
     @Test func `every Song is listed by title`() throws {
@@ -121,5 +133,57 @@ struct SongTests {
         #expect(song.title == "Wonderwall")
         #expect(song.key == "F#m")
         #expect(song.tempo == 87)
+    }
+
+    @Test func `a Song Note persists across launches`() throws {
+        let storeURL = URL.temporaryDirectory.appending(path: "\(UUID().uuidString).sqlite")
+        let library = PracticeLibrary(container: PersistentStore.container(storeURL: storeURL))
+        var song = try library.addSong(title: "Wonderwall", artist: "Oasis")
+        song.note = "Capo 2"
+        try library.updateSong(song)
+
+        let relaunched = PracticeLibrary(container: PersistentStore.container(storeURL: storeURL))
+
+        #expect(relaunched.songs().first?.note == "Capo 2")
+    }
+
+    @Test func `a Song saved before Song Notes existed opens with an empty Song Note`() throws {
+        let storeURL = URL.temporaryDirectory.appending(path: "\(UUID().uuidString).sqlite")
+        try saveSongWithoutNoteAttribute(title: "Wonderwall", artist: "Oasis", key: "F#m", to: storeURL)
+
+        let library = PracticeLibrary(container: PersistentStore.container(storeURL: storeURL))
+
+        let song = try #require(library.songs().first)
+        #expect(song.title == "Wonderwall")
+        #expect(song.artist == "Oasis")
+        #expect(song.key == "F#m")
+        #expect(song.note == "")
+    }
+
+    private func saveSongWithoutNoteAttribute(title: String, artist: String, key: String, to storeURL: URL) throws {
+        let entity = NSEntityDescription()
+        entity.name = "Song"
+        entity.properties = [("title", .stringAttributeType), ("artist", .stringAttributeType),
+                             ("key", .stringAttributeType), ("tempo", .integer32AttributeType),
+                             ("artworkURL", .URIAttributeType)].map { name, type in
+            let attribute = NSAttributeDescription()
+            attribute.name = name
+            attribute.attributeType = type
+            attribute.isOptional = true
+            return attribute
+        }
+        let model = NSManagedObjectModel()
+        model.entities = [entity]
+        let coordinator = NSPersistentStoreCoordinator(managedObjectModel: model)
+        try coordinator.addPersistentStore(type: .sqlite, at: storeURL, options: [
+            NSPersistentHistoryTrackingKey: true as NSNumber,
+        ])
+        let context = NSManagedObjectContext(.mainQueue)
+        context.persistentStoreCoordinator = coordinator
+        let song = NSManagedObject(entity: entity, insertInto: context)
+        song.setValue(title, forKey: "title")
+        song.setValue(artist, forKey: "artist")
+        song.setValue(key, forKey: "key")
+        try context.save()
     }
 }

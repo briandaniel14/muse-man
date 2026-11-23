@@ -11,11 +11,50 @@ struct Hero<Content: View>: View {
         .foregroundStyle(Theme.bandInk)
         .tint(Theme.bandSelection)
         .padding(.horizontal, Theme.margin)
-        .padding(.top, 16)
         .padding(.bottom, 32)
         .frame(maxWidth: Theme.readableWidth, alignment: .leading)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(Theme.band)
+    }
+}
+
+struct ArtworkHero<Heading: View, Panel: View>: View {
+    let artworkURL: URL?
+    @ViewBuilder let heading: Heading
+    @ViewBuilder let panel: Panel
+    @State private var isWide = true
+
+    var body: some View {
+        Hero {
+            HStack(alignment: .top, spacing: 32) {
+                VStack(alignment: .leading, spacing: 20) {
+                    HStack(spacing: 24) {
+                        heading
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                        if !isWide {
+                            artwork(size: Theme.compactHeroArtworkSize)
+                        }
+                    }
+                    panel
+                }
+                if isWide {
+                    artwork(size: Theme.heroArtworkSize)
+                }
+            }
+            .onGeometryChange(for: Bool.self) { geometry in
+                geometry.size.width >= Theme.wideHeroWidth
+            } action: { isWide in
+                self.isWide = isWide
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func artwork(size: CGFloat) -> some View {
+        if let artworkURL {
+            SongArtwork(url: artworkURL, size: size)
+                .shadow(radius: 12, y: 6)
+        }
     }
 }
 

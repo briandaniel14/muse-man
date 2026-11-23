@@ -9,7 +9,7 @@ struct CatalogSearch: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             SearchField(prompt: "Search Apple Music", text: $search)
-                .padding(.vertical, 12)
+                .padding(.bottom, 12)
             if !search.isEmpty {
                 ForEach(results) { result in
                     Button {
@@ -28,6 +28,9 @@ struct CatalogSearch: View {
                 }
             }
         }
+        .task {
+            await SongCatalog.warmUp()
+        }
         .task(id: search) {
             await find(search)
         }
@@ -40,7 +43,7 @@ struct CatalogSearch: View {
             return
         }
         isSearching = true
-        guard await (try? Task.sleep(for: .milliseconds(300))) != nil else {
+        guard await (try? Task.sleep(for: .milliseconds(150))) != nil else {
             return
         }
         let found = await SongCatalog.search(term)
@@ -57,7 +60,7 @@ struct CatalogSongRow: View {
 
     var body: some View {
         HStack(spacing: 12) {
-            SongArtwork(url: song.artworkURL, size: 44)
+            SongArtwork(url: song.thumbnailURL, size: 44)
             VStack(alignment: .leading, spacing: 2) {
                 Text(song.title)
                     .font(Theme.body)
