@@ -1,19 +1,28 @@
 import SwiftUI
 
 struct PaperScreen: ViewModifier {
+    enum Kind {
+        case paper
+        case sheet
+        case hero
+    }
+
     let title: String
-    let hasHero: Bool
-    var hasTitleBand = false
+    let kind: Kind
+
+    private var hasHero: Bool {
+        kind == .hero
+    }
 
     func body(content: Content) -> some View {
         content
             .font(Theme.body)
             .foregroundStyle(Theme.ink)
             .scrollContentBackground(.hidden)
-            .modifier(PageHeading(title: title, isVisible: !hasHero && !hasTitleBand))
+            .modifier(PageHeading(title: title, isVisible: kind == .sheet))
             .frame(maxWidth: hasHero ? .infinity : Theme.readableWidth)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
-            .modifier(TitleBand(title: title, isVisible: hasTitleBand))
+            .modifier(TitleBand(title: title, isVisible: kind == .paper))
             .background {
                 PaperBackground(hasHero: hasHero)
             }
@@ -125,18 +134,18 @@ struct PaperRow: ViewModifier {
 
 public extension View {
     func paperScreen(title: String) -> some View {
-        modifier(PaperScreen(title: title, hasHero: false, hasTitleBand: true))
+        modifier(PaperScreen(title: title, kind: .paper))
     }
 
     func sheetScreen(title: String) -> some View {
-        modifier(PaperScreen(title: title, hasHero: false))
+        modifier(PaperScreen(title: title, kind: .sheet))
         #if os(macOS)
             .toolbar(.hidden, for: .windowToolbar)
         #endif
     }
 
     func heroScreen(title: String) -> some View {
-        modifier(PaperScreen(title: title, hasHero: true))
+        modifier(PaperScreen(title: title, kind: .hero))
     }
 
     func paperRow() -> some View {
