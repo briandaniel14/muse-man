@@ -9,7 +9,7 @@ struct CatalogSearch: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             SearchField(prompt: "Search Apple Music", text: $search)
-                .padding(.vertical, 12)
+                .padding(.bottom, 12)
             if !search.isEmpty {
                 ForEach(results) { result in
                     Button {
