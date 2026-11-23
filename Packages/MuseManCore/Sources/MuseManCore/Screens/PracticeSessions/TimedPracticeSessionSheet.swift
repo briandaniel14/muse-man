@@ -87,7 +87,6 @@ struct ElapsedTime: View {
 }
 
 struct PendingPartsSection: View {
-    @Environment(PracticeLibrary.self) private var library
     let parts: [Part]
     @Binding var drafts: [Part.ID: PracticeEntryDraft]
     let logged: [PracticeEntry]

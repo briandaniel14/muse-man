@@ -1,3 +1,4 @@
+import CoreData
 import Foundation
 import MuseManCore
 import Testing
@@ -65,18 +66,19 @@ struct ResourceTests {
         try library.deleteResource(id: dead.id)
 
         #expect(library.resources(for: song.id).map(\.title) == ["UG tab"])
-        #expect(library.resource(id: dead.id) == nil)
     }
 
     @Test func `deleting a Song deletes its Resources`() throws {
-        let library = PracticeLibrary.inMemory()
+        let container = PersistentStore.container()
+        let library = PracticeLibrary(container: container)
         let song = try library.addSong(title: "Wonderwall", artist: "Oasis")
         let resource = try #require(try library.addResource(url: tab, to: song.id))
-        #expect(library.resource(id: resource.id) == resource)
+        #expect(library.resources(for: song.id) == [resource])
 
         try library.deleteSong(id: song.id)
 
-        #expect(library.resource(id: resource.id) == nil)
+        let resources = NSFetchRequest<NSFetchRequestResult>(entityName: "Resource")
+        #expect(try container.viewContext.count(for: resources) == 0)
     }
 
     @Test func `reading Resources is observed, so screens refresh when they change`() throws {

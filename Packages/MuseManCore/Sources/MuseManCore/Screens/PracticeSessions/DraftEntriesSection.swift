@@ -1,7 +1,6 @@
 import SwiftUI
 
 struct DraftEntriesSection: View {
-    @Environment(PracticeLibrary.self) private var library
     @Binding var entries: [PracticeEntryDraft]
     @State private var draftAudio: [Recording] = []
 

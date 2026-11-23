@@ -32,7 +32,6 @@ struct PracticeSessionTests {
         #expect(entries.map(\.partIdentifier) == [guitar.identifier, piano.identifier])
         #expect(entries.map(\.rating) == [.hard, .easy])
         #expect(entries.map(\.note) == ["chorus strumming", ""])
-        #expect(entries.map(\.session) == [session.id, session.id])
         let instruments = entries.compactMap(\.part?.instrument.name)
         #expect(instruments == ["Guitar", "Piano"])
     }

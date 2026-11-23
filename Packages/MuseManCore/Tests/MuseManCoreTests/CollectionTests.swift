@@ -20,7 +20,6 @@ struct CollectionTests {
         try library.updateCollection(collection)
 
         #expect(library.collections().map(\.name) == ["Saturday Gig"])
-        #expect(library.collection(id: collection.id)?.name == "Saturday Gig")
     }
 
     @Test func `a Collection lists its Songs in the order they were added`() throws {
@@ -146,7 +145,6 @@ struct CollectionTests {
         try library.deleteCollection(id: gig.id)
 
         #expect(library.collections().map(\.name) == ["Acoustic Set"])
-        #expect(library.collection(id: gig.id) == nil)
         #expect(library.songs(in: gig.id).isEmpty)
         #expect(library.songs().map(\.title) == ["Wonderwall"])
     }

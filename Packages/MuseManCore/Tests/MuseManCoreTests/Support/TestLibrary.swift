@@ -19,4 +19,12 @@ extension PracticeLibrary {
     static func inMemory(clock: TestClock = TestClock()) -> PracticeLibrary {
         PracticeLibrary(container: PersistentStore.container(), now: { clock.now })
     }
+
+    func song(id: Song.ID) -> Song? {
+        songs().first { $0.id == id }
+    }
+
+    func part(id: Part.ID) -> Part? {
+        parts().first { $0.id == id }
+    }
 }

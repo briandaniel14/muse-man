@@ -32,10 +32,6 @@ public extension PracticeLibrary {
         return fetch(request).compactMap(Part.init)
     }
 
-    func part(id: Part.ID) -> Part? {
-        object(id, as: PartObject.self).flatMap(Part.init)
-    }
-
     @discardableResult func addPart(to song: Song.ID, instrument: Instrument.ID, label: String? = nil) throws -> Part? {
         guard let song = object(song, as: SongObject.self),
               let instrument = object(instrument, as: InstrumentObject.self)

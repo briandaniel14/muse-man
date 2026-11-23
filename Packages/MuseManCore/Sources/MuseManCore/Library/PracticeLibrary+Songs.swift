@@ -11,10 +11,6 @@ public extension PracticeLibrary {
         return fetch(request).map(Song.init)
     }
 
-    func song(id: Song.ID) -> Song? {
-        object(id, as: SongObject.self).map(Song.init)
-    }
-
     @discardableResult func addSong(
         title: String,
         artist: String,

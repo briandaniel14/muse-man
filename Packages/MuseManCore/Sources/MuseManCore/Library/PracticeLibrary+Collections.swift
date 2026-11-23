@@ -7,10 +7,6 @@ public extension PracticeLibrary {
         return fetch(request).map(Collection.init)
     }
 
-    func collection(id: Collection.ID) -> Collection? {
-        object(id, as: CollectionObject.self).map(Collection.init)
-    }
-
     @discardableResult func addCollection(name: String) throws -> Collection {
         let object = CollectionObject(context: context)
         object.name = name

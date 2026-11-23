@@ -12,10 +12,6 @@ public extension PracticeLibrary {
             .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
     }
 
-    func resource(id: Resource.ID) -> Resource? {
-        object(id, as: ResourceObject.self).map(Resource.init)
-    }
-
     @discardableResult func addResource(url: URL, title: String? = nil, to songID: Song.ID) throws -> Resource? {
         guard let song = object(songID, as: SongObject.self) else {
             return nil
