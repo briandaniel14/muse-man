@@ -2,7 +2,7 @@ import SwiftUI
 
 struct DraftEntriesSection: View {
     @Environment(PracticeLibrary.self) private var library
-    @Binding var entries: [DraftEntry]
+    @Binding var entries: [PracticeEntryDraft]
     @State private var player = AudioPlayer()
 
     var body: some View {
@@ -11,7 +11,7 @@ struct DraftEntriesSection: View {
                 SectionTitle("Practice Entries")
                 Spacer()
                 PartPickerButton(excluding: Set(entries.map(\.part.id))) { part in
-                    entries.append(DraftEntry(part: part))
+                    entries.append(PracticeEntryDraft(part: part))
                 }
             }
             .padding(.bottom, 4)
@@ -35,7 +35,7 @@ struct DraftEntriesSection: View {
 }
 
 struct DraftEntryRow: View {
-    @Binding var entry: DraftEntry
+    @Binding var entry: PracticeEntryDraft
     let player: AudioPlayer
     var remove: (() -> Void)?
 
