@@ -8,6 +8,7 @@ struct LogPracticeSessionSheet: View {
     @State private var minutes: Int? = 30
     @State private var note = ""
     @State private var entries: [PracticeEntryDraft] = []
+    @State private var discardedAudio: [Recording] = []
 
     var body: some View {
         NavigationStack {
@@ -21,7 +22,10 @@ struct LogPracticeSessionSheet: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") {
-                        dismiss()
+                        discardedAudio = unsavedRecordings
+                        if discardedAudio.isEmpty {
+                            dismiss()
+                        }
                     }
                 }
                 ToolbarItem(placement: .confirmationAction) {
@@ -32,8 +36,16 @@ struct LogPracticeSessionSheet: View {
                     .disabled(isIncomplete)
                 }
             }
+            .keepAudioPrompt($discardedAudio) {
+                dismiss()
+            }
+            .interactiveDismissDisabled(!unsavedRecordings.isEmpty)
             .sheetScreen(title: "Log Practice Session")
         }
+    }
+
+    private var unsavedRecordings: [Recording] {
+        entries.flatMap(\.unsavedRecordings)
     }
 
     private var duration: TimeInterval {

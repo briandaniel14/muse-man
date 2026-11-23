@@ -5,6 +5,8 @@ struct TimedPracticeSessionSheet: View {
     @Environment(\.dismiss) private var dismiss
     let sessionID: PracticeSession.ID
     @State private var picked: [Part] = []
+    @State private var drafts: [Part.ID: PracticeEntryDraft] = [:]
+    @State private var discardedAudio: [Recording] = []
 
     var body: some View {
         NavigationStack {
@@ -13,7 +15,7 @@ struct TimedPracticeSessionSheet: View {
                     if let session = library.practiceSession(id: sessionID) {
                         ElapsedTime(since: session.startDate, isEmpty: entries.isEmpty)
                     }
-                    PendingPartsSection(parts: pending, log: log) { part in
+                    PendingPartsSection(parts: pending, drafts: $drafts, log: log) { part in
                         if !pending.contains(part) {
                             picked.append(part)
                         }
@@ -26,7 +28,10 @@ struct TimedPracticeSessionSheet: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Close") {
-                        dismiss()
+                        discardedAudio = drafts.values.flatMap(\.unsavedRecordings)
+                        if discardedAudio.isEmpty {
+                            dismiss()
+                        }
                     }
                 }
                 ToolbarItem(placement: .confirmationAction) {
@@ -36,6 +41,10 @@ struct TimedPracticeSessionSheet: View {
                     }
                 }
             }
+            .keepAudioPrompt($discardedAudio) {
+                dismiss()
+            }
+            .interactiveDismissDisabled(drafts.values.contains { !$0.unsavedRecordings.isEmpty })
             .sheetScreen(title: "Practice Session")
         }
     }
@@ -93,9 +102,9 @@ struct ElapsedTime: View {
 struct PendingPartsSection: View {
     @Environment(PracticeLibrary.self) private var library
     let parts: [Part]
+    @Binding var drafts: [Part.ID: PracticeEntryDraft]
     let log: (Part, Rating, String, UUID?) -> Void
     let pick: (Part) -> Void
-    @State private var drafts: [Part.ID: PracticeEntryDraft] = [:]
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
