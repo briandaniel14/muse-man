@@ -4,14 +4,13 @@ struct EntryRecordingField: View {
     @Environment(PracticeLibrary.self) private var library
     @Binding var recording: Recording?
     let partID: Part.ID?
-    let player: AudioPlayer
     @State private var isRecording = false
     @State private var isImporting = false
 
     var body: some View {
         HStack {
             if let recording {
-                PlayRecordingButton(recording: recording, player: player)
+                PlayRecordingButton(recording: recording)
                 Text(recording.date.formatted(date: .abbreviated, time: .shortened))
             } else {
                 Text("No Recording")
@@ -25,7 +24,6 @@ struct EntryRecordingField: View {
                     isRecording: $isRecording,
                     isImporting: $isImporting,
                 ) { attached in
-                    player.stop()
                     recording = attached
                 }
             }
@@ -39,7 +37,6 @@ struct EntryRecordingField: View {
         }
         .recordingImporter(isPresented: $isImporting) { audio, date in
             if let partID, let added = try? library.addRecording(audio: audio, date: date, to: partID) {
-                player.stop()
                 recording = added
             }
         }

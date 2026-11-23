@@ -1,17 +1,17 @@
 import SwiftUI
 
 struct RecordingRow: View {
+    @Environment(AudioPlayer.self) private var player
     let recording: Recording
-    let player: AudioPlayer
     var file: RecordingFile?
     var onDownload: (() -> Void)?
     var onDelete: (() -> Void)?
 
     var body: some View {
         HStack(spacing: 0) {
-            PlayRecordingButton(recording: recording, player: player)
+            PlayRecordingButton(recording: recording)
             if player.playing == recording.id {
-                PlaybackMeter(player: player)
+                PlaybackMeter()
                     .padding(.trailing, 10)
             }
             RecordingNameField(recording: recording)
@@ -72,8 +72,9 @@ struct RecordingRowAction: ViewModifier {
 
 struct PlayRecordingButton: View {
     @Environment(PracticeLibrary.self) private var library
+    @Environment(AudioPlayer.self) private var player
     let recording: Recording
-    let player: AudioPlayer
+    @State private var source = UUID()
 
     var body: some View {
         Button(isPlaying ? "Stop" : "Play", systemImage: isPlaying ? "stop.fill" : "play.fill", action: toggle)
@@ -82,6 +83,12 @@ struct PlayRecordingButton: View {
             .contentShape(.rect)
             .buttonStyle(.plain)
             .foregroundStyle(Theme.accent)
+            .onChange(of: recording.id) {
+                player.stop(from: source)
+            }
+            .onDisappear {
+                player.stop(from: source)
+            }
     }
 
     private var isPlaying: Bool {
@@ -92,13 +99,13 @@ struct PlayRecordingButton: View {
         if isPlaying {
             player.stop()
         } else if let audio = library.audio(of: recording.id) {
-            try? player.play(audio, of: recording.id)
+            try? player.play(audio, of: recording.id, from: source)
         }
     }
 }
 
 struct PlaybackMeter: View {
-    let player: AudioPlayer
+    @Environment(AudioPlayer.self) private var player
     @State private var levels = Array(repeating: 0.0, count: 10)
 
     var body: some View {

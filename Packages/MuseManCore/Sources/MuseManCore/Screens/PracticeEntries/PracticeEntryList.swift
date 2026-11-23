@@ -4,21 +4,19 @@ struct PracticeEntryList: View {
     let entries: [PracticeEntry]
     let heading: PracticeEntryRow.Heading
     @State private var editing: PracticeEntry?
-    @State private var player = AudioPlayer()
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             ForEach(entries) { entry in
                 HStack {
                     Button {
-                        player.stop()
                         editing = entry
                     } label: {
                         PracticeEntryRow(entry: entry, heading: heading)
                     }
                     .buttonStyle(.plain)
                     if let recording = entry.recording {
-                        PlayRecordingButton(recording: recording, player: player)
+                        PlayRecordingButton(recording: recording)
                     }
                 }
                 Hairline()
@@ -26,9 +24,6 @@ struct PracticeEntryList: View {
         }
         .sheet(item: $editing) { entry in
             PracticeEntrySheet(entry: entry)
-        }
-        .onDisappear {
-            player.stop()
         }
     }
 }

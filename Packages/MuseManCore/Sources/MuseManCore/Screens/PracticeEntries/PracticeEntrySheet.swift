@@ -5,12 +5,11 @@ struct PracticeEntrySheet: View {
     @Environment(\.dismiss) private var dismiss
     @State var entry: PracticeEntry
     @State private var isConfirmingDelete = false
-    @State private var player = AudioPlayer()
 
     var body: some View {
         NavigationStack {
             ScrollView {
-                PracticeEntryFields(entry: $entry, player: player)
+                PracticeEntryFields(entry: $entry)
                     .padding(.horizontal, Theme.margin)
             }
             .toolbar {
@@ -44,9 +43,6 @@ struct PracticeEntrySheet: View {
             } message: {
                 Text(deleteMessage)
             }
-            .onDisappear {
-                player.stop()
-            }
             .sheetScreen(title: "Practice Entry")
         }
     }
@@ -66,7 +62,6 @@ struct PracticeEntrySheet: View {
 
 struct PracticeEntryFields: View {
     @Binding var entry: PracticeEntry
-    let player: AudioPlayer
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -88,7 +83,6 @@ struct PracticeEntryFields: View {
                 EntryRecordingField(
                     recording: $entry.recording,
                     partID: entry.part?.id,
-                    player: player,
                 )
             }
         }
