@@ -46,19 +46,14 @@ struct SongHero: View {
     @Binding var song: Song
 
     var body: some View {
-        Hero {
-            HStack(alignment: .center, spacing: 24) {
-                VStack(alignment: .leading, spacing: 8) {
-                    HeroTextField(label: "Title", placeholder: "Title", text: $song.title, axis: .vertical)
-                        .font(Theme.heroTitle)
-                    HeroTextField(label: "Artist", placeholder: "Artist", text: $song.artist)
-                        .font(Theme.heroSubtitle)
-                }
-                if let artworkURL = song.artworkURL {
-                    SongArtwork(url: artworkURL, size: 120)
-                        .shadow(radius: 12, y: 6)
-                }
+        ArtworkHero(artworkURL: song.artworkURL) {
+            VStack(alignment: .leading, spacing: 8) {
+                HeroTextField(label: "Title", placeholder: "Title", text: $song.title, axis: .vertical)
+                    .font(Theme.heroTitle)
+                HeroTextField(label: "Artist", placeholder: "Artist", text: $song.artist)
+                    .font(Theme.heroSubtitle)
             }
+        } panel: {
             HeroPanel {
                 HStack(alignment: .top, spacing: 48) {
                     HeroDetail(label: "Key", systemImage: "music.quarternote.3") {
