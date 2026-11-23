@@ -11,3 +11,14 @@ custom_rules:
     regex: "\\b(print|debugPrint|NSLog)\\("
     message: "Remove debug logging before committing"
     severity: error
+  no_comments:
+    excluded: "Package\\.swift$"
+    regex: "(//|/\\*)"
+    match_kinds:
+      - comment
+      - comment.mark
+      - comment.url
+      - doccomment
+      - doccomment.field
+    message: "Write code without comments unless asked"
+    severity: error

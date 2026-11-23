@@ -10,7 +10,6 @@ struct AddSongSheet: View {
     @State private var key: String?
     @State private var tempo: Int?
     @State private var artworkURL: URL?
-    @State private var isAdded = false
 
     var body: some View {
         NavigationStack {
@@ -38,10 +37,6 @@ struct AddSongSheet: View {
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Add") {
-                        guard !isAdded else {
-                            return
-                        }
-                        isAdded = true
                         _ = try? library.addSong(
                             title: title,
                             artist: artist,
@@ -51,7 +46,7 @@ struct AddSongSheet: View {
                         )
                         dismiss()
                     }
-                    .disabled(isIncomplete || isAdded)
+                    .disabled(isIncomplete)
                 }
             }
             .sheetScreen(title: "New Song")

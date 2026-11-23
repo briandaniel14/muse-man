@@ -1,19 +1,15 @@
-Do not write any comments unless asked
-Do not do any error handling unless asked
+Write code without comments unless asked.
+Call throwing APIs with `try?`; write error handling only when asked.
 
 # muse-man
 
-iOS app built with SwiftUI in Xcode.
-
 ## Commands
-- Build: `xcodebuild -project muse-man.xcodeproj -scheme muse-man -destination 'platform=iOS Simulator,name=iPhone 17' build | xcbeautify`
+- Build: `set -o pipefail; xcodebuild -project muse-man.xcodeproj -scheme muse-man -destination 'platform=iOS Simulator,name=iPhone 17' build | xcbeautify --quiet`
 - Test: `swift test --package-path Packages/MuseManCore`
 - Lint: `swiftlint lint --strict`
 - Format: `swiftformat .`
-- List simulators: `xcrun simctl list devices available`
 
 ## Structure
-- `muse-man/`: app source (`MyApp.swift` is the entry point, `ContentView.swift` is the root view)
 - `Packages/MuseManCore/`: local Swift package holding app logic and views, tested with Swift Testing
 - `muse-man.xcodeproj/`: project file, do not edit by hand
 
@@ -27,7 +23,7 @@ iOS app built with SwiftUI in Xcode.
 ## Rules
 - Never edit `muse-man.xcodeproj/project.xcproj` directly. Tell me when a new file or target needs adding in Xcode.
 - Add dependencies via SPM through Xcode, not CocoaPods.
-- After changes, run build, lint and tests, and fix any errors before finishing.
+- Before finishing, run Build, Lint and Test and fix what fails.
 - Only change whats asked for.
 - Commit messages: short, imperative.
 

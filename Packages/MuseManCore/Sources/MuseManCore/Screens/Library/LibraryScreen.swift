@@ -39,6 +39,7 @@ struct SongList: View {
             }
             .paperRow()
         }
+        .id(songs.map(\.id))
         .listStyle(.plain)
         .overlay {
             if songs.isEmpty {
