@@ -14,10 +14,8 @@ Call throwing APIs with `try?`; write error handling only when asked.
 - `muse-man.xcodeproj/`: project file, do not edit by hand
 
 ## Conventions
-- SwiftUI only, no UIKit unless unavoidable
 - Minimum iOS 26.6 / macOS 26.6
 - Keep views small and extract subviews
-- Use `@Observable` for state, not `ObservableObject` (exception: Core Data `NSManagedObject` models, see `docs/adr/0001-core-data-with-cloudkit-sharing.md`)
 - Prefer simple code over clever abstractions
 
 ## Rules

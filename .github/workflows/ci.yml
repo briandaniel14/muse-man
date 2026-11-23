@@ -14,7 +14,7 @@ jobs:
         with:
           xcode-version: latest-stable
       - name: Install tools
-        run: brew install swiftlint swiftformat xcbeautify
+        run: brew install swiftlint swiftformat xcbeautify periphery
       - name: Format
         run: swiftformat --lint .
       - name: Lint
@@ -25,5 +25,19 @@ jobs:
         run: |
           set -o pipefail
           xcodebuild -project muse-man.xcodeproj -scheme muse-man \
-            -destination 'platform=iOS Simulator,name=iPhone 17' \
+            -destination 'platform=iOS Simulator,name=iPhone 17' -derivedDataPath DerivedData \
             CODE_SIGNING_ALLOWED=NO SWIFT_TREAT_WARNINGS_AS_ERRORS=YES build | xcbeautify --quiet
+      - name: Build for macOS
+        run: |
+          set -o pipefail
+          xcodebuild -project muse-man.xcodeproj -scheme muse-man \
+            -destination 'platform=macOS' -derivedDataPath DerivedData \
+            CODE_SIGNING_ALLOWED=NO SWIFT_TREAT_WARNINGS_AS_ERRORS=YES build | xcbeautify --quiet
+      - name: Unused code
+        run: |
+          set -o pipefail
+          periphery scan --project-root Packages/MuseManCore \
+            --index-store-path DerivedData/Index.noindex/DataStore \
+            --exclude-tests --disable-redundant-public-analysis \
+            --relative-results --format github-actions --quiet \
+            | sed 's|file=|file=Packages/MuseManCore/|'

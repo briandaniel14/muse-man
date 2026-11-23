@@ -22,3 +22,13 @@ custom_rules:
       - doccomment.field
     message: "Write code without comments unless asked"
     severity: error
+  swiftui_only:
+    excluded: "/scripts/"
+    regex: "^\\s*import\\s+(UIKit|AppKit)\\b"
+    message: "SwiftUI only: UIKit or AppKit needs the file added to this rule's excluded list, with the user's agreement"
+    severity: error
+  observable_macro:
+    excluded: "/scripts/"
+    regex: "(:\\s*ObservableObject\\b|@Published\\b|@StateObject\\b)"
+    message: "Use @Observable for state, not ObservableObject (Core Data entities are the exception, see docs/adr/0001)"
+    severity: error
