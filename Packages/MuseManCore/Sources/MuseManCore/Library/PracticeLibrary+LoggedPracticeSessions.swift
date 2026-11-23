@@ -22,23 +22,12 @@ public extension PracticeLibrary {
         session.startDate = startDate
         session.duration = NSNumber(value: duration)
         session.note = note.trimmingCharacters(in: .whitespacesAndNewlines)
-        var parts: [PartObject] = []
-        for draft in drafts {
-            guard let rating = draft.rating, let part = object(draft.part.id, as: PartObject.self) else {
-                continue
-            }
-            insertPracticeEntry(
-                in: session,
-                part: part,
-                rating: rating,
-                note: draft.note.trimmingCharacters(in: .whitespacesAndNewlines),
-                recordingID: draft.recording?.identifier,
-            )
-            if !parts.contains(part) {
-                parts.append(part)
-            }
+        let entries = drafts.compactMap { insertPracticeEntry($0, in: session) }
+        guard !entries.isEmpty else {
+            context.delete(session)
+            return nil
         }
-        parts.forEach(reschedule)
+        reschedule(partIdentifiers: entries.map(\.partID))
         try save()
         return PracticeSession(session)
     }

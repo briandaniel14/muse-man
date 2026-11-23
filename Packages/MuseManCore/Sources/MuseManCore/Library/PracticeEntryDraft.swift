@@ -15,7 +15,7 @@ public struct PracticeEntryDraft: Identifiable {
         self.recording = recording
     }
 
-    public var unsavedRecordings: [Recording] {
+    public var draftAudio: [Recording] {
         isRecordingMadeForDraft ? recording.map { [$0] } ?? [] : []
     }
 
@@ -27,9 +27,9 @@ public struct PracticeEntryDraft: Identifiable {
         guard recording != self.recording else {
             return []
         }
-        let replaced = unsavedRecordings
+        let previousDraftAudio = draftAudio
         self.recording = recording
         isRecordingMadeForDraft = madeForDraft
-        return replaced
+        return previousDraftAudio
     }
 }

@@ -90,7 +90,6 @@ struct RecordingTests {
 
         try library.deletePart(id: part.id)
 
-        #expect(library.recording(identifier: recording.identifier) == nil)
         #expect(library.audio(of: recording.id) == nil)
     }
 
@@ -101,20 +100,7 @@ struct RecordingTests {
 
         try library.deleteSong(id: part.song.id)
 
-        #expect(library.recording(identifier: recording.identifier) == nil)
         #expect(library.audio(of: recording.id) == nil)
-    }
-
-    @Test func `a Recording is found by its identifier, with its Part`() throws {
-        let library = PracticeLibrary.inMemory()
-        let part = try library.addGuitarPart()
-        let recording = try #require(try library.addRecording(audio: audio, to: part.id))
-
-        let found = try #require(library.recording(identifier: recording.identifier))
-
-        #expect(found == recording)
-        #expect(found.part == part.id)
-        #expect(library.recording(identifier: UUID()) == nil)
     }
 
     @Test func `added Recordings and their audio persist across launches`() throws {
@@ -126,7 +112,9 @@ struct RecordingTests {
 
         let relaunched = PracticeLibrary(container: PersistentStore.container(storeURL: storeURL))
 
-        let reloaded = try #require(relaunched.recording(identifier: recording.identifier))
+        let reloadedPart = try #require(relaunched.songs().first.flatMap { relaunched.parts(of: $0.id).first })
+        let reloaded = try #require(relaunched.recordings(of: reloadedPart.id).first)
+        #expect(reloaded.identifier == recording.identifier)
         #expect(reloaded.date == recording.date)
         #expect(relaunched.audio(of: reloaded.id) == longAudio)
     }

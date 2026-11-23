@@ -57,7 +57,6 @@ struct EntryRecordingTests {
 
         #expect(library.practiceEntries(of: part.id).isEmpty)
         #expect(library.recordings(of: part.id).map(\.id) == [recording.id])
-        #expect(library.recording(identifier: recording.identifier) != nil)
         #expect(library.audio(of: recording.id) == audio)
     }
 

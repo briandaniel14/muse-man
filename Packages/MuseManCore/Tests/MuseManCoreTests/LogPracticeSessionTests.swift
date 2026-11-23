@@ -86,6 +86,23 @@ struct LogPracticeSessionTests {
         #expect(drafts.allSatisfy { library.practiceEntries(of: $0.part.id).isEmpty })
     }
 
+    @Test func `a Practice Session whose drafts' Parts were all deleted is not saved`() throws {
+        let library = PracticeLibrary.inMemory()
+        let part = try library.addPart(song: "Wonderwall", instrument: "Guitar")
+        let draft = PracticeEntryDraft(part: part, rating: .good)
+        try library.deletePart(id: part.id)
+
+        let session = try library.logPracticeSession(
+            startDate: TestClock.start,
+            duration: 30 * 60,
+            note: "",
+            drafts: [draft],
+        )
+
+        #expect(session == nil)
+        #expect(library.practiceSessions().isEmpty)
+    }
+
     @Test func `a Practice Session with a duration and every Practice Entry Draft rated is ready to save`() throws {
         let library = PracticeLibrary.inMemory()
         let part = try library.addPart(song: "Wonderwall", instrument: "Guitar")

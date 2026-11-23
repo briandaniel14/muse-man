@@ -79,33 +79,32 @@ extension PracticeLibrary {
     }
 
     private func parts(identifiers: [UUID]) -> [UUID: Part] {
-        guard !identifiers.isEmpty else {
-            return [:]
-        }
-        let request = NSFetchRequest<PartObject>(entityName: "Part")
-        request.predicate = NSPredicate(format: "identifier IN %@", identifiers.map { $0 as NSUUID })
-        let parts = fetch(request).compactMap(Part.init)
+        let parts = fetch("Part", identifiers: identifiers, as: PartObject.self).compactMap(Part.init)
         return Dictionary(parts.map { ($0.identifier, $0) }) { first, _ in first }
     }
 
     private func recordings(identifiers: [UUID]) -> [UUID: Recording] {
-        guard !identifiers.isEmpty else {
-            return [:]
-        }
-        let request = NSFetchRequest<RecordingObject>(entityName: "Recording")
-        request.predicate = NSPredicate(format: "identifier IN %@", identifiers.map { $0 as NSUUID })
-        let recordings = fetch(request).compactMap(Recording.init)
+        let recordings = fetch("Recording", identifiers: identifiers, as: RecordingObject.self)
+            .compactMap(Recording.init)
         return Dictionary(recordings.map { ($0.identifier, $0) }) { first, _ in first }
+    }
+
+    private func fetch<Object: NSManagedObject>(
+        _ entityName: String,
+        identifiers: some Swift.Collection<UUID>,
+        as _: Object.Type,
+    ) -> [Object] {
+        guard !identifiers.isEmpty else {
+            return []
+        }
+        let request = NSFetchRequest<Object>(entityName: entityName)
+        request.predicate = NSPredicate(format: "identifier IN %@", identifiers.map { $0 as NSUUID })
+        return fetch(request)
     }
 
     func reschedule(partIdentifiers: some Sequence<UUID?>) {
         let identifiers = Set(partIdentifiers.compactMap(\.self))
-        guard !identifiers.isEmpty else {
-            return
-        }
-        let request = NSFetchRequest<PartObject>(entityName: "Part")
-        request.predicate = NSPredicate(format: "identifier IN %@", identifiers.map { $0 as NSUUID })
-        fetch(request).forEach(reschedule)
+        fetch("Part", identifiers: identifiers, as: PartObject.self).forEach(reschedule)
     }
 
     func deleteFinishedIfEmpty(_ sessions: some Sequence<PracticeSessionObject?>) {

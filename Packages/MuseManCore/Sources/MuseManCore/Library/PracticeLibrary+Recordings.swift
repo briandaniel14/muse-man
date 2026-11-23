@@ -11,13 +11,6 @@ public extension PracticeLibrary {
         return fetch(request).compactMap(Recording.init)
     }
 
-    func recording(identifier: UUID) -> Recording? {
-        let request = NSFetchRequest<RecordingObject>(entityName: "Recording")
-        request.predicate = NSPredicate(format: "identifier == %@", identifier as NSUUID)
-        request.fetchLimit = 1
-        return fetch(request).first.flatMap(Recording.init)
-    }
-
     func audio(of recording: Recording.ID) -> Data? {
         object(recording, as: RecordingObject.self)?.audio
     }

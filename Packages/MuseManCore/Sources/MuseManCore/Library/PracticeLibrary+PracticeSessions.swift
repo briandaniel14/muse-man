@@ -69,6 +69,19 @@ public extension PracticeLibrary {
 }
 
 extension PracticeLibrary {
+    func insertPracticeEntry(_ draft: PracticeEntryDraft, in session: PracticeSessionObject) -> PracticeEntryObject? {
+        guard let rating = draft.rating, let part = object(draft.part.id, as: PartObject.self) else {
+            return nil
+        }
+        return insertPracticeEntry(
+            in: session,
+            part: part,
+            rating: rating,
+            note: draft.note.trimmingCharacters(in: .whitespacesAndNewlines),
+            recordingID: draft.recording?.identifier,
+        )
+    }
+
     @discardableResult func insertPracticeEntry(
         in session: PracticeSessionObject,
         part: PartObject,

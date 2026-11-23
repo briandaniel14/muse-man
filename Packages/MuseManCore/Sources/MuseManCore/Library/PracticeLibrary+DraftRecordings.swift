@@ -12,11 +12,8 @@ public extension PracticeLibrary {
         return draft.attach(recording, madeForDraft: true)
     }
 
-    func keepAudio(_ keep: Bool, of recordings: [Recording]) throws {
-        guard !keep else {
-            return
-        }
-        for recording in recordings {
+    func discardAudio(of draftAudio: [Recording]) throws {
+        for recording in draftAudio {
             if let object = object(recording.id, as: RecordingObject.self) {
                 context.delete(object)
             }

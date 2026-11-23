@@ -6,7 +6,6 @@ struct TimedPracticeSessionSheet: View {
     let sessionID: PracticeSession.ID
     @State private var picked: [Part] = []
     @State private var drafts: [Part.ID: PracticeEntryDraft] = [:]
-    @State private var discardedAudio: [Recording] = []
 
     var body: some View {
         NavigationStack {
@@ -25,26 +24,24 @@ struct TimedPracticeSessionSheet: View {
             }
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Close") {
-                        discardedAudio = drafts.values.flatMap(\.unsavedRecordings)
-                        if discardedAudio.isEmpty {
-                            dismiss()
-                        }
+                    DiscardDraftsButton(title: "Close", draftAudio: draftAudio) {
+                        dismiss()
                     }
                 }
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Finish") {
+                    DiscardDraftsButton(title: "Finish", draftAudio: draftAudio) {
                         try? library.finishPracticeSession(id: sessionID)
                         dismiss()
                     }
                 }
             }
-            .keepAudioPrompt($discardedAudio) {
-                dismiss()
-            }
-            .interactiveDismissDisabled(drafts.values.contains { !$0.unsavedRecordings.isEmpty })
+            .interactiveDismissDisabled(!draftAudio.isEmpty)
             .sheetScreen(title: "Practice Session")
         }
+    }
+
+    private var draftAudio: [Recording] {
+        drafts.values.flatMap(\.draftAudio)
     }
 
     private var entries: [PracticeEntry] {

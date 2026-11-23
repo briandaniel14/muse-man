@@ -3,7 +3,7 @@ import SwiftUI
 struct DraftEntriesSection: View {
     @Environment(PracticeLibrary.self) private var library
     @Binding var entries: [PracticeEntryDraft]
-    @State private var removedAudio: [Recording] = []
+    @State private var draftAudio: [Recording] = []
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -23,13 +23,13 @@ struct DraftEntriesSection: View {
             }
             ForEach($entries) { $entry in
                 DraftEntryRow(entry: $entry) {
-                    removedAudio = entry.unsavedRecordings
+                    draftAudio = entry.draftAudio
                     entries.removeAll { $0.id == entry.id }
                 }
                 Hairline()
             }
         }
-        .keepAudioPrompt($removedAudio)
+        .keepAudioPrompt($draftAudio)
     }
 }
 
@@ -37,7 +37,7 @@ struct DraftEntryRow: View {
     @Environment(PracticeLibrary.self) private var library
     @Binding var entry: PracticeEntryDraft
     var remove: (() -> Void)?
-    @State private var replacedAudio: [Recording] = []
+    @State private var draftAudio: [Recording] = []
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -54,14 +54,14 @@ struct DraftEntryRow: View {
             TextField("Note, optional", text: $entry.note, axis: .vertical)
                 .textFieldStyle(.plain)
             EntryRecordingField(recording: entry.recording, partID: entry.part.id) { recording in
-                replacedAudio = entry.replaceRecording(with: recording)
+                draftAudio = entry.replaceRecording(with: recording)
             } onCapture: { audio, date in
-                replacedAudio = (try? library.replaceRecording(of: &entry, withAudio: audio, date: date)) ?? []
+                draftAudio = (try? library.replaceRecording(of: &entry, withAudio: audio, date: date)) ?? []
             }
             RatingButtons(selection: $entry.rating)
         }
         .padding(.vertical, 12)
-        .keepAudioPrompt($replacedAudio)
+        .keepAudioPrompt($draftAudio)
     }
 }
 

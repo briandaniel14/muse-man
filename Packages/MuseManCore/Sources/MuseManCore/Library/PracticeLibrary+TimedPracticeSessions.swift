@@ -25,15 +25,13 @@ public extension PracticeLibrary {
         _ draft: PracticeEntryDraft,
         in session: PracticeSession.ID,
     ) throws -> PracticeEntry? {
-        guard let rating = draft.rating else {
+        guard let session = object(session, as: PracticeSessionObject.self),
+              let entry = insertPracticeEntry(draft, in: session)
+        else {
             return nil
         }
-        return try addPracticeEntry(
-            to: session,
-            part: draft.part.id,
-            rating: rating,
-            note: draft.note.trimmingCharacters(in: .whitespacesAndNewlines),
-            recordingID: draft.recording?.identifier,
-        )
+        reschedule(partIdentifiers: [entry.partID])
+        try save()
+        return practiceEntries([entry]).first
     }
 }

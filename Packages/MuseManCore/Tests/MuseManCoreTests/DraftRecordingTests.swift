@@ -13,7 +13,7 @@ struct DraftRecordingTests {
         try library.replaceRecording(of: &draft, withAudio: audio)
 
         let made = try #require(draft.recording)
-        #expect(draft.unsavedRecordings == [made])
+        #expect(draft.draftAudio == [made])
         #expect(library.recordings(of: part.id).map(\.id) == [made.id])
         #expect(library.audio(of: made.id) == audio)
     }
@@ -23,8 +23,6 @@ struct DraftRecordingTests {
         let part = try library.addGuitarPart()
         var draft = PracticeEntryDraft(part: part)
         try library.replaceRecording(of: &draft, withAudio: audio)
-
-        try library.keepAudio(true, of: [draft].flatMap(\.unsavedRecordings))
 
         let kept = try #require(library.recordings(of: part.id).first)
         #expect(kept.id == draft.recording?.id)
@@ -41,7 +39,7 @@ struct DraftRecordingTests {
         try library.replaceRecording(of: &guitar, withAudio: audio)
         try library.replaceRecording(of: &piano, withAudio: Data("scales".utf8))
 
-        try library.keepAudio(false, of: [guitar, piano].flatMap(\.unsavedRecordings))
+        try library.discardAudio(of: [guitar, piano].flatMap(\.draftAudio))
 
         #expect(library.recordings(of: wonderwall.id).map(\.id) == [older.id])
         #expect(library.recordings(of: yesterday.id).isEmpty)
@@ -55,7 +53,7 @@ struct DraftRecordingTests {
 
         draft.replaceRecording(with: existing)
         #expect(draft.recording == existing)
-        #expect(draft.unsavedRecordings.isEmpty)
+        #expect(draft.draftAudio.isEmpty)
 
         let removed = draft.replaceRecording(with: nil)
         #expect(removed.isEmpty)
@@ -76,11 +74,11 @@ struct DraftRecordingTests {
         let rerecorded = try library.replaceRecording(of: &draft, withAudio: audio)
         let second = try #require(draft.recording)
         #expect(rerecorded == [first])
-        #expect(draft.unsavedRecordings == [second])
+        #expect(draft.draftAudio == [second])
 
         let picked = draft.replaceRecording(with: existing)
         #expect(picked == [second])
-        #expect(draft.unsavedRecordings.isEmpty)
+        #expect(draft.draftAudio.isEmpty)
 
         try library.replaceRecording(of: &draft, withAudio: Data("third go".utf8))
         let third = try #require(draft.recording)
