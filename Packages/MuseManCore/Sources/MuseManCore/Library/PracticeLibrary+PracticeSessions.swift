@@ -52,8 +52,31 @@ public extension PracticeLibrary {
     ) throws -> PracticeEntry? {
         guard let session = object(session, as: PracticeSessionObject.self),
               let part = object(part, as: PartObject.self),
-              let partIdentifier = part.identifier
+              let entry = insertPracticeEntry(
+                  in: session,
+                  part: part,
+                  rating: rating,
+                  note: note,
+                  recordingID: recordingID,
+              )
         else {
+            return nil
+        }
+        reschedule(part)
+        try save()
+        return practiceEntries([entry]).first
+    }
+}
+
+extension PracticeLibrary {
+    @discardableResult func insertPracticeEntry(
+        in session: PracticeSessionObject,
+        part: PartObject,
+        rating: Rating,
+        note: String,
+        recordingID: UUID?,
+    ) -> PracticeEntryObject? {
+        guard let partIdentifier = part.identifier else {
             return nil
         }
         let entry = PracticeEntryObject(context: context)
@@ -66,8 +89,6 @@ public extension PracticeLibrary {
         if part.status == Part.Status.wantToLearn.rawValue {
             part.status = Part.Status.learning.rawValue
         }
-        reschedule(part)
-        try save()
-        return practiceEntries([entry]).first
+        return entry
     }
 }

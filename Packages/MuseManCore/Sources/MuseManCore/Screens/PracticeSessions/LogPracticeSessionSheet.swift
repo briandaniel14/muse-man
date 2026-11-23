@@ -7,7 +7,7 @@ struct LogPracticeSessionSheet: View {
     @State private var minutesAgo: Int? = 30
     @State private var minutes: Int? = 30
     @State private var note = ""
-    @State private var entries: [DraftEntry] = []
+    @State private var entries: [PracticeEntryDraft] = []
 
     var body: some View {
         NavigationStack {
@@ -36,41 +36,22 @@ struct LogPracticeSessionSheet: View {
         }
     }
 
+    private var duration: TimeInterval {
+        TimeInterval((minutes ?? 0) * 60)
+    }
+
     private var isIncomplete: Bool {
-        (minutes ?? 0) == 0 || entries.isEmpty || entries.contains { $0.rating == nil }
+        !library.canLogPracticeSession(duration: duration, drafts: entries)
     }
 
     private func save() {
-        let minutesAgo = (hoursAgo ?? 0) * 60 + (minutesAgo ?? 0)
-        guard let session = try? library.addPracticeSession(
-            startDate: library.now().addingTimeInterval(-TimeInterval(minutesAgo * 60)),
-            duration: TimeInterval((minutes ?? 0) * 60),
-            note: note.trimmingCharacters(in: .whitespacesAndNewlines),
-        ) else {
-            return
-        }
-        for entry in entries {
-            guard let rating = entry.rating else {
-                continue
-            }
-            _ = try? library.addPracticeEntry(
-                to: session.id,
-                part: entry.part.id,
-                rating: rating,
-                note: entry.note.trimmingCharacters(in: .whitespacesAndNewlines),
-                recordingID: entry.recording?.identifier,
-            )
-        }
-        try? library.finishPracticeSession(id: session.id)
+        _ = try? library.logPracticeSession(
+            startDate: library.startDate(hoursAgo: hoursAgo ?? 0, minutesAgo: minutesAgo ?? 0),
+            duration: duration,
+            note: note,
+            drafts: entries,
+        )
     }
-}
-
-struct DraftEntry: Identifiable {
-    let id = UUID()
-    let part: Part
-    var rating: Rating?
-    var note = ""
-    var recording: Recording?
 }
 
 struct SessionFields: View {

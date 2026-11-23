@@ -96,7 +96,7 @@ struct PendingPartsSection: View {
     let log: (Part, Rating, String, UUID?) -> Void
     let pick: (Part) -> Void
     @State private var player = AudioPlayer()
-    @State private var drafts: [Part.ID: DraftEntry] = [:]
+    @State private var drafts: [Part.ID: PracticeEntryDraft] = [:]
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -122,9 +122,9 @@ struct PendingPartsSection: View {
         }
     }
 
-    private func draft(for part: Part) -> Binding<DraftEntry> {
+    private func draft(for part: Part) -> Binding<PracticeEntryDraft> {
         Binding {
-            drafts[part.id] ?? DraftEntry(part: part)
+            drafts[part.id] ?? PracticeEntryDraft(part: part)
         } set: { draft in
             guard let rating = draft.rating else {
                 drafts[part.id] = draft
