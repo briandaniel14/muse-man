@@ -37,7 +37,7 @@ jobs:
         run: |
           set -o pipefail
           periphery scan --project-root Packages/MuseManCore \
-            --index-store-path DerivedData/Index.noindex/DataStore \
+            --index-store-path "$GITHUB_WORKSPACE/DerivedData/Index.noindex/DataStore" \
             --exclude-tests --disable-redundant-public-analysis \
             --relative-results --format github-actions --quiet \
             | sed 's|file=|file=Packages/MuseManCore/|'
