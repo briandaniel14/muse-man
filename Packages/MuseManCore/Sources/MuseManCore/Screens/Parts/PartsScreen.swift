@@ -4,7 +4,6 @@ struct PartsScreen: View {
     @Environment(PracticeLibrary.self) private var library
     @State private var status: Part.Status?
     @State private var instrumentID: Instrument.ID?
-    @State private var isManagingInstruments = false
     @State private var isAddingPart = false
 
     var body: some View {
@@ -27,17 +26,11 @@ struct PartsScreen: View {
             PartScreen(part: part)
         }
         .toolbar {
-            ToolbarItemGroup(placement: .primaryAction) {
-                Button("Instruments", systemImage: "guitars") {
-                    isManagingInstruments = true
-                }
+            ToolbarItem(placement: .primaryAction) {
                 Button("Add Part", systemImage: "plus") {
                     isAddingPart = true
                 }
             }
-        }
-        .sheet(isPresented: $isManagingInstruments) {
-            InstrumentsSheet()
         }
         .sheet(isPresented: $isAddingPart) {
             AddPartSheet()
