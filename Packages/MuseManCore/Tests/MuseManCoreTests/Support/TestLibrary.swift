@@ -25,6 +25,6 @@ extension PracticeLibrary {
     }
 
     func part(id: Part.ID) -> Part? {
-        parts().first { $0.id == id }
+        songs().flatMap { parts(of: $0.id) }.first { $0.id == id }
     }
 }
