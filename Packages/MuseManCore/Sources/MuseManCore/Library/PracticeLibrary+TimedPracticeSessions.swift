@@ -13,10 +13,10 @@ public extension PracticeLibrary {
         return fetch(request).first.flatMap(PracticeSession.init)
     }
 
-    func partsToPractise(in session: PracticeSession.ID, picked: [Part], includesDue: Bool = true) -> [Part] {
+    func partsToPractise(in session: PracticeSession.ID, picked: [Part], isPracticeNextOn: Bool) -> [Part] {
         let logged = Set(practiceEntries(in: session).map(\.partIdentifier))
         var seen: Set<Part.ID> = []
-        return ((includesDue ? practiceNext() : []) + picked).filter { part in
+        return ((isPracticeNextOn ? practiceNext() : []) + picked).filter { part in
             !logged.contains(part.identifier) && seen.insert(part.id).inserted
         }
     }

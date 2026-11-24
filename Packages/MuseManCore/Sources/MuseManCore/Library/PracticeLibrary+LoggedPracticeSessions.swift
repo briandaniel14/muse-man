@@ -8,9 +8,9 @@ public extension PracticeLibrary {
     func canLogPracticeSession(
         duration: TimeInterval,
         drafts: [PracticeEntryDraft],
-        asksForRating: Bool = true,
+        isPracticeNextOn: Bool,
     ) -> Bool {
-        duration > 0 && !drafts.isEmpty && (!asksForRating || drafts.allSatisfy { $0.rating != nil })
+        duration > 0 && !drafts.isEmpty && (!isPracticeNextOn || drafts.allSatisfy { $0.rating != nil })
     }
 
     @discardableResult func logPracticeSession(

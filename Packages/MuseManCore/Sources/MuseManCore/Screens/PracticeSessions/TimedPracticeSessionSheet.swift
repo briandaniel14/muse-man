@@ -50,7 +50,7 @@ struct TimedPracticeSessionSheet: View {
     }
 
     private var toPractise: [Part] {
-        library.partsToPractise(in: sessionID, picked: picked, includesDue: isPracticeNextOn)
+        library.partsToPractise(in: sessionID, picked: picked, isPracticeNextOn: isPracticeNextOn)
     }
 
     private func log(_ draft: PracticeEntryDraft) {

@@ -103,7 +103,7 @@ struct TimedPracticeSessionTests {
         try library.move(guitar, to: .learning)
         let session = try library.startPracticeSession()
 
-        let toPractise = library.partsToPractise(in: session.id, picked: [])
+        let toPractise = library.partsToPractise(in: session.id, picked: [], isPracticeNextOn: true)
 
         #expect(toPractise.map(\.id) == [piano.id, guitar.id])
     }
@@ -116,7 +116,7 @@ struct TimedPracticeSessionTests {
         try library.move(guitar, to: .learning)
         let session = try library.startPracticeSession()
 
-        let toPractise = library.partsToPractise(in: session.id, picked: [bass, guitar, piano])
+        let toPractise = library.partsToPractise(in: session.id, picked: [bass, guitar, piano], isPracticeNextOn: true)
 
         #expect(toPractise.map(\.id) == [guitar.id, bass.id, piano.id])
     }
@@ -133,7 +133,7 @@ struct TimedPracticeSessionTests {
         try library.addPracticeEntry(to: session.id, part: guitar.id, rating: .again)
         try library.addPracticeEntry(to: session.id, part: bass.id, rating: .good)
 
-        #expect(library.partsToPractise(in: session.id, picked: [bass]).map(\.id) == [piano.id])
+        #expect(library.partsToPractise(in: session.id, picked: [bass], isPracticeNextOn: true).map(\.id) == [piano.id])
     }
 
     @Test func `with Practice Next switched off, only the picked Parts are to practise`() throws {
@@ -143,8 +143,9 @@ struct TimedPracticeSessionTests {
         try library.move(guitar, to: .learning)
         let session = try library.startPracticeSession()
 
-        #expect(library.partsToPractise(in: session.id, picked: [], includesDue: false).isEmpty)
-        #expect(library.partsToPractise(in: session.id, picked: [piano], includesDue: false).map(\.id) == [piano.id])
+        #expect(library.partsToPractise(in: session.id, picked: [], isPracticeNextOn: false).isEmpty)
+        let toPractise = library.partsToPractise(in: session.id, picked: [piano], isPracticeNextOn: false)
+        #expect(toPractise.map(\.id) == [piano.id])
     }
 
     @Test func `a rated Practice Entry Draft is logged with its trimmed note and Recording`() throws {
@@ -161,7 +162,7 @@ struct TimedPracticeSessionTests {
         #expect(entries.first?.rating == .hard)
         #expect(entries.first?.note == "chorus")
         #expect(entries.first?.recordingID == recording.identifier)
-        #expect(library.partsToPractise(in: session.id, picked: [guitar]).isEmpty)
+        #expect(library.partsToPractise(in: session.id, picked: [guitar], isPracticeNextOn: true).isEmpty)
     }
 
     @Test func `a Practice Entry Draft with no Rating is logged without one`() throws {
@@ -175,7 +176,7 @@ struct TimedPracticeSessionTests {
 
         #expect(entry.rating == nil)
         #expect(library.practiceEntries(in: session.id).map(\.note) == ["warm-up"])
-        #expect(library.partsToPractise(in: session.id, picked: [guitar]).isEmpty)
+        #expect(library.partsToPractise(in: session.id, picked: [guitar], isPracticeNextOn: true).isEmpty)
     }
 
     @Test func `a Part rated after midnight in a session started before it is no longer to practise`() throws {
@@ -190,7 +191,7 @@ struct TimedPracticeSessionTests {
         try library.logPracticeEntry(PracticeEntryDraft(part: guitar, rating: .again), in: session.id)
 
         #expect(library.practiceNext().map(\.id) == [guitar.id])
-        #expect(library.partsToPractise(in: session.id, picked: []).isEmpty)
+        #expect(library.partsToPractise(in: session.id, picked: [], isPracticeNextOn: true).isEmpty)
     }
 }
 

@@ -80,8 +80,9 @@ struct LogPracticeSessionTests {
     ) throws {
         let library = PracticeLibrary.inMemory()
         let part = try library.addPart(song: "Wonderwall", instrument: "Guitar")
+        let drafts = [PracticeEntryDraft(part: part)]
 
-        #expect(!library.canLogPracticeSession(duration: 60, drafts: [PracticeEntryDraft(part: part)]))
+        #expect(!library.canLogPracticeSession(duration: 60, drafts: drafts, isPracticeNextOn: true))
     }
 
     @Test func `with Practice Next switched off, a Practice Session of unrated drafts is ready to save`() throws {
@@ -89,8 +90,8 @@ struct LogPracticeSessionTests {
         let part = try library.addPart(song: "Wonderwall", instrument: "Guitar")
         let drafts = [PracticeEntryDraft(part: part)]
 
-        #expect(library.canLogPracticeSession(duration: 60, drafts: drafts, asksForRating: false))
-        #expect(!library.canLogPracticeSession(duration: 60, drafts: [], asksForRating: false))
+        #expect(library.canLogPracticeSession(duration: 60, drafts: drafts, isPracticeNextOn: false))
+        #expect(!library.canLogPracticeSession(duration: 60, drafts: [], isPracticeNextOn: false))
     }
 
     @Test(arguments: [
@@ -107,7 +108,7 @@ struct LogPracticeSessionTests {
             try PracticeEntryDraft(part: library.addPart(song: "Song \(index)", instrument: "Guitar"), rating: rating)
         }
 
-        #expect(!library.canLogPracticeSession(duration: duration, drafts: drafts))
+        #expect(!library.canLogPracticeSession(duration: duration, drafts: drafts, isPracticeNextOn: true))
         let session = try library.logPracticeSession(
             startDate: TestClock.start,
             duration: duration,
@@ -140,7 +141,9 @@ struct LogPracticeSessionTests {
         let library = PracticeLibrary.inMemory()
         let part = try library.addPart(song: "Wonderwall", instrument: "Guitar")
 
-        #expect(library.canLogPracticeSession(duration: 60, drafts: [PracticeEntryDraft(part: part, rating: .again)]))
+        let drafts = [PracticeEntryDraft(part: part, rating: .again)]
+
+        #expect(library.canLogPracticeSession(duration: 60, drafts: drafts, isPracticeNextOn: true))
     }
 
     @Test func `logging a Practice Session saves the session and all its Practice Entries at once`() throws {

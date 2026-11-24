@@ -47,7 +47,7 @@ struct LogPracticeSessionSheet: View {
     }
 
     private var isIncomplete: Bool {
-        !library.canLogPracticeSession(duration: duration, drafts: entries, asksForRating: isPracticeNextOn)
+        !library.canLogPracticeSession(duration: duration, drafts: entries, isPracticeNextOn: isPracticeNextOn)
     }
 
     private func save() {
