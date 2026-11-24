@@ -56,6 +56,7 @@ struct LogPracticeSessionSheet: View {
             duration: duration,
             note: note,
             drafts: entries,
+            isPracticeNextOn: isPracticeNextOn,
         )
     }
 }

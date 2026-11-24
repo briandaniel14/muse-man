@@ -18,8 +18,9 @@ public extension PracticeLibrary {
         duration: TimeInterval,
         note: String,
         drafts: [PracticeEntryDraft],
+        isPracticeNextOn: Bool,
     ) throws -> PracticeSession? {
-        guard duration > 0 else {
+        guard canLogPracticeSession(duration: duration, drafts: drafts, isPracticeNextOn: isPracticeNextOn) else {
             return nil
         }
         let session = PracticeSessionObject(context: context)
