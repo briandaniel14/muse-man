@@ -3,7 +3,7 @@ import SwiftUI
 struct TimedPracticeSessionSheet: View {
     @Environment(PracticeLibrary.self) private var library
     @Environment(\.dismiss) private var dismiss
-    @AppStorage(SettingKey.isPracticeNextOn) private var isPracticeNextOn = true
+    @PracticeNextSetting private var isPracticeNextOn
     let sessionID: PracticeSession.ID
     @State private var picked: [Part] = []
     @State private var drafts: [Part.ID: PracticeEntryDraft] = [:]
@@ -88,7 +88,7 @@ struct ElapsedTime: View {
 }
 
 struct PendingPartsSection: View {
-    @AppStorage(SettingKey.isPracticeNextOn) private var isPracticeNextOn = true
+    @PracticeNextSetting private var isPracticeNextOn
     let parts: [Part]
     @Binding var drafts: [Part.ID: PracticeEntryDraft]
     let logged: [PracticeEntry]
@@ -137,7 +137,7 @@ struct PendingPartsSection: View {
 }
 
 struct LoggedEntriesSection: View {
-    @AppStorage(SettingKey.isPracticeNextOn) private var isPracticeNextOn = true
+    @PracticeNextSetting private var isPracticeNextOn
     let entries: [PracticeEntry]
 
     var body: some View {

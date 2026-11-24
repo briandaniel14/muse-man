@@ -4,7 +4,7 @@ public struct AppShell: View {
     #if os(iOS)
         @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     #endif
-    @AppStorage(SettingKey.isPracticeNextOn) private var isPracticeNextOn = true
+    @PracticeNextSetting private var isPracticeNextOn
     @State private var selection: Destination = .practiceNext
     @State private var player = AudioPlayer()
 

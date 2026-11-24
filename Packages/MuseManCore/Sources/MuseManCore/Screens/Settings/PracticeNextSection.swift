@@ -1,12 +1,8 @@
 import SwiftUI
 
-enum SettingKey {
-    static let isPracticeNextOn = "isPracticeNextOn"
-}
-
 struct PracticeNextSection: View {
     @Environment(PracticeLibrary.self) private var library
-    @AppStorage(SettingKey.isPracticeNextOn) private var isPracticeNextOn = true
+    @PracticeNextSetting private var isPracticeNextOn
 
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {

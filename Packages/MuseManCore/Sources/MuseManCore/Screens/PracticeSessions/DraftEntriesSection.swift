@@ -34,7 +34,7 @@ struct DraftEntriesSection: View {
 
 struct DraftEntryRow: View {
     @Environment(PracticeLibrary.self) private var library
-    @AppStorage(SettingKey.isPracticeNextOn) private var asksForRating = true
+    @PracticeNextSetting private var isPracticeNextOn
     @Binding var entry: PracticeEntryDraft
     var remove: (() -> Void)?
     var log: (() -> Void)?
@@ -59,7 +59,7 @@ struct DraftEntryRow: View {
             } onCapture: { audio, date in
                 draftAudio = (try? library.replaceRecording(of: &entry, withAudio: audio, date: date)) ?? []
             }
-            if asksForRating {
+            if isPracticeNextOn {
                 RatingButtons(selection: $entry.rating)
             } else if let log {
                 Button(action: log) {

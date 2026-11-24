@@ -62,7 +62,7 @@ struct PracticeEntrySheet: View {
 
 struct PracticeEntryFields: View {
     @Environment(PracticeLibrary.self) private var library
-    @AppStorage(SettingKey.isPracticeNextOn) private var isPracticeNextOn = true
+    @PracticeNextSetting private var isPracticeNextOn
     @Binding var entry: PracticeEntry
 
     var body: some View {
