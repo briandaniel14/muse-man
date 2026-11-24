@@ -147,8 +147,24 @@ struct SchedulingTests {
 
         try library.review(part, nil, on: 3)
 
-        #expect(try library.dueOffset(of: part) == 3)
+        #expect(try library.dueOffset(of: part) == 0)
         #expect(library.practiceNext().map(\.id) == [part.id])
+    }
+
+    @Test func `logging, editing or deleting an unrated Practice Entry leaves a Part's Due date alone`() throws {
+        let clock = TestClock()
+        let library = PracticeLibrary.inMemory(clock: clock)
+        let part = try library.addLearningPart()
+        clock.advance(days: 3)
+        let session = try library.addPracticeSession(startDate: clock.now, duration: 30 * 60)
+
+        var entry = try #require(try library.addPracticeEntry(to: session.id, part: part.id, rating: nil))
+        #expect(try library.dueOffset(of: part) == 0)
+        entry.note = "just noodling"
+        try library.updatePracticeEntry(entry)
+        #expect(try library.dueOffset(of: part) == 0)
+        try library.deletePracticeEntry(id: entry.id)
+        #expect(try library.dueOffset(of: part) == 0)
     }
 
     @Test func `switching Practice Next back on makes Parts with no rated Practice Entries Due today`() throws {

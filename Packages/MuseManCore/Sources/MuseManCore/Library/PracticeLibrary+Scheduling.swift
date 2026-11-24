@@ -23,7 +23,7 @@ extension PracticeLibrary {
         guard let identifier = part.identifier else {
             return
         }
-        part.dueDate = dueDate(after: reviews(of: identifier)) ?? today
+        part.dueDate = dueDate(after: reviews(of: identifier)) ?? min(part.dueDate ?? today, today)
     }
 
     func reviews(of partIdentifier: UUID) -> [Review] {
