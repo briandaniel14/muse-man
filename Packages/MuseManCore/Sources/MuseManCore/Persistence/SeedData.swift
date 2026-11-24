@@ -73,7 +73,7 @@ enum SeedData {
 
     private static func addParts(to library: PracticeLibrary, songs: [String: Song.ID]) -> [String: Part.ID] {
         var instruments: [String: Instrument.ID] = [:]
-        for name in ["Guitar", "Bass", "Piano", "Vocals"] {
+        for name in ["Guitar", "Bass", "Piano", "Vocals", "Drums"] {
             instruments[name] = try? library.addInstrument(name: name).id
         }
         var parts: [String: Part.ID] = [:]
@@ -137,6 +137,8 @@ enum SeedData {
         add("Campfire", ["Wonderwall", "Blackbird"])
         add("Band Set", ["Smells Like Teen Spirit", "Hotel California", "Alien"])
         add("Someday", [])
+        add("Encore", ["Hotel California"])
+        add("Full Set", ["Smells Like Teen Spirit", "Wonderwall", "Blackbird", "Hotel California", "Alien"])
     }
 
     private static func addRecordings(to library: PracticeLibrary, parts: [String: Part.ID], today: Date) {
@@ -174,6 +176,7 @@ enum SeedData {
         }
         session(daysAgo: 1, minutes: 15) {
             $0.add("hotel bass", .again, note: "Walk-up into the chorus")
+            $0.add("alien piano", nil, note: "Played it through once")
         }
     }
 
@@ -186,7 +189,7 @@ enum SeedData {
         let session: PracticeSession.ID
         let parts: [String: Part.ID]
 
-        func add(_ part: String, _ rating: Rating, note: String = "", attachingLatestRecording: Bool = false) {
+        func add(_ part: String, _ rating: Rating?, note: String = "", attachingLatestRecording: Bool = false) {
             guard let part = parts[part] else {
                 return
             }
