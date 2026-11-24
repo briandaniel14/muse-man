@@ -47,20 +47,17 @@ struct CollectionRow: View {
     let collection: Collection
 
     var body: some View {
-        HStack(alignment: .firstTextBaseline) {
+        let songs = library.songs(in: collection.id)
+        HStack(spacing: 12) {
+            CoverGrid(songs: songs, size: Theme.rowArtworkSize)
             Text(collection.name)
                 .font(Theme.body)
                 .foregroundStyle(Theme.ink)
             Spacer()
-            Text(songCount)
+            Text(songs.count == 1 ? "1 Song" : "\(songs.count) Songs")
                 .font(Theme.caption)
                 .foregroundStyle(Theme.fadedInk)
         }
         .padding(.vertical, 4)
-    }
-
-    private var songCount: String {
-        let count = library.songs(in: collection.id).count
-        return count == 1 ? "1 Song" : "\(count) Songs"
     }
 }
