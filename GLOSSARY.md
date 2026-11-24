@@ -22,6 +22,10 @@ _Avoid_: Notes, description
 A single standing note on a Song, such as its structure or reminders that apply to every Part, edited over time rather than dated.
 _Avoid_: Notes, description
 
+**Collection Note**:
+A single standing note on a Collection, such as what to bring to a gig, edited over time rather than dated.
+_Avoid_: Notes, description
+
 **Musician**:
 A person who owns Parts and practises them; each person using the app is one Musician.
 _Avoid_: User, player, member
