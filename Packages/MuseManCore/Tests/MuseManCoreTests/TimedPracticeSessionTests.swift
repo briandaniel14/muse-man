@@ -153,16 +153,18 @@ struct TimedPracticeSessionTests {
         #expect(library.partsToPractise(in: session.id, picked: [guitar]).isEmpty)
     }
 
-    @Test func `a Practice Entry Draft with no Rating is not logged`() throws {
+    @Test func `a Practice Entry Draft with no Rating is logged without one`() throws {
         let library = PracticeLibrary.inMemory()
         let guitar = try library.addGuitarPart()
         let session = try library.startPracticeSession()
 
-        let entry = try library.logPracticeEntry(PracticeEntryDraft(part: guitar, note: "warm-up"), in: session.id)
+        let draft = PracticeEntryDraft(part: guitar, note: "warm-up")
 
-        #expect(entry == nil)
-        #expect(library.practiceEntries(in: session.id).isEmpty)
-        #expect(library.partsToPractise(in: session.id, picked: [guitar]).map(\.id) == [guitar.id])
+        let entry = try #require(try library.logPracticeEntry(draft, in: session.id))
+
+        #expect(entry.rating == nil)
+        #expect(library.practiceEntries(in: session.id).map(\.note) == ["warm-up"])
+        #expect(library.partsToPractise(in: session.id, picked: [guitar]).isEmpty)
     }
 
     @Test func `a Part rated after midnight in a session started before it is no longer to practise`() throws {

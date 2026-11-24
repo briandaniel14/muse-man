@@ -18,7 +18,7 @@ public extension PracticeLibrary {
         guard let object = object(entry.id, as: PracticeEntryObject.self) else {
             return
         }
-        object.rating = entry.rating.rawValue
+        object.savedRating = entry.rating
         object.note = entry.note
         object.recordingID = entry.recordingID
         reschedule(partIdentifiers: [object.partID])
