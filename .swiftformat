@@ -1,1 +1,1 @@
---exclude .claude/worktrees,.build,DerivedData
+--exclude .build,DerivedData
