@@ -43,6 +43,11 @@ public extension PracticeLibrary {
         return practiceEntries(fetch(request))
     }
 
+    func practisedSongs(in session: PracticeSession.ID) -> [Song] {
+        var seen = Set<Song.ID>()
+        return practiceEntries(in: session).reversed().compactMap(\.part?.song).filter { seen.insert($0.id).inserted }
+    }
+
     @discardableResult func addPracticeEntry(
         to session: PracticeSession.ID,
         part: Part.ID,

@@ -45,6 +45,19 @@ struct PracticeSessionList: View {
 }
 
 struct PracticeSessionRow: View {
+    @Environment(PracticeLibrary.self) private var library
+    let session: PracticeSession
+
+    var body: some View {
+        HStack(spacing: 12) {
+            CoverGrid(songs: library.practisedSongs(in: session.id), size: Theme.rowArtworkSize)
+            PracticeSessionRowText(session: session)
+        }
+        .padding(.vertical, 4)
+    }
+}
+
+struct PracticeSessionRowText: View {
     let session: PracticeSession
 
     var body: some View {
@@ -70,6 +83,5 @@ struct PracticeSessionRow: View {
                     .foregroundStyle(Theme.fadedInk)
             }
         }
-        .padding(.vertical, 4)
     }
 }
