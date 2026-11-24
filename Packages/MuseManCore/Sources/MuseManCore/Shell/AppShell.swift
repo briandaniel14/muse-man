@@ -15,17 +15,17 @@ public struct AppShell: View {
             .environment(player)
             .tint(Theme.accent)
             .onChange(of: isPracticeNextOn, initial: true) {
-                selection = selection.landing(isPracticeNextOn: isPracticeNextOn)
+                selection = selection.visibleOrFallback(isPracticeNextOn: isPracticeNextOn)
             }
     }
 
     private var destinations: [Destination] {
-        Destination.shown(isPracticeNextOn: isPracticeNextOn)
+        Destination.visible(isPracticeNextOn: isPracticeNextOn)
     }
 
-    private var shownSelection: Binding<Destination> {
+    private var visibleSelection: Binding<Destination> {
         Binding {
-            selection.landing(isPracticeNextOn: isPracticeNextOn)
+            selection.visibleOrFallback(isPracticeNextOn: isPracticeNextOn)
         } set: {
             selection = $0
         }
@@ -34,12 +34,12 @@ public struct AppShell: View {
     @ViewBuilder private var shell: some View {
         #if os(iOS)
             if horizontalSizeClass == .compact {
-                TabShell(destinations: destinations, selection: shownSelection)
+                TabShell(destinations: destinations, selection: visibleSelection)
             } else {
-                SidebarShell(destinations: destinations, selection: shownSelection)
+                SidebarShell(destinations: destinations, selection: visibleSelection)
             }
         #else
-            FlatSidebarShell(destinations: destinations, selection: shownSelection)
+            FlatSidebarShell(destinations: destinations, selection: visibleSelection)
         #endif
     }
 }
