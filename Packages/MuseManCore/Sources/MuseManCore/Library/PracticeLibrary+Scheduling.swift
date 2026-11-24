@@ -19,14 +19,14 @@ extension PracticeLibrary {
         let entries = fetch(request).sorted { order($0) < order($1) }
         var reviews: [Review] = []
         for entry in entries {
-            guard let start = entry.session?.startDate else {
+            guard let start = entry.session?.startDate, let rating = entry.savedRating else {
                 continue
             }
             let day = Calendar.current.startOfDay(for: start)
             if reviews.last?.day == day {
                 reviews.removeLast()
             }
-            reviews.append(Review(day: day, rating: Rating(rawValue: entry.rating) ?? .good))
+            reviews.append(Review(day: day, rating: rating))
         }
         return reviews
     }

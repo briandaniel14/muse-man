@@ -9,6 +9,7 @@ struct PaperScreen: ViewModifier {
 
     let title: String
     let kind: Kind
+    var isFullWidth = false
 
     private var hasHero: Bool {
         kind == .hero
@@ -20,7 +21,7 @@ struct PaperScreen: ViewModifier {
             .foregroundStyle(Theme.ink)
             .scrollContentBackground(.hidden)
             .modifier(PageHeading(title: title, isVisible: kind == .sheet))
-            .frame(maxWidth: hasHero ? .infinity : Theme.readableWidth)
+            .frame(maxWidth: hasHero || isFullWidth ? .infinity : Theme.readableWidth)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
             .modifier(TitleBand(title: title, isVisible: kind == .paper))
             .background {
@@ -133,8 +134,8 @@ struct PaperRow: ViewModifier {
 }
 
 public extension View {
-    func paperScreen(title: String) -> some View {
-        modifier(PaperScreen(title: title, kind: .paper))
+    func paperScreen(title: String, isFullWidth: Bool = false) -> some View {
+        modifier(PaperScreen(title: title, kind: .paper, isFullWidth: isFullWidth))
     }
 
     func sheetScreen(title: String) -> some View {

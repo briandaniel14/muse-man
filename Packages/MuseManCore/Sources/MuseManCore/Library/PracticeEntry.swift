@@ -4,7 +4,7 @@ public struct PracticeEntry: Identifiable, Hashable {
     public let id: NSManagedObjectID
     public let partIdentifier: UUID
     public let part: Part?
-    public var rating: Rating
+    public var rating: Rating?
     public var note: String
     public private(set) var recordingID: UUID?
     public var recording: Recording? {
@@ -24,7 +24,7 @@ extension PracticeEntry {
         id = object.objectID
         self.partIdentifier = partIdentifier
         part = parts[partIdentifier]
-        rating = Rating(rawValue: object.rating) ?? .good
+        rating = object.savedRating
         note = object.note ?? ""
         recordingID = object.recordingID
         recording = object.recordingID.flatMap { recordings[$0] }
