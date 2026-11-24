@@ -10,16 +10,24 @@ struct SongArtwork: View {
                 .resizable()
                 .scaledToFill()
         } placeholder: {
-            ZStack {
-                Rectangle()
-                    .fill(Theme.sidebar)
-                Image(systemName: "music.note")
-                    .font(.system(size: size * 0.4))
-                    .foregroundStyle(Theme.hairline)
-            }
+            ArtworkPlaceholder(size: size)
         }
         .frame(width: size, height: size)
-        .clipShape(.rect(cornerRadius: size * 0.1))
+        .clipShape(.rect(cornerRadius: size * Theme.artworkCornerRadiusRatio))
         .accessibilityHidden(true)
+    }
+}
+
+struct ArtworkPlaceholder: View {
+    let size: CGFloat
+
+    var body: some View {
+        ZStack {
+            Rectangle()
+                .fill(Theme.sidebar)
+            Image(systemName: "music.note")
+                .font(.system(size: size * Theme.artworkPlaceholderIconRatio))
+                .foregroundStyle(Theme.hairline)
+        }
     }
 }

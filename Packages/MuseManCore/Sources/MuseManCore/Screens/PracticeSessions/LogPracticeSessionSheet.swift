@@ -3,6 +3,7 @@ import SwiftUI
 struct LogPracticeSessionSheet: View {
     @Environment(PracticeLibrary.self) private var library
     @Environment(\.dismiss) private var dismiss
+    @PracticeNextSetting private var isPracticeNextOn
     @State private var hoursAgo: Int? = 0
     @State private var minutesAgo: Int? = 30
     @State private var minutes: Int? = 30
@@ -46,7 +47,7 @@ struct LogPracticeSessionSheet: View {
     }
 
     private var isIncomplete: Bool {
-        !library.canLogPracticeSession(duration: duration, drafts: entries)
+        !library.canLogPracticeSession(duration: duration, drafts: entries, isPracticeNextOn: isPracticeNextOn)
     }
 
     private func save() {
@@ -55,6 +56,7 @@ struct LogPracticeSessionSheet: View {
             duration: duration,
             note: note,
             drafts: entries,
+            isPracticeNextOn: isPracticeNextOn,
         )
     }
 }

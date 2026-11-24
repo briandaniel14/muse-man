@@ -126,6 +126,76 @@ struct SchedulingTests {
         #expect(try library.dueOffset(of: part) == 1)
     }
 
+    @Test func `unrated Practice Entries don't change when a Part is next Due`() throws {
+        let clock = TestClock()
+        let library = PracticeLibrary.inMemory(clock: clock)
+        let part = try library.addLearningPart()
+
+        try library.review(part, .easy, on: 0, hour: 8)
+        clock.now += 60
+        try library.review(part, nil, on: 0, hour: 19)
+        try library.review(part, nil, on: 5)
+
+        #expect(try library.dueOffset(of: part) == 16)
+    }
+
+    @Test func `a Part whose only Practice Entries have no Rating is Due as if never reviewed`() throws {
+        let clock = TestClock()
+        let library = PracticeLibrary.inMemory(clock: clock)
+        let part = try library.addLearningPart()
+        clock.advance(days: 3)
+
+        try library.review(part, nil, on: 3)
+
+        #expect(try library.dueOffset(of: part) == 0)
+        #expect(library.practiceNext().map(\.id) == [part.id])
+    }
+
+    @Test func `logging, editing or deleting an unrated Practice Entry leaves a Part's Due date alone`() throws {
+        let clock = TestClock()
+        let library = PracticeLibrary.inMemory(clock: clock)
+        let part = try library.addLearningPart()
+        clock.advance(days: 3)
+        let session = try library.addPracticeSession(startDate: clock.now, duration: 30 * 60)
+
+        var entry = try #require(try library.addPracticeEntry(to: session.id, part: part.id, rating: nil))
+        #expect(try library.dueOffset(of: part) == 0)
+        entry.note = "just noodling"
+        try library.updatePracticeEntry(entry)
+        #expect(try library.dueOffset(of: part) == 0)
+        try library.deletePracticeEntry(id: entry.id)
+        #expect(try library.dueOffset(of: part) == 0)
+    }
+
+    @Test func `switching Practice Next back on makes Parts with no rated Practice Entries Due today`() throws {
+        let clock = TestClock()
+        let library = PracticeLibrary.inMemory(clock: clock)
+        let unrated = try library.addLearningPart(song: "Wonderwall")
+        let unpractised = try library.addLearningPart(song: "Yesterday")
+        let rated = try library.addLearningPart(song: "Hey Jude")
+        try library.review(unrated, nil, on: 0)
+        try library.review(rated, .easy, on: 0)
+        clock.advance(days: 5)
+
+        try library.makeUnratedPartsDueToday()
+
+        #expect(try library.dueOffset(of: unrated) == 5)
+        #expect(try library.dueOffset(of: unpractised) == 5)
+        #expect(try library.dueOffset(of: rated) == 16)
+    }
+
+    @Test func `switching Practice Next back on leaves Want to learn Parts not Due`() throws {
+        let clock = TestClock()
+        let library = PracticeLibrary.inMemory(clock: clock)
+        let song = try library.addSong(title: "Wonderwall", artist: "")
+        let instrument = try library.addInstrument(name: "Guitar")
+        let part = try #require(try library.addPart(to: song.id, instrument: instrument.id))
+
+        try library.makeUnratedPartsDueToday()
+
+        #expect(library.part(id: part.id)?.dueDate == nil)
+    }
+
     @Test func `within a Practice Session the Practice Entry logged last wins`() throws {
         let clock = TestClock()
         let library = PracticeLibrary.inMemory(clock: clock)
@@ -158,7 +228,7 @@ private extension PracticeLibrary {
         return part
     }
 
-    func review(_ part: Part, _ rating: Rating, on offset: Int, hour: Int = 12) throws {
+    func review(_ part: Part, _ rating: Rating?, on offset: Int, hour: Int = 12) throws {
         let start = try #require(day(offset).flatMap { Calendar.current.date(byAdding: .hour, value: hour, to: $0) })
         let session = try addPracticeSession(startDate: start, duration: 30 * 60)
         try addPracticeEntry(to: session.id, part: part.id, rating: rating)

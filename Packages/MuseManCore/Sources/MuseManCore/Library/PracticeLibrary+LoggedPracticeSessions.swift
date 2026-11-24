@@ -5,8 +5,12 @@ public extension PracticeLibrary {
         now().addingTimeInterval(-TimeInterval((hoursAgo * 60 + minutesAgo) * 60))
     }
 
-    func canLogPracticeSession(duration: TimeInterval, drafts: [PracticeEntryDraft]) -> Bool {
-        duration > 0 && !drafts.isEmpty && drafts.allSatisfy { $0.rating != nil }
+    func canLogPracticeSession(
+        duration: TimeInterval,
+        drafts: [PracticeEntryDraft],
+        isPracticeNextOn: Bool,
+    ) -> Bool {
+        duration > 0 && !drafts.isEmpty && (!isPracticeNextOn || drafts.allSatisfy { $0.rating != nil })
     }
 
     @discardableResult func logPracticeSession(
@@ -14,8 +18,9 @@ public extension PracticeLibrary {
         duration: TimeInterval,
         note: String,
         drafts: [PracticeEntryDraft],
+        isPracticeNextOn: Bool,
     ) throws -> PracticeSession? {
-        guard canLogPracticeSession(duration: duration, drafts: drafts) else {
+        guard canLogPracticeSession(duration: duration, drafts: drafts, isPracticeNextOn: isPracticeNextOn) else {
             return nil
         }
         let session = PracticeSessionObject(context: context)

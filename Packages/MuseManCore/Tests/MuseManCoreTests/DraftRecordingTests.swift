@@ -99,6 +99,7 @@ struct DraftRecordingTests {
             duration: 1800,
             note: "",
             drafts: [draft],
+            isPracticeNextOn: true,
         ))
 
         let entry = try #require(library.practiceEntries(in: session.id).first)

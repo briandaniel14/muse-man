@@ -4,6 +4,7 @@ public struct AppShell: View {
     #if os(iOS)
         @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     #endif
+    @PracticeNextSetting private var isPracticeNextOn
     @State private var selection: Destination = .practiceNext
     @State private var player = AudioPlayer()
 
@@ -13,27 +14,43 @@ public struct AppShell: View {
         shell
             .environment(player)
             .tint(Theme.accent)
+            .onChange(of: isPracticeNextOn, initial: true) {
+                selection = selection.visibleOrFallback(isPracticeNextOn: isPracticeNextOn)
+            }
+    }
+
+    private var destinations: [Destination] {
+        Destination.visible(isPracticeNextOn: isPracticeNextOn)
+    }
+
+    private var visibleSelection: Binding<Destination> {
+        Binding {
+            selection.visibleOrFallback(isPracticeNextOn: isPracticeNextOn)
+        } set: {
+            selection = $0
+        }
     }
 
     @ViewBuilder private var shell: some View {
         #if os(iOS)
             if horizontalSizeClass == .compact {
-                TabShell(selection: $selection)
+                TabShell(destinations: destinations, selection: visibleSelection)
             } else {
-                SidebarShell(selection: $selection)
+                SidebarShell(destinations: destinations, selection: visibleSelection)
             }
         #else
-            FlatSidebarShell(selection: $selection)
+            FlatSidebarShell(destinations: destinations, selection: visibleSelection)
         #endif
     }
 }
 
 struct TabShell: View {
+    let destinations: [Destination]
     @Binding var selection: Destination
 
     var body: some View {
         TabView(selection: $selection) {
-            ForEach(Destination.allCases) { destination in
+            ForEach(destinations) { destination in
                 Tab(destination.title, systemImage: destination.systemImage, value: destination) {
                     NavigationStack {
                         DestinationScreen(destination: destination)
@@ -45,12 +62,13 @@ struct TabShell: View {
 }
 
 struct SidebarShell: View {
+    let destinations: [Destination]
     @Binding var selection: Destination
     @State private var columnVisibility: NavigationSplitViewVisibility = .all
 
     var body: some View {
         NavigationSplitView(columnVisibility: $columnVisibility) {
-            Sidebar(selection: $selection)
+            Sidebar(destinations: destinations, selection: $selection)
         } detail: {
             NavigationStack {
                 DestinationScreen(destination: selection)
@@ -62,11 +80,12 @@ struct SidebarShell: View {
 
 #if os(macOS)
     struct FlatSidebarShell: View {
+        let destinations: [Destination]
         @Binding var selection: Destination
 
         var body: some View {
             HStack(spacing: 0) {
-                FlatSidebar(selection: $selection)
+                FlatSidebar(destinations: destinations, selection: $selection)
                 VerticalHairline()
                 NavigationStack {
                     DestinationScreen(destination: selection)
@@ -78,11 +97,12 @@ struct SidebarShell: View {
     }
 
     struct FlatSidebar: View {
+        let destinations: [Destination]
         @Binding var selection: Destination
 
         var body: some View {
             VStack(alignment: .leading, spacing: 2) {
-                ForEach(Destination.allCases) { destination in
+                ForEach(destinations) { destination in
                     FlatSidebarRow(destination: destination, isSelected: destination == selection) {
                         selection = destination
                     }
@@ -123,10 +143,11 @@ struct SidebarShell: View {
 #endif
 
 struct Sidebar: View {
+    let destinations: [Destination]
     @Binding var selection: Destination
 
     var body: some View {
-        List(Destination.allCases, selection: Binding($selection)) { destination in
+        List(destinations, selection: Binding($selection)) { destination in
             Label(destination.title, systemImage: destination.systemImage)
                 .font(Theme.body)
                 .foregroundStyle(Theme.ink)

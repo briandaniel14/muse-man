@@ -4,7 +4,7 @@ struct PartTitle: View {
     let part: Part
 
     var body: some View {
-        HStack(spacing: 12) {
+        HStack(spacing: Theme.rowSpacing) {
             SongArtwork(url: part.song.artworkURL, size: 40)
             VStack(alignment: .leading, spacing: 2) {
                 Text(part.song.title)

@@ -3,6 +3,7 @@ import SwiftUI
 struct TimedPracticeSessionSheet: View {
     @Environment(PracticeLibrary.self) private var library
     @Environment(\.dismiss) private var dismiss
+    @PracticeNextSetting private var isPracticeNextOn
     let sessionID: PracticeSession.ID
     @State private var picked: [Part] = []
     @State private var drafts: [Part.ID: PracticeEntryDraft] = [:]
@@ -49,7 +50,7 @@ struct TimedPracticeSessionSheet: View {
     }
 
     private var toPractise: [Part] {
-        library.partsToPractise(in: sessionID, picked: picked)
+        library.partsToPractise(in: sessionID, picked: picked, isPracticeNextOn: isPracticeNextOn)
     }
 
     private func log(_ draft: PracticeEntryDraft) {
@@ -87,6 +88,7 @@ struct ElapsedTime: View {
 }
 
 struct PendingPartsSection: View {
+    @PracticeNextSetting private var isPracticeNextOn
     let parts: [Part]
     @Binding var drafts: [Part.ID: PracticeEntryDraft]
     let logged: [PracticeEntry]
@@ -103,17 +105,19 @@ struct PendingPartsSection: View {
             .padding(.bottom, 4)
             Hairline()
             if parts.isEmpty {
-                Text("Nothing Due. Add a Part to practise it.")
+                Text(isPracticeNextOn ? "Nothing Due. Add a Part to practise it." : "Add a Part to practise it.")
                     .foregroundStyle(Theme.fadedInk)
                     .padding(.vertical, 12)
             }
             ForEach(parts) { part in
-                DraftEntryRow(entry: draft(for: part))
-                    .onChange(of: drafts[part.id]?.rating) { _, rating in
-                        if rating != nil, let draft = drafts.removeValue(forKey: part.id) {
-                            log(draft)
-                        }
+                DraftEntryRow(entry: draft(for: part), log: {
+                    log(drafts.removeValue(forKey: part.id) ?? PracticeEntryDraft(part: part))
+                })
+                .onChange(of: drafts[part.id]?.rating) { _, rating in
+                    if rating != nil, let draft = drafts.removeValue(forKey: part.id) {
+                        log(draft)
                     }
+                }
                 Hairline()
             }
         }
@@ -133,6 +137,7 @@ struct PendingPartsSection: View {
 }
 
 struct LoggedEntriesSection: View {
+    @PracticeNextSetting private var isPracticeNextOn
     let entries: [PracticeEntry]
 
     var body: some View {
@@ -141,7 +146,7 @@ struct LoggedEntriesSection: View {
                 .padding(.bottom, 4)
             Hairline()
             if entries.isEmpty {
-                Text("Rate a Part to log it")
+                Text(isPracticeNextOn ? "Rate a Part to log it" : "Log a Part to see it here")
                     .foregroundStyle(Theme.fadedInk)
                     .padding(.vertical, 12)
             }

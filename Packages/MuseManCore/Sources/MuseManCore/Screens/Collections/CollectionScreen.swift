@@ -114,13 +114,26 @@ struct CollectionHero: View {
     @Binding var collection: Collection
 
     var body: some View {
-        Hero {
+        let songs = library.songs(in: collection.id)
+        ArtworkHero(panelBesideHeading: true) {
             VStack(alignment: .leading, spacing: 8) {
                 HeroTextField(label: "Name", placeholder: "Name", text: $collection.name, axis: .vertical)
                     .font(Theme.heroTitle)
-                Text("^[\(library.songs(in: collection.id).count) Song](inflect: true)")
+                Text(songCount: songs.count)
                     .font(Theme.heroSubtitle)
             }
+        } panel: {
+            HeroDetail(label: "Collection Note", systemImage: "note.text") {
+                HeroTextField(
+                    label: "Collection Note",
+                    placeholder: "What to bring, reminders…",
+                    text: $collection.note,
+                    axis: .vertical,
+                )
+                .lineLimit(2...)
+            }
+        } artwork: { size in
+            CoverGrid(songs: songs, size: size)
         }
     }
 }

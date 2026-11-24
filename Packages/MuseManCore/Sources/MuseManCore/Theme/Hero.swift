@@ -18,27 +18,34 @@ struct Hero<Content: View>: View {
     }
 }
 
-struct ArtworkHero<Heading: View, Panel: View>: View {
-    let artworkURL: URL?
+struct ArtworkHero<Heading: View, Panel: View, Artwork: View>: View {
+    var panelBesideHeading = false
     @ViewBuilder let heading: Heading
     @ViewBuilder let panel: Panel
+    @ViewBuilder let artwork: (CGFloat) -> Artwork
     @State private var isWide = true
 
     var body: some View {
         Hero {
             HStack(alignment: .top, spacing: 32) {
                 VStack(alignment: .leading, spacing: 20) {
-                    HStack(spacing: 24) {
+                    HStack(alignment: showsPanelBesideHeading ? .top : .center, spacing: 24) {
                         heading
                             .frame(maxWidth: .infinity, alignment: .leading)
+                        if showsPanelBesideHeading {
+                            panel
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                        }
                         if !isWide {
-                            artwork(size: Theme.compactHeroArtworkSize)
+                            shadowedArtwork(Theme.compactHeroArtworkSize)
                         }
                     }
-                    panel
+                    if !showsPanelBesideHeading {
+                        panel
+                    }
                 }
                 if isWide {
-                    artwork(size: Theme.heroArtworkSize)
+                    shadowedArtwork(Theme.heroArtworkSize)
                 }
             }
             .onGeometryChange(for: Bool.self) { geometry in
@@ -49,11 +56,20 @@ struct ArtworkHero<Heading: View, Panel: View>: View {
         }
     }
 
-    @ViewBuilder
-    private func artwork(size: CGFloat) -> some View {
-        if let artworkURL {
-            SongArtwork(url: artworkURL, size: size)
-                .shadow(radius: 12, y: 6)
+    private var showsPanelBesideHeading: Bool {
+        panelBesideHeading && isWide
+    }
+
+    private func shadowedArtwork(_ size: CGFloat) -> some View {
+        artwork(size)
+            .shadow(radius: 12, y: 6)
+    }
+}
+
+extension ArtworkHero where Artwork == SongArtwork? {
+    init(artworkURL: URL?, @ViewBuilder heading: () -> Heading, @ViewBuilder panel: () -> Panel) {
+        self.init(heading: heading, panel: panel) { size in
+            artworkURL.map { SongArtwork(url: $0, size: size) }
         }
     }
 }

@@ -25,6 +25,7 @@ struct LogPracticeSessionTests {
             duration: duration,
             note: "\n tired, fingers sore  ",
             drafts: drafts,
+            isPracticeNextOn: true,
         ))
 
         let logged = try #require(library.practiceSession(id: session.id))
@@ -52,6 +53,7 @@ struct LogPracticeSessionTests {
             duration: 30 * 60,
             note: "",
             drafts: [PracticeEntryDraft(part: part, rating: .hard)],
+            isPracticeNextOn: true,
         )
 
         let logged = try #require(library.part(id: part.id))
@@ -59,12 +61,66 @@ struct LogPracticeSessionTests {
         #expect(logged.dueDate == day(2026, 1, 6))
     }
 
+    @Test func `with Practice Next switched off, an unrated draft is logged as a Practice Entry without a Rating`(
+    ) throws {
+        let library = PracticeLibrary.inMemory()
+        let wonderwall = try library.addPart(song: "Wonderwall", instrument: "Guitar")
+        let yesterday = try library.addPart(song: "Yesterday", instrument: "Piano")
+
+        let session = try #require(try library.logPracticeSession(
+            startDate: TestClock.start,
+            duration: 30 * 60,
+            note: "",
+            drafts: [PracticeEntryDraft(part: wonderwall, rating: .hard), PracticeEntryDraft(part: yesterday)],
+            isPracticeNextOn: false,
+        ))
+
+        let entries = library.practiceEntries(in: session.id)
+        let ratings = Dictionary(uniqueKeysWithValues: entries.map { ($0.partIdentifier, $0.rating) })
+        #expect(ratings == [wonderwall.identifier: .hard, yesterday.identifier: nil])
+    }
+
+    @Test func `a Practice Session with an unrated draft is not ready to save, as the screen still asks for a Rating`(
+    ) throws {
+        let library = PracticeLibrary.inMemory()
+        let part = try library.addPart(song: "Wonderwall", instrument: "Guitar")
+        let drafts = [PracticeEntryDraft(part: part)]
+
+        #expect(!library.canLogPracticeSession(duration: 60, drafts: drafts, isPracticeNextOn: true))
+    }
+
+    @Test func `with Practice Next on, a Practice Session with an unrated draft is not logged`() throws {
+        let library = PracticeLibrary.inMemory()
+        let wonderwall = try library.addPart(song: "Wonderwall", instrument: "Guitar")
+        let yesterday = try library.addPart(song: "Yesterday", instrument: "Piano")
+
+        let session = try library.logPracticeSession(
+            startDate: TestClock.start,
+            duration: 30 * 60,
+            note: "",
+            drafts: [PracticeEntryDraft(part: wonderwall, rating: .hard), PracticeEntryDraft(part: yesterday)],
+            isPracticeNextOn: true,
+        )
+
+        #expect(session == nil)
+        #expect(library.practiceSessions().isEmpty)
+        #expect(library.practiceEntries(of: wonderwall.id).isEmpty)
+    }
+
+    @Test func `with Practice Next switched off, a Practice Session of unrated drafts is ready to save`() throws {
+        let library = PracticeLibrary.inMemory()
+        let part = try library.addPart(song: "Wonderwall", instrument: "Guitar")
+        let drafts = [PracticeEntryDraft(part: part)]
+
+        #expect(library.canLogPracticeSession(duration: 60, drafts: drafts, isPracticeNextOn: false))
+        #expect(!library.canLogPracticeSession(duration: 60, drafts: [], isPracticeNextOn: false))
+    }
+
     @Test(arguments: [
         (minutes: 0, ratings: [Rating.good]),
         (minutes: 30, ratings: []),
-        (minutes: 30, ratings: [Rating.good, nil]),
     ])
-    func `a Practice Session with no duration, no Practice Entry Drafts or an unrated draft is not ready to save`(
+    func `a Practice Session with no duration or no Practice Entry Drafts is not ready to save`(
         minutes: Int,
         ratings: [Rating?],
     ) throws {
@@ -74,12 +130,13 @@ struct LogPracticeSessionTests {
             try PracticeEntryDraft(part: library.addPart(song: "Song \(index)", instrument: "Guitar"), rating: rating)
         }
 
-        #expect(!library.canLogPracticeSession(duration: duration, drafts: drafts))
+        #expect(!library.canLogPracticeSession(duration: duration, drafts: drafts, isPracticeNextOn: true))
         let session = try library.logPracticeSession(
             startDate: TestClock.start,
             duration: duration,
             note: "",
             drafts: drafts,
+            isPracticeNextOn: true,
         )
         #expect(session == nil)
         #expect(library.practiceSessions().isEmpty)
@@ -97,6 +154,7 @@ struct LogPracticeSessionTests {
             duration: 30 * 60,
             note: "",
             drafts: [draft],
+            isPracticeNextOn: true,
         )
 
         #expect(session == nil)
@@ -107,7 +165,9 @@ struct LogPracticeSessionTests {
         let library = PracticeLibrary.inMemory()
         let part = try library.addPart(song: "Wonderwall", instrument: "Guitar")
 
-        #expect(library.canLogPracticeSession(duration: 60, drafts: [PracticeEntryDraft(part: part, rating: .again)]))
+        let drafts = [PracticeEntryDraft(part: part, rating: .again)]
+
+        #expect(library.canLogPracticeSession(duration: 60, drafts: drafts, isPracticeNextOn: true))
     }
 
     @Test func `logging a Practice Session saves the session and all its Practice Entries at once`() throws {
@@ -137,6 +197,7 @@ struct LogPracticeSessionTests {
                 PracticeEntryDraft(part: wonderwall, rating: .good),
                 PracticeEntryDraft(part: yesterday, rating: .hard),
             ],
+            isPracticeNextOn: true,
         )
 
         #expect(saves == 1)
@@ -157,6 +218,7 @@ struct LogPracticeSessionTests {
             duration: 1800,
             note: "",
             drafts: [PracticeEntryDraft(part: part, rating: .good)],
+            isPracticeNextOn: true,
         )
 
         try library.logPracticeSession(
@@ -164,6 +226,7 @@ struct LogPracticeSessionTests {
             duration: 1800,
             note: "",
             drafts: [PracticeEntryDraft(part: part, rating: .hard)],
+            isPracticeNextOn: true,
         )
 
         let expected = try #require(oneByOne.part(id: oneByOnePart.id)?.dueDate)

@@ -34,8 +34,10 @@ struct DraftEntriesSection: View {
 
 struct DraftEntryRow: View {
     @Environment(PracticeLibrary.self) private var library
+    @PracticeNextSetting private var isPracticeNextOn
     @Binding var entry: PracticeEntryDraft
     var remove: (() -> Void)?
+    var log: (() -> Void)?
     @State private var draftAudio: [Recording] = []
 
     var body: some View {
@@ -57,7 +59,14 @@ struct DraftEntryRow: View {
             } onCapture: { audio, date in
                 draftAudio = (try? library.replaceRecording(of: &entry, withAudio: audio, date: date)) ?? []
             }
-            RatingButtons(selection: $entry.rating)
+            if isPracticeNextOn {
+                RatingButtons(selection: $entry.rating)
+            } else if let log {
+                Button(action: log) {
+                    PillLabel(title: "Log", isSelected: false)
+                }
+                .buttonStyle(.plain)
+            }
         }
         .padding(.vertical, 12)
         .keepAudioPrompt($draftAudio)
@@ -73,17 +82,26 @@ struct RatingButtons: View {
                 Button {
                     selection = rating
                 } label: {
-                    Text(rating.title)
-                        .font(Theme.caption)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 6)
-                        .foregroundStyle(selection == rating ? Theme.paper : Theme.ink)
-                        .background(selection == rating ? AnyShapeStyle(Theme.accent) : AnyShapeStyle(.clear))
-                        .overlay(Capsule().stroke(Theme.hairline))
-                        .clipShape(.capsule)
+                    PillLabel(title: rating.title, isSelected: selection == rating)
                 }
                 .buttonStyle(.plain)
             }
         }
+    }
+}
+
+struct PillLabel: View {
+    let title: String
+    let isSelected: Bool
+
+    var body: some View {
+        Text(title)
+            .font(Theme.caption)
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 6)
+            .foregroundStyle(isSelected ? Theme.paper : Theme.ink)
+            .background(isSelected ? AnyShapeStyle(Theme.accent) : AnyShapeStyle(.clear))
+            .overlay(Capsule().stroke(Theme.hairline))
+            .clipShape(.capsule)
     }
 }
