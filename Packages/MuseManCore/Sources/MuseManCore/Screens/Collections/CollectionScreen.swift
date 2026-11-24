@@ -115,7 +115,7 @@ struct CollectionHero: View {
 
     var body: some View {
         let songs = library.songs(in: collection.id)
-        ArtworkHero {
+        ArtworkHero(panelBesideHeading: true) {
             VStack(alignment: .leading, spacing: 8) {
                 HeroTextField(label: "Name", placeholder: "Name", text: $collection.name, axis: .vertical)
                     .font(Theme.heroTitle)
@@ -123,7 +123,15 @@ struct CollectionHero: View {
                     .font(Theme.heroSubtitle)
             }
         } panel: {
-            EmptyView()
+            HeroDetail(label: "Collection Note", systemImage: "note.text") {
+                HeroTextField(
+                    label: "Collection Note",
+                    placeholder: "What to bring, reminders…",
+                    text: $collection.note,
+                    axis: .vertical,
+                )
+                .lineLimit(2...)
+            }
         } artwork: { size in
             CoverGrid(songs: songs, size: size)
         }
