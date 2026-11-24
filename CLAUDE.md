@@ -39,3 +39,7 @@ Default five-role vocabulary: `needs-triage`, `needs-info`, `ready-for-agent`, `
 ### Domain docs
 
 Single-context: one `GLOSSARY.md` and `docs/adr/` at the repo root. See `docs/agents/domain.md`.
+
+### Testing
+
+Tests go at two seams the user has already agreed, so the tdd skill needn't ask. See docs/agents/testing.md.
