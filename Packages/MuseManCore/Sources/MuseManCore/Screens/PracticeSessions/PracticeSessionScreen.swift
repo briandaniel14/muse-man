@@ -99,13 +99,14 @@ struct PracticeSessionHero: View {
     let minutes: Binding<Int?>?
 
     var body: some View {
-        Hero {
+        ArtworkHero {
             VStack(alignment: .leading, spacing: 8) {
                 Text(session.startDate.formatted(date: .long, time: .omitted))
                     .font(Theme.heroTitle)
                 Text(session.startDate.formatted(date: .omitted, time: .shortened))
                     .font(Theme.heroSubtitle)
             }
+        } panel: {
             HeroPanel {
                 HStack(alignment: .top, spacing: 48) {
                     HeroDetail(label: "Started", systemImage: "clock") {
@@ -135,6 +136,8 @@ struct PracticeSessionHero: View {
                         .lineLimit(2...)
                 }
             }
+        } artwork: { size in
+            CoverGrid(songs: library.practisedSongs(in: session.id), size: size)
         }
     }
 }
