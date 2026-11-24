@@ -151,6 +151,35 @@ struct SchedulingTests {
         #expect(library.practiceNext().map(\.id) == [part.id])
     }
 
+    @Test func `switching Practice Next back on makes Parts with no rated Practice Entries Due today`() throws {
+        let clock = TestClock()
+        let library = PracticeLibrary.inMemory(clock: clock)
+        let unrated = try library.addLearningPart(song: "Wonderwall")
+        let unpractised = try library.addLearningPart(song: "Yesterday")
+        let rated = try library.addLearningPart(song: "Hey Jude")
+        try library.review(unrated, nil, on: 0)
+        try library.review(rated, .easy, on: 0)
+        clock.advance(days: 5)
+
+        try library.makeUnratedPartsDueToday()
+
+        #expect(try library.dueOffset(of: unrated) == 5)
+        #expect(try library.dueOffset(of: unpractised) == 5)
+        #expect(try library.dueOffset(of: rated) == 16)
+    }
+
+    @Test func `switching Practice Next back on leaves Want to learn Parts not Due`() throws {
+        let clock = TestClock()
+        let library = PracticeLibrary.inMemory(clock: clock)
+        let song = try library.addSong(title: "Wonderwall", artist: "")
+        let instrument = try library.addInstrument(name: "Guitar")
+        let part = try #require(try library.addPart(to: song.id, instrument: instrument.id))
+
+        try library.makeUnratedPartsDueToday()
+
+        #expect(library.part(id: part.id)?.dueDate == nil)
+    }
+
     @Test func `within a Practice Session the Practice Entry logged last wins`() throws {
         let clock = TestClock()
         let library = PracticeLibrary.inMemory(clock: clock)
