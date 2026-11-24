@@ -51,7 +51,7 @@ public extension PracticeLibrary {
     @discardableResult func addPracticeEntry(
         to session: PracticeSession.ID,
         part: Part.ID,
-        rating: Rating,
+        rating: Rating?,
         note: String = "",
         recordingID: UUID? = nil,
     ) throws -> PracticeEntry? {
@@ -75,13 +75,13 @@ public extension PracticeLibrary {
 
 extension PracticeLibrary {
     func insertPracticeEntry(_ draft: PracticeEntryDraft, in session: PracticeSessionObject) -> PracticeEntryObject? {
-        guard let rating = draft.rating, let part = object(draft.part.id, as: PartObject.self) else {
+        guard let part = object(draft.part.id, as: PartObject.self) else {
             return nil
         }
         return insertPracticeEntry(
             in: session,
             part: part,
-            rating: rating,
+            rating: draft.rating,
             note: draft.note.trimmingCharacters(in: .whitespacesAndNewlines),
             recordingID: draft.recording?.identifier,
         )
@@ -90,7 +90,7 @@ extension PracticeLibrary {
     @discardableResult func insertPracticeEntry(
         in session: PracticeSessionObject,
         part: PartObject,
-        rating: Rating,
+        rating: Rating?,
         note: String,
         recordingID: UUID?,
     ) -> PracticeEntryObject? {
@@ -100,7 +100,7 @@ extension PracticeLibrary {
         let entry = PracticeEntryObject(context: context)
         entry.session = session
         entry.partID = partIdentifier
-        entry.rating = rating.rawValue
+        entry.savedRating = rating
         entry.note = note
         entry.recordingID = recordingID
         entry.date = now()

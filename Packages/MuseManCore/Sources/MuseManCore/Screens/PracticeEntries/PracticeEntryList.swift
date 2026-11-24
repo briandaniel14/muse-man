@@ -53,9 +53,11 @@ struct PracticeEntryRow: View {
                 }
             }
             Spacer()
-            Text(entry.rating.title)
-                .font(Theme.caption)
-                .foregroundStyle(Theme.accent)
+            if let rating = entry.rating {
+                Text(rating.title)
+                    .font(Theme.caption)
+                    .foregroundStyle(Theme.accent)
+            }
         }
         .padding(.vertical, 12)
         .contentShape(.rect)

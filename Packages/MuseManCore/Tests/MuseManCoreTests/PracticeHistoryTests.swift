@@ -39,6 +39,21 @@ struct PracticeHistoryTests {
         #expect(library.part(id: part.id)?.dueDate == day(2026, 1, 6))
     }
 
+    @Test func `a Practice Entry with no Rating can be saved, read back and edited`() throws {
+        let library = PracticeLibrary.inMemory()
+        let part = try library.addPart(song: "Wonderwall", instrument: "Guitar")
+        let session = try library.addPracticeSession(startDate: TestClock.start, duration: 1800)
+        var entry = try #require(try library.addPracticeEntry(to: session.id, part: part.id, rating: nil))
+        #expect(library.practiceEntries(of: part.id).map(\.rating) == [nil])
+
+        entry.note = "just noodling"
+        try library.updatePracticeEntry(entry)
+
+        let edited = try #require(library.practiceEntries(of: part.id).first)
+        #expect(edited.rating == nil)
+        #expect(edited.note == "just noodling")
+    }
+
     @Test func `deleting a Practice Entry recomputes its Part's due date from the rest`() throws {
         let library = PracticeLibrary.inMemory()
         let part = try library.addPart(song: "Wonderwall", instrument: "Guitar")

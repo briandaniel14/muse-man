@@ -66,15 +66,15 @@ One sitting of practice, either timed live or logged afterwards with its duratio
 _Avoid_: Workout, sitting
 
 **Practice Entry**:
-A private record of practising one Part within a Practice Session, with a Rating and optionally a written note and a Recording; never visible in a Shared Space.
+A private record of practising one Part within a Practice Session, with optionally a Rating, a written note and a Recording; never visible in a Shared Space.
 _Avoid_: Log, note
 
 **Practice Entry Draft**:
-A Practice Entry still being filled in, not yet saved: on a logged Practice Session until the session is saved, on a timed one until the Part is given a Rating. A Recording made for a draft is lost with it if the draft is discarded, unless the Musician chooses to keep the audio.
+A Practice Entry still being filled in, not yet saved: on a logged Practice Session until the session is saved, on a timed one until the Part is logged. A Recording made for a draft is lost with it if the draft is discarded, unless the Musician chooses to keep the audio.
 _Avoid_: Pending entry, unsaved entry
 
 **Rating**:
-How a Practice Entry went, one of Again, Hard, Good or Easy; it drives when the Part is next Due.
+How a Practice Entry went, one of Again, Hard, Good or Easy; only rated Practice Entries drive when the Part is next Due.
 _Avoid_: Score, grade
 
 **Recording**:

@@ -126,6 +126,31 @@ struct SchedulingTests {
         #expect(try library.dueOffset(of: part) == 1)
     }
 
+    @Test func `unrated Practice Entries don't change when a Part is next Due`() throws {
+        let clock = TestClock()
+        let library = PracticeLibrary.inMemory(clock: clock)
+        let part = try library.addLearningPart()
+
+        try library.review(part, .easy, on: 0, hour: 8)
+        clock.now += 60
+        try library.review(part, nil, on: 0, hour: 19)
+        try library.review(part, nil, on: 5)
+
+        #expect(try library.dueOffset(of: part) == 16)
+    }
+
+    @Test func `a Part whose only Practice Entries have no Rating is Due as if never reviewed`() throws {
+        let clock = TestClock()
+        let library = PracticeLibrary.inMemory(clock: clock)
+        let part = try library.addLearningPart()
+        clock.advance(days: 3)
+
+        try library.review(part, nil, on: 3)
+
+        #expect(try library.dueOffset(of: part) == 3)
+        #expect(library.practiceNext().map(\.id) == [part.id])
+    }
+
     @Test func `within a Practice Session the Practice Entry logged last wins`() throws {
         let clock = TestClock()
         let library = PracticeLibrary.inMemory(clock: clock)
@@ -158,7 +183,7 @@ private extension PracticeLibrary {
         return part
     }
 
-    func review(_ part: Part, _ rating: Rating, on offset: Int, hour: Int = 12) throws {
+    func review(_ part: Part, _ rating: Rating?, on offset: Int, hour: Int = 12) throws {
         let start = try #require(day(offset).flatMap { Calendar.current.date(byAdding: .hour, value: hour, to: $0) })
         let session = try addPracticeSession(startDate: start, duration: 30 * 60)
         try addPracticeEntry(to: session.id, part: part.id, rating: rating)
