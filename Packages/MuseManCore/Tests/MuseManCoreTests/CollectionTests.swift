@@ -1,3 +1,4 @@
+import CoreData
 import Foundation
 import MuseManCore
 import Testing
@@ -20,6 +21,24 @@ struct CollectionTests {
         try library.updateCollection(collection)
 
         #expect(library.collections().map(\.name) == ["Saturday Gig"])
+    }
+
+    @Test func `a Collection Note can be written, edited and cleared`() throws {
+        let library = PracticeLibrary.inMemory()
+        var collection = try library.addCollection(name: "Friday Gig")
+        #expect(library.collections().first?.note == "")
+
+        collection.note = "Bring the capo"
+        try library.updateCollection(collection)
+        #expect(library.collections().first?.note == "Bring the capo")
+
+        collection.note = "Bring the capo\nSpare strings"
+        try library.updateCollection(collection)
+        #expect(library.collections().first?.note == "Bring the capo\nSpare strings")
+
+        collection.note = ""
+        try library.updateCollection(collection)
+        #expect(library.collections().first?.note == "")
     }
 
     @Test func `a Collection lists its Songs in the order they were added`() throws {
@@ -147,5 +166,49 @@ struct CollectionTests {
         #expect(library.collections().map(\.name) == ["Acoustic Set"])
         #expect(library.songs(in: gig.id).isEmpty)
         #expect(library.songs().map(\.title) == ["Wonderwall"])
+    }
+
+    @Test func `a Collection Note persists across launches`() throws {
+        let storeURL = URL.temporaryDirectory.appending(path: "\(UUID().uuidString).sqlite")
+        let library = PracticeLibrary(container: PersistentStore.container(storeURL: storeURL))
+        var collection = try library.addCollection(name: "Friday Gig")
+        collection.note = "Bring the capo"
+        try library.updateCollection(collection)
+
+        let relaunched = PracticeLibrary(container: PersistentStore.container(storeURL: storeURL))
+
+        #expect(relaunched.collections().first?.note == "Bring the capo")
+    }
+
+    @Test func `a Collection saved before Collection Notes existed opens with an empty Collection Note`() throws {
+        let storeURL = URL.temporaryDirectory.appending(path: "\(UUID().uuidString).sqlite")
+        try saveCollectionWithoutNoteAttribute(name: "Friday Gig", to: storeURL)
+
+        let library = PracticeLibrary(container: PersistentStore.container(storeURL: storeURL))
+
+        let collection = try #require(library.collections().first)
+        #expect(collection.name == "Friday Gig")
+        #expect(collection.note == "")
+    }
+
+    private func saveCollectionWithoutNoteAttribute(name: String, to storeURL: URL) throws {
+        let attribute = NSAttributeDescription()
+        attribute.name = "name"
+        attribute.attributeType = .stringAttributeType
+        attribute.isOptional = true
+        let entity = NSEntityDescription()
+        entity.name = "Collection"
+        entity.properties = [attribute]
+        let model = NSManagedObjectModel()
+        model.entities = [entity]
+        let coordinator = NSPersistentStoreCoordinator(managedObjectModel: model)
+        try coordinator.addPersistentStore(type: .sqlite, at: storeURL, options: [
+            NSPersistentHistoryTrackingKey: true as NSNumber,
+        ])
+        let context = NSManagedObjectContext(.mainQueue)
+        context.persistentStoreCoordinator = coordinator
+        let collection = NSManagedObject(entity: entity, insertInto: context)
+        collection.setValue(name, forKey: "name")
+        try context.save()
     }
 }

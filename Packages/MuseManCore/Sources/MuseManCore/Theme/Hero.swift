@@ -19,6 +19,7 @@ struct Hero<Content: View>: View {
 }
 
 struct ArtworkHero<Heading: View, Panel: View, Artwork: View>: View {
+    var panelBesideHeading = false
     @ViewBuilder let heading: Heading
     @ViewBuilder let panel: Panel
     @ViewBuilder let artwork: (CGFloat) -> Artwork
@@ -28,15 +29,21 @@ struct ArtworkHero<Heading: View, Panel: View, Artwork: View>: View {
         Hero {
             HStack(alignment: .top, spacing: 32) {
                 VStack(alignment: .leading, spacing: 20) {
-                    HStack(spacing: 24) {
+                    HStack(alignment: showsPanelBesideHeading ? .top : .center, spacing: 24) {
                         heading
                             .frame(maxWidth: .infinity, alignment: .leading)
+                        if showsPanelBesideHeading {
+                            panel
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                        }
                         if !isWide {
                             artwork(Theme.compactHeroArtworkSize)
                                 .shadow(radius: 12, y: 6)
                         }
                     }
-                    panel
+                    if !showsPanelBesideHeading {
+                        panel
+                    }
                 }
                 if isWide {
                     artwork(Theme.heroArtworkSize)
@@ -49,6 +56,10 @@ struct ArtworkHero<Heading: View, Panel: View, Artwork: View>: View {
                 self.isWide = isWide
             }
         }
+    }
+
+    private var showsPanelBesideHeading: Bool {
+        panelBesideHeading && isWide
     }
 }
 
