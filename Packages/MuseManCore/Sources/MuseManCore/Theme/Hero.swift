@@ -37,8 +37,7 @@ struct ArtworkHero<Heading: View, Panel: View, Artwork: View>: View {
                                 .frame(maxWidth: .infinity, alignment: .leading)
                         }
                         if !isWide {
-                            artwork(Theme.compactHeroArtworkSize)
-                                .shadow(radius: 12, y: 6)
+                            shadowedArtwork(Theme.compactHeroArtworkSize)
                         }
                     }
                     if !showsPanelBesideHeading {
@@ -46,8 +45,7 @@ struct ArtworkHero<Heading: View, Panel: View, Artwork: View>: View {
                     }
                 }
                 if isWide {
-                    artwork(Theme.heroArtworkSize)
-                        .shadow(radius: 12, y: 6)
+                    shadowedArtwork(Theme.heroArtworkSize)
                 }
             }
             .onGeometryChange(for: Bool.self) { geometry in
@@ -60,6 +58,11 @@ struct ArtworkHero<Heading: View, Panel: View, Artwork: View>: View {
 
     private var showsPanelBesideHeading: Bool {
         panelBesideHeading && isWide
+    }
+
+    private func shadowedArtwork(_ size: CGFloat) -> some View {
+        artwork(size)
+            .shadow(radius: 12, y: 6)
     }
 }
 

@@ -37,7 +37,7 @@ struct CoverGrid: View {
                     }
                 }
             }
-            .clipShape(.rect(cornerRadius: size * 0.1))
+            .clipShape(.rect(cornerRadius: size * Theme.artworkCornerRadiusRatio))
             .accessibilityHidden(true)
         }
     }
@@ -54,7 +54,7 @@ private struct CoverTile: View {
                 .resizable()
                 .scaledToFill()
         } placeholder: {
-            ArtworkPlaceholder(iconSize: min(width, height) * 0.4)
+            ArtworkPlaceholder(size: min(width, height))
         }
         .frame(width: width, height: height)
         .clipped()

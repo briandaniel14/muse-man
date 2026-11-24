@@ -48,16 +48,22 @@ struct CollectionRow: View {
 
     var body: some View {
         let songs = library.songs(in: collection.id)
-        HStack(spacing: 12) {
+        HStack(spacing: Theme.rowSpacing) {
             CoverGrid(songs: songs, size: Theme.rowArtworkSize)
             Text(collection.name)
                 .font(Theme.body)
                 .foregroundStyle(Theme.ink)
             Spacer()
-            Text(songs.count == 1 ? "1 Song" : "\(songs.count) Songs")
+            Text(songCount: songs.count)
                 .font(Theme.caption)
                 .foregroundStyle(Theme.fadedInk)
         }
         .padding(.vertical, 4)
+    }
+}
+
+extension Text {
+    init(songCount: Int) {
+        self.init("^[\(songCount) Song](inflect: true)")
     }
 }

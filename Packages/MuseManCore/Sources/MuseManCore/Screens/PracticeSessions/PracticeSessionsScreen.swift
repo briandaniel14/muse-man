@@ -49,7 +49,7 @@ struct PracticeSessionRow: View {
     let session: PracticeSession
 
     var body: some View {
-        HStack(spacing: 12) {
+        HStack(spacing: Theme.rowSpacing) {
             CoverGrid(songs: library.practisedSongs(in: session.id), size: Theme.rowArtworkSize)
             PracticeSessionSummary(session: session)
         }

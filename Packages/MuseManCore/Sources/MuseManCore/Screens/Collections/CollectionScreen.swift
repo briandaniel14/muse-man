@@ -119,7 +119,7 @@ struct CollectionHero: View {
             VStack(alignment: .leading, spacing: 8) {
                 HeroTextField(label: "Name", placeholder: "Name", text: $collection.name, axis: .vertical)
                     .font(Theme.heroTitle)
-                Text("^[\(songs.count) Song](inflect: true)")
+                Text(songCount: songs.count)
                     .font(Theme.heroSubtitle)
             }
         } panel: {

@@ -75,5 +75,8 @@ public enum Theme {
     public static let compactHeroArtworkSize: CGFloat = 120
     public static let searchFieldWidth: CGFloat = 240
     public static let rowArtworkSize: CGFloat = 44
+    public static let rowSpacing: CGFloat = 12
+    public static let artworkCornerRadiusRatio: CGFloat = 0.1
+    public static let artworkPlaceholderIconRatio: CGFloat = 0.4
     public static let settingsWindowSize = CGSize(width: 480, height: 420)
 }
