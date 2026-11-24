@@ -21,7 +21,7 @@ Call throwing APIs with `try?`; write error handling only when asked.
 ## Rules
 - Never edit `muse-man.xcodeproj/project.xcproj` directly. Tell me when a new file or target needs adding in Xcode.
 - Add dependencies via SPM through Xcode, not CocoaPods.
-- Before finishing, run Build, Lint and Test and fix what fails.
+- Before finishing, run Build, Lint, Format and Test and fix what fails.
 - When a change touches a screen, check it with the `mac-app` skill on `--scratch`.
 - Only change whats asked for.
 - Commit messages: short, imperative.

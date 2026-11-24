@@ -13,6 +13,8 @@ description: Run, screenshot, click and type in the muse-man macOS app, and read
 4. `scripts/mac-app type "<text>"` types into the focused field. Wait for network-backed results before the next screenshot: Apple Music search takes up to 9 seconds.
 5. `scripts/mac-app quit` when done.
 
+Beyond the main window: `scripts/mac-app windows` lists the app's windows, numbered oldest first; put `--window <n>` before any command to act on window n, such as the Settings window ⌘, opens. `drag <x1> <y1> <x2> <y2>` reorders a list, and `resize <w> <h>` (points) checks narrow layouts.
+
 On "screen locked", stop and ask the user to unlock the Mac: nothing can be captured until they do.
 
 ## Diagnosing

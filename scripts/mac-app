@@ -9,16 +9,28 @@ HELPER="$OUT/helper"
 SHOTS="${TMPDIR:-/tmp}"; SHOTS="${SHOTS%/}/muse-man-screenshots/$(git -C "$ROOT" branch --show-current 2>/dev/null || true)"
 SOURCE="$ROOT/scripts/mac-app-helper.swift"
 
+export MAC_APP_WINDOW=""
+if [[ "${1:-}" == "--window" ]]; then
+    MAC_APP_WINDOW="${2:-}"
+    shift 2
+fi
+
 usage() {
     cat <<EOF
-usage: scripts/mac-app <command>
+usage: scripts/mac-app [--window <n|title>] <command>
+  --window <n|title>  act on window n from \`windows\` (oldest first), or the one with this title,
+                    instead of the largest window
   build             build the macOS app
   launch [--scratch]  quit any copy this script started, launch fresh, log stdout/stderr;
                     --scratch opens a seeded in-memory store instead of the real one
   quit              quit the app this script launched
-  screenshot [name] capture the main window to $SHOTS/<name>.png
+  screenshot [name] capture the window to $SHOTS/<name>.png
                     (outside the repo, so it survives worktree cleanup; default name is a timestamp)
   click <x> <y>     click at pixel x,y of the screenshot PNG (full-size pixels)
+  drag <x1> <y1> <x2> <y2>
+                    press at x1,y1, hold, move to x2,y2 and release (screenshot pixels)
+  resize <w> <h>    resize the window to w×h points (half the screenshot pixels)
+  windows           list the app's windows, oldest first: number, title, size in points
   type <text>       type text into the focused field
   log               print the app's stdout/stderr since launch
 EOF
@@ -40,6 +52,7 @@ helper() {
 focus() {
     local p
     p=$(pid)
+    helper front "$p" && return 0
     for _ in 1 2 3; do
         osascript -e "tell application \"System Events\" to set frontmost of (first process whose unix id is $p) to true"
         sleep 0.3
@@ -105,6 +118,20 @@ click)
     unlocked
     focus
     helper click "$p" "$2" "$3"
+    ;;
+drag)
+    [[ $# -eq 5 ]] || usage
+    p=$(running_pid)
+    unlocked
+    focus
+    helper drag "$p" "$2" "$3" "$4" "$5"
+    ;;
+resize)
+    [[ $# -eq 3 ]] || usage
+    helper resize "$(running_pid)" "$2" "$3" || { echo "resize failed: is Accessibility allowed for this terminal?" >&2; exit 1; }
+    ;;
+windows)
+    helper windows "$(running_pid)"
     ;;
 type)
     [[ $# -eq 2 ]] || usage
