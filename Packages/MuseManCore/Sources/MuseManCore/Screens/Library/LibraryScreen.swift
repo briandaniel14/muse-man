@@ -7,7 +7,6 @@ struct LibraryScreen: View {
 
     var body: some View {
         SongList(songs: library.songs(matching: search), isSearching: !search.isEmpty)
-            .searchable(text: $search, prompt: "Title or artist")
             .navigationDestination(for: Song.self) { song in
                 SongScreen(song: song)
             }
@@ -15,6 +14,9 @@ struct LibraryScreen: View {
                 PartScreen(part: part)
             }
             .toolbar {
+                ToolbarItem(placement: .primaryAction) {
+                    SearchButton(prompt: "Title or artist", text: $search)
+                }
                 ToolbarItem(placement: .primaryAction) {
                     Button("Add Song", systemImage: "plus") {
                         isAddingSong = true
@@ -24,7 +26,7 @@ struct LibraryScreen: View {
             .sheet(isPresented: $isAddingSong) {
                 AddSongSheet()
             }
-            .paperScreen(title: Destination.library.title)
+            .paperScreen(title: Destination.library.title, isFullWidth: true)
     }
 }
 
@@ -41,6 +43,9 @@ struct SongList: View {
         }
         .id(songs.map(\.id))
         .listStyle(.plain)
+        #if os(macOS)
+            .safeAreaPadding(.top, 10)
+        #endif
         .overlay {
             if songs.isEmpty {
                 Text(isSearching ? "No matching Songs" : "No Songs yet")

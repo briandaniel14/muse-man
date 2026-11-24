@@ -73,4 +73,5 @@ public enum Theme {
     public nonisolated static let wideHeroWidth: CGFloat = 640
     public static let heroArtworkSize: CGFloat = 200
     public static let compactHeroArtworkSize: CGFloat = 120
+    public static let searchFieldWidth: CGFloat = 240
 }
