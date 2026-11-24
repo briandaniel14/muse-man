@@ -46,11 +46,11 @@ struct SongList: View {
         #if os(macOS)
             .safeAreaPadding(.top, 10)
         #endif
-        .overlay {
-            if songs.isEmpty {
-                Text(isSearching ? "No matching Songs" : "No Songs yet")
-                    .foregroundStyle(Theme.fadedInk)
+            .overlay {
+                if songs.isEmpty {
+                    Text(isSearching ? "No matching Songs" : "No Songs yet")
+                        .foregroundStyle(Theme.fadedInk)
+                }
             }
-        }
     }
 }

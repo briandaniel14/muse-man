@@ -9,16 +9,16 @@ struct DestinationScreen: View {
     var body: some View {
         screen
         #if os(iOS)
-        .toolbar {
-            ToolbarItem(placement: .topBarLeading) {
-                Button("Settings", systemImage: "gear") {
-                    isShowingSettings = true
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button("Settings", systemImage: "gear") {
+                        isShowingSettings = true
+                    }
                 }
             }
-        }
-        .sheet(isPresented: $isShowingSettings) {
-            SettingsSheet()
-        }
+            .sheet(isPresented: $isShowingSettings) {
+                SettingsSheet()
+            }
         #endif
     }
 

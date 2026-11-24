@@ -114,10 +114,10 @@ struct PendingPartsSection: View {
                     log(drafts.removeValue(forKey: part.id) ?? PracticeEntryDraft(part: part))
                 })
                 .onChange(of: drafts[part.id]?.rating) { _, rating in
-                        if rating != nil, let draft = drafts.removeValue(forKey: part.id) {
-                            log(draft)
-                        }
+                    if rating != nil, let draft = drafts.removeValue(forKey: part.id) {
+                        log(draft)
                     }
+                }
                 Hairline()
             }
         }
