@@ -1,61 +1,48 @@
 import SwiftUI
 
-struct InstrumentsSheet: View {
+struct InstrumentsSection: View {
     @Environment(PracticeLibrary.self) private var library
-    @Environment(\.dismiss) private var dismiss
     @State private var renaming: Instrument?
     @State private var newName = ""
     @State private var blocked: BlockedDeletion?
 
     var body: some View {
-        NavigationStack {
-            ScrollView {
-                VStack(alignment: .leading, spacing: 0) {
-                    let instruments = library.instruments()
-                    if instruments.isEmpty {
-                        Text("No Instruments yet. Add one when you add a Part to a Song.")
-                            .foregroundStyle(Theme.fadedInk)
-                            .padding(.vertical, 12)
-                    }
-                    ForEach(instruments) { instrument in
-                        InstrumentRow(
-                            instrument: instrument,
-                            partCount: library.parts(instrument: instrument.id).count,
-                        ) {
-                            newName = instrument.name
-                            renaming = instrument
-                        } onDelete: {
-                            delete(instrument)
-                        }
-                    }
-                }
-                .padding(.horizontal, Theme.margin)
+        VStack(alignment: .leading, spacing: 0) {
+            SectionTitle("Instruments")
+            let instruments = library.instruments()
+            if instruments.isEmpty {
+                Text("No Instruments yet. Add one when you add a Part to a Song.")
+                    .foregroundStyle(Theme.fadedInk)
+                    .padding(.vertical, 12)
             }
-            .toolbar {
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("Done") {
-                        dismiss()
-                    }
+            ForEach(instruments) { instrument in
+                InstrumentRow(
+                    instrument: instrument,
+                    partCount: library.parts(instrument: instrument.id).count,
+                ) {
+                    newName = instrument.name
+                    renaming = instrument
+                } onDelete: {
+                    delete(instrument)
                 }
             }
-            .alert("Rename Instrument", isPresented: isPresented($renaming), presenting: renaming) { instrument in
-                TextField("Name", text: $newName)
-                Button("Cancel", role: .cancel) {}
-                Button("Rename") {
-                    rename(instrument)
-                }
-                .disabled(trimmedName.isEmpty)
+        }
+        .alert("Rename Instrument", isPresented: isPresented($renaming), presenting: renaming) { instrument in
+            TextField("Name", text: $newName)
+            Button("Cancel", role: .cancel) {}
+            Button("Rename") {
+                rename(instrument)
             }
-            .alert(
-                "Can't Delete \(blocked?.name ?? "Instrument")",
-                isPresented: isPresented($blocked),
-                presenting: blocked,
-            ) { _ in
-                Button("OK") {}
-            } message: { blocked in
-                Text("^[\(blocked.partCount) Part](inflect: true) still use it. Delete those Parts first.")
-            }
-            .sheetScreen(title: "Instruments")
+            .disabled(trimmedName.isEmpty)
+        }
+        .alert(
+            "Can't Delete \(blocked?.name ?? "Instrument")",
+            isPresented: isPresented($blocked),
+            presenting: blocked,
+        ) { _ in
+            Button("OK") {}
+        } message: { blocked in
+            Text("^[\(blocked.partCount) Part](inflect: true) still use it. Delete those Parts first.")
         }
     }
 

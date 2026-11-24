@@ -13,5 +13,11 @@ import SwiftUI
             ContentView()
                 .environment(library)
         }
+        #if os(macOS)
+            Settings {
+                SettingsScreen()
+                    .environment(library)
+            }
+        #endif
     }
 }
