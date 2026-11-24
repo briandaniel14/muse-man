@@ -59,12 +59,36 @@ struct LogPracticeSessionTests {
         #expect(logged.dueDate == day(2026, 1, 6))
     }
 
+    @Test func `logging a Practice Session saves a draft with no Rating as a Practice Entry without one`() throws {
+        let library = PracticeLibrary.inMemory()
+        let wonderwall = try library.addPart(song: "Wonderwall", instrument: "Guitar")
+        let yesterday = try library.addPart(song: "Yesterday", instrument: "Piano")
+
+        let session = try #require(try library.logPracticeSession(
+            startDate: TestClock.start,
+            duration: 30 * 60,
+            note: "",
+            drafts: [PracticeEntryDraft(part: wonderwall, rating: .hard), PracticeEntryDraft(part: yesterday)],
+        ))
+
+        let entries = library.practiceEntries(in: session.id)
+        let ratings = Dictionary(uniqueKeysWithValues: entries.map { ($0.partIdentifier, $0.rating) })
+        #expect(ratings == [wonderwall.identifier: .hard, yesterday.identifier: nil])
+    }
+
+    @Test func `a Practice Session with an unrated draft is not ready to save, as the screen still asks for a Rating`(
+    ) throws {
+        let library = PracticeLibrary.inMemory()
+        let part = try library.addPart(song: "Wonderwall", instrument: "Guitar")
+
+        #expect(!library.canLogPracticeSession(duration: 60, drafts: [PracticeEntryDraft(part: part)]))
+    }
+
     @Test(arguments: [
         (minutes: 0, ratings: [Rating.good]),
         (minutes: 30, ratings: []),
-        (minutes: 30, ratings: [Rating.good, nil]),
     ])
-    func `a Practice Session with no duration, no Practice Entry Drafts or an unrated draft is not ready to save`(
+    func `a Practice Session with no duration or no Practice Entry Drafts is not ready to save`(
         minutes: Int,
         ratings: [Rating?],
     ) throws {

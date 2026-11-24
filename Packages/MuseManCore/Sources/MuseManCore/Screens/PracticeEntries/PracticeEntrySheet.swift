@@ -73,7 +73,7 @@ struct PracticeEntryFields: View {
                 Text(entry.day.formatted(date: .complete, time: .omitted))
             }
             FieldRow(label: "Rating") {
-                RatingButtons(selection: rating)
+                RatingButtons(selection: $entry.rating)
             }
             FieldRow(label: "Note") {
                 TextField("Optional", text: $entry.note, axis: .vertical)
@@ -96,16 +96,6 @@ struct PracticeEntryFields: View {
         }
         if let added = try? library.addRecording(audio: audio, date: date, to: partID) {
             entry.recording = added
-        }
-    }
-
-    private var rating: Binding<Rating?> {
-        Binding {
-            entry.rating
-        } set: { rating in
-            if let rating {
-                entry.rating = rating
-            }
         }
     }
 }
