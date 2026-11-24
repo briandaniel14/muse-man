@@ -18,10 +18,10 @@ struct Hero<Content: View>: View {
     }
 }
 
-struct ArtworkHero<Heading: View, Panel: View>: View {
-    let artworkURL: URL?
+struct ArtworkHero<Heading: View, Panel: View, Artwork: View>: View {
     @ViewBuilder let heading: Heading
     @ViewBuilder let panel: Panel
+    @ViewBuilder let artwork: (CGFloat) -> Artwork
     @State private var isWide = true
 
     var body: some View {
@@ -32,13 +32,15 @@ struct ArtworkHero<Heading: View, Panel: View>: View {
                         heading
                             .frame(maxWidth: .infinity, alignment: .leading)
                         if !isWide {
-                            artwork(size: Theme.compactHeroArtworkSize)
+                            artwork(Theme.compactHeroArtworkSize)
+                                .shadow(radius: 12, y: 6)
                         }
                     }
                     panel
                 }
                 if isWide {
-                    artwork(size: Theme.heroArtworkSize)
+                    artwork(Theme.heroArtworkSize)
+                        .shadow(radius: 12, y: 6)
                 }
             }
             .onGeometryChange(for: Bool.self) { geometry in
@@ -48,12 +50,12 @@ struct ArtworkHero<Heading: View, Panel: View>: View {
             }
         }
     }
+}
 
-    @ViewBuilder
-    private func artwork(size: CGFloat) -> some View {
-        if let artworkURL {
-            SongArtwork(url: artworkURL, size: size)
-                .shadow(radius: 12, y: 6)
+extension ArtworkHero where Artwork == SongArtwork? {
+    init(artworkURL: URL?, @ViewBuilder heading: () -> Heading, @ViewBuilder panel: () -> Panel) {
+        self.init(heading: heading, panel: panel) { size in
+            artworkURL.map { SongArtwork(url: $0, size: size) }
         }
     }
 }
