@@ -84,6 +84,15 @@ struct LogPracticeSessionTests {
         #expect(!library.canLogPracticeSession(duration: 60, drafts: [PracticeEntryDraft(part: part)]))
     }
 
+    @Test func `with Practice Next switched off, a Practice Session of unrated drafts is ready to save`() throws {
+        let library = PracticeLibrary.inMemory()
+        let part = try library.addPart(song: "Wonderwall", instrument: "Guitar")
+        let drafts = [PracticeEntryDraft(part: part)]
+
+        #expect(library.canLogPracticeSession(duration: 60, drafts: drafts, asksForRating: false))
+        #expect(!library.canLogPracticeSession(duration: 60, drafts: [], asksForRating: false))
+    }
+
     @Test(arguments: [
         (minutes: 0, ratings: [Rating.good]),
         (minutes: 30, ratings: []),

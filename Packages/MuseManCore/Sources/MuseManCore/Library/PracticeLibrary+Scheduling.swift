@@ -5,6 +5,19 @@ struct Review {
     let rating: Rating
 }
 
+public extension PracticeLibrary {
+    func makeUnratedPartsDueToday() throws {
+        let request = NSFetchRequest<PartObject>(entityName: "Part")
+        request.predicate = NSPredicate(format: "status != %d", Part.Status.wantToLearn.rawValue)
+        for part in fetch(request) {
+            if let identifier = part.identifier, reviews(of: identifier).isEmpty {
+                part.dueDate = today
+            }
+        }
+        try save()
+    }
+}
+
 extension PracticeLibrary {
     func reschedule(_ part: PartObject) {
         guard let identifier = part.identifier else {

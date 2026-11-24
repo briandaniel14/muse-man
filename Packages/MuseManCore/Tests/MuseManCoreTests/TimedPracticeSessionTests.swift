@@ -136,6 +136,17 @@ struct TimedPracticeSessionTests {
         #expect(library.partsToPractise(in: session.id, picked: [bass]).map(\.id) == [piano.id])
     }
 
+    @Test func `with Practice Next switched off, only the picked Parts are to practise`() throws {
+        let library = PracticeLibrary.inMemory()
+        let guitar = try library.addGuitarPart()
+        let piano = try library.addPart(song: "Yesterday", instrument: "Piano")
+        try library.move(guitar, to: .learning)
+        let session = try library.startPracticeSession()
+
+        #expect(library.partsToPractise(in: session.id, picked: [], includesDue: false).isEmpty)
+        #expect(library.partsToPractise(in: session.id, picked: [piano], includesDue: false).map(\.id) == [piano.id])
+    }
+
     @Test func `a rated Practice Entry Draft is logged with its trimmed note and Recording`() throws {
         let library = PracticeLibrary.inMemory()
         let guitar = try library.addGuitarPart()

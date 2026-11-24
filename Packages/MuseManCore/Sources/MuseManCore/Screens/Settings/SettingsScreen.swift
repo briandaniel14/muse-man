@@ -5,8 +5,11 @@ public struct SettingsScreen: View {
 
     public var body: some View {
         ScrollView {
-            InstrumentsSection()
-                .padding(.horizontal, Theme.margin)
+            VStack(alignment: .leading, spacing: 32) {
+                PracticeNextSection()
+                InstrumentsSection()
+            }
+            .padding(.horizontal, Theme.margin)
         }
         .modifier(PaperScreen(title: "Settings", kind: .sheet))
         #if os(macOS)

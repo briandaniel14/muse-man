@@ -29,3 +29,13 @@ public enum Destination: String, CaseIterable, Hashable, Identifiable {
         }
     }
 }
+
+public extension Destination {
+    static func shown(isPracticeNextOn: Bool) -> [Destination] {
+        allCases.filter { isPracticeNextOn || $0 != .practiceNext }
+    }
+
+    func landing(isPracticeNextOn: Bool) -> Destination {
+        Self.shown(isPracticeNextOn: isPracticeNextOn).contains(self) ? self : .library
+    }
+}

@@ -62,6 +62,7 @@ struct PracticeEntrySheet: View {
 
 struct PracticeEntryFields: View {
     @Environment(PracticeLibrary.self) private var library
+    @AppStorage(SettingKey.isPracticeNextOn) private var isPracticeNextOn = true
     @Binding var entry: PracticeEntry
 
     var body: some View {
@@ -72,8 +73,10 @@ struct PracticeEntryFields: View {
             FieldRow(label: "Practised") {
                 Text(entry.day.formatted(date: .complete, time: .omitted))
             }
-            FieldRow(label: "Rating") {
-                RatingButtons(selection: $entry.rating)
+            if isPracticeNextOn {
+                FieldRow(label: "Rating") {
+                    RatingButtons(selection: $entry.rating)
+                }
             }
             FieldRow(label: "Note") {
                 TextField("Optional", text: $entry.note, axis: .vertical)
