@@ -21,11 +21,19 @@ usage: scripts/mac-app [--window <n|title>] <command>
   --window <n|title>  act on window n from \`windows\` (oldest first), or the one with this title,
                     instead of the largest window
   build             build the macOS app
-  launch [--scratch]  quit any copy this script started, launch fresh, log stdout/stderr;
-                    --scratch opens a seeded in-memory store instead of the real one
+  launch [--scratch]  quit any copy this script started, launch fresh in the background,
+                    log stdout/stderr; --scratch opens a seeded in-memory store instead of the real one
   quit              quit the app this script launched
   screenshot [name] capture the window to $SHOTS/<name>.png
                     (outside the repo, so it survives worktree cleanup; default name is a timestamp)
+  elements          print the window's accessibility tree: role, "label", = value
+  press <label> [n] press the button, row or menu-bar item with this label, in the background
+  fill <label> <text> [n]
+                    replace the text of the field with this label or placeholder, in the background
+  pick <label> <item> [n]
+                    choose item from the pop-up button with this label, in the background
+                    (a label matches exactly, else as a case-insensitive substring;
+                    n picks one when several match)
   click <x> <y>     click at pixel x,y of the screenshot PNG (full-size pixels)
   drag <x1> <y1> <x2> <y2>
                     press at x1,y1, hold, move to x2,y2 and release (screenshot pixels)
@@ -88,11 +96,10 @@ launch)
     : >"$LOG"
     args=()
     [[ "${2:-}" == "--scratch" ]] && args=(--args -scratchStore)
-    open -n --stdout "$LOG" --stderr "$LOG" "$APP" ${args[@]+"${args[@]}"}
+    open -g -n --stdout "$LOG" --stderr "$LOG" "$APP" ${args[@]+"${args[@]}"}
     for _ in $(seq 20); do
         p=$(pid)
         if [[ -n "$p" ]] && helper window "$p" >/dev/null 2>&1; then
-            focus
             echo "launched pid $p, log at $LOG"
             exit 0
         fi
@@ -132,6 +139,17 @@ resize)
     ;;
 windows)
     helper windows "$(running_pid)"
+    ;;
+elements)
+    helper elements "$(running_pid)"
+    ;;
+press)
+    [[ $# -ge 2 ]] || usage
+    helper press "$(running_pid)" "${@:2}"
+    ;;
+fill | pick)
+    [[ $# -ge 3 ]] || usage
+    helper "$1" "$(running_pid)" "${@:2}"
     ;;
 type)
     [[ $# -eq 2 ]] || usage
