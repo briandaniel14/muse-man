@@ -1,7 +1,6 @@
 public enum Destination: String, CaseIterable, Hashable, Identifiable {
     case practiceNext
     case library
-    case parts
     case collections
     case practiceSessions
 
@@ -13,7 +12,6 @@ public enum Destination: String, CaseIterable, Hashable, Identifiable {
         switch self {
         case .practiceNext: "Practice Next"
         case .library: "Library"
-        case .parts: "Parts"
         case .collections: "Collections"
         case .practiceSessions: "Practice Sessions"
         }
@@ -23,7 +21,6 @@ public enum Destination: String, CaseIterable, Hashable, Identifiable {
         switch self {
         case .practiceNext: "sparkles"
         case .library: "music.note.list"
-        case .parts: "guitars"
         case .collections: "rectangle.stack"
         case .practiceSessions: "metronome"
         }

@@ -6,7 +6,7 @@ struct ScratchStoreTests {
     @Test func `the scratch store starts with a few of everything`() {
         let library = PracticeLibrary(container: PersistentStore.scratch())
         let songs = library.songs()
-        let parts = library.parts()
+        let parts = songs.flatMap { library.parts(of: $0.id) }
 
         #expect(songs.count == 6)
         #expect(songs.contains { $0.artworkURL != nil })

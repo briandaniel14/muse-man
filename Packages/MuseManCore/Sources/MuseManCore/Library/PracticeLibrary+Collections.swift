@@ -19,6 +19,7 @@ public extension PracticeLibrary {
             return
         }
         object.name = collection.name
+        object.note = collection.note
         try save()
     }
 

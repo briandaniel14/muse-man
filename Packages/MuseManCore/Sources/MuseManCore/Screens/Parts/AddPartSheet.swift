@@ -3,27 +3,17 @@ import SwiftUI
 struct AddPartSheet: View {
     @Environment(PracticeLibrary.self) private var library
     @Environment(\.dismiss) private var dismiss
-    @State private var songID: Song.ID?
-    private let fixedSong: Song?
+    let song: Song
     @State private var instrumentID: Instrument.ID?
     @State private var newInstrumentName = ""
     @State private var label = ""
-
-    init(song: Song? = nil) {
-        fixedSong = song
-        _songID = State(initialValue: song?.id)
-    }
 
     var body: some View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 0) {
                     FieldRow(label: "Song") {
-                        if let fixedSong {
-                            Text(fixedSong.title)
-                        } else {
-                            SongPicker(songs: library.songs(matching: ""), selection: $songID)
-                        }
+                        Text(song.title)
                     }
                     FieldRow(label: "Instrument") {
                         InstrumentPicker(instruments: library.instruments(), selection: $instrumentID)
@@ -62,14 +52,14 @@ struct AddPartSheet: View {
     }
 
     private var isIncomplete: Bool {
-        songID == nil || (instrumentID == nil && trimmed(newInstrumentName) == nil)
+        instrumentID == nil && trimmed(newInstrumentName) == nil
     }
 
     private func add() {
-        guard let songID, let instrumentID = instrumentID ?? addNewInstrument() else {
+        guard let instrumentID = instrumentID ?? addNewInstrument() else {
             return
         }
-        _ = try? library.addPart(to: songID, instrument: instrumentID, label: trimmed(label))
+        _ = try? library.addPart(to: song.id, instrument: instrumentID, label: trimmed(label))
     }
 
     private func addNewInstrument() -> Instrument.ID? {
@@ -92,22 +82,6 @@ struct InstrumentPicker: View {
                 Text(instrument.name).tag(Optional(instrument.id))
             }
             Text("New Instrument…").tag(Instrument.ID?.none)
-        }
-        .labelsHidden()
-        .fixedSize()
-    }
-}
-
-struct SongPicker: View {
-    let songs: [Song]
-    @Binding var selection: Song.ID?
-
-    var body: some View {
-        Picker("Song", selection: $selection) {
-            Text("Choose a Song").tag(Song.ID?.none)
-            ForEach(songs) { song in
-                Text("\(song.title) · \(song.artist)").tag(Optional(song.id))
-            }
         }
         .labelsHidden()
         .fixedSize()

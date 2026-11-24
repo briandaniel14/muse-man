@@ -6,7 +6,6 @@ struct DestinationTests {
         #expect(Destination.allCases.map(\.title) == [
             "Practice Next",
             "Library",
-            "Parts",
             "Collections",
             "Practice Sessions",
         ])
