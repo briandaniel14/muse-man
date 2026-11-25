@@ -16,6 +16,7 @@ struct PartScreen: View {
                 }
             }
         }
+        .playbackBar(for: part.song.appleMusicSong)
         .onChange(of: part) {
             try? library.updatePart(part)
         }
