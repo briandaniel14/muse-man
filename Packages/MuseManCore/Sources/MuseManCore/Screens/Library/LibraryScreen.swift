@@ -15,7 +15,7 @@ struct LibraryScreen: View {
             }
             .toolbar {
                 ToolbarItem(placement: .primaryAction) {
-                    SearchButton(prompt: "Title or artist", text: $search)
+                    ToolbarSearchField(prompt: "Title or artist", text: $search)
                 }
                 ToolbarItem(placement: .primaryAction) {
                     Button("Add Song", systemImage: "plus") {
@@ -44,7 +44,7 @@ struct SongList: View {
         .id(songs.map(\.id))
         .listStyle(.plain)
         #if os(macOS)
-            .safeAreaPadding(.top, 10)
+            .safeAreaPadding(.top, Theme.listTopInset)
         #endif
             .overlay {
                 if songs.isEmpty {

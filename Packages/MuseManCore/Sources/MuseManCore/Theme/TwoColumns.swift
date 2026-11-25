@@ -19,7 +19,6 @@ struct TwoColumns<Leading: View, Trailing: View>: View {
         }
         .padding(.horizontal, Theme.margin)
         .padding(.vertical, 32)
-        .frame(maxWidth: Theme.readableWidth, alignment: .leading)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(Theme.paper)
     }
@@ -41,7 +40,6 @@ struct PageColumn<Content: View>: View {
         }
         .padding(.horizontal, Theme.margin)
         .padding(.vertical, 32)
-        .frame(maxWidth: Theme.readableWidth, alignment: .leading)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(Theme.paper)
     }

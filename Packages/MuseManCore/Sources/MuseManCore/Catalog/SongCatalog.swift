@@ -16,6 +16,24 @@ enum SongCatalog {
         _ = await songs(matching: warmUpTerm, limit: 1)
     }
 
+    static func canPlayCatalogContent() async -> Bool {
+        guard await requestAuthorization() else {
+            return false
+        }
+        return await (try? MusicSubscription.current)?.canPlayCatalogContent ?? false
+    }
+
+    static func song(_ appleMusicSong: AppleMusicSong) async -> MusicKit.Song? {
+        guard await requestAuthorization() else {
+            return nil
+        }
+        let request = MusicCatalogResourceRequest<MusicKit.Song>(
+            matching: \.id,
+            equalTo: MusicItemID(appleMusicSong.id),
+        )
+        return try? await request.response().items.first
+    }
+
     static func details(isrcs: [String]) async -> SongDetails? {
         let ids = isrcs.joined(separator: ",")
         guard

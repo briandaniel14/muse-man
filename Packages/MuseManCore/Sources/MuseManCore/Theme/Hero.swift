@@ -12,14 +12,12 @@ struct Hero<Content: View>: View {
         .tint(Theme.bandSelection)
         .padding(.horizontal, Theme.margin)
         .padding(.bottom, 32)
-        .frame(maxWidth: Theme.readableWidth, alignment: .leading)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(Theme.band)
     }
 }
 
 struct ArtworkHero<Heading: View, Panel: View, Artwork: View>: View {
-    var panelBesideHeading = false
     @ViewBuilder let heading: Heading
     @ViewBuilder let panel: Panel
     @ViewBuilder let artwork: (CGFloat) -> Artwork
@@ -29,20 +27,14 @@ struct ArtworkHero<Heading: View, Panel: View, Artwork: View>: View {
         Hero {
             HStack(alignment: .top, spacing: 32) {
                 VStack(alignment: .leading, spacing: 20) {
-                    HStack(alignment: showsPanelBesideHeading ? .top : .center, spacing: 24) {
+                    HStack(spacing: 24) {
                         heading
                             .frame(maxWidth: .infinity, alignment: .leading)
-                        if showsPanelBesideHeading {
-                            panel
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                        }
                         if !isWide {
                             shadowedArtwork(Theme.compactHeroArtworkSize)
                         }
                     }
-                    if !showsPanelBesideHeading {
-                        panel
-                    }
+                    panel
                 }
                 if isWide {
                     shadowedArtwork(Theme.heroArtworkSize)
@@ -54,10 +46,6 @@ struct ArtworkHero<Heading: View, Panel: View, Artwork: View>: View {
                 self.isWide = isWide
             }
         }
-    }
-
-    private var showsPanelBesideHeading: Bool {
-        panelBesideHeading && isWide
     }
 
     private func shadowedArtwork(_ size: CGFloat) -> some View {

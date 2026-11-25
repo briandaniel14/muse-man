@@ -16,6 +16,7 @@ struct PartScreen: View {
                 }
             }
         }
+        .playbackBar(for: part.song.appleMusicSong)
         .onChange(of: part) {
             try? library.updatePart(part)
         }
@@ -52,6 +53,7 @@ struct PartHero: View {
                     .font(Theme.heroTitle)
                 Text(part.displayName)
                     .font(Theme.heroSubtitle)
+                HeroAppleMusicBadge(song: part.song.appleMusicSong)
             }
         } panel: {
             HeroPanel {

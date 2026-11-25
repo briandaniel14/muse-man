@@ -20,7 +20,7 @@ struct PracticeSessionsScreen: View {
                 PracticeSessionScreen(session: session)
             }
             .timedPracticeSessionToolbar()
-            .paperScreen(title: Destination.practiceSessions.title)
+            .paperScreen(title: Destination.practiceSessions.title, isFullWidth: true)
     }
 }
 
@@ -35,12 +35,15 @@ struct PracticeSessionList: View {
             .paperRow()
         }
         .listStyle(.plain)
-        .overlay {
-            if sessions.isEmpty {
-                Text("No Practice Sessions yet")
-                    .foregroundStyle(Theme.fadedInk)
+        #if os(macOS)
+            .safeAreaPadding(.top, Theme.listTopInset)
+        #endif
+            .overlay {
+                if sessions.isEmpty {
+                    Text("No Practice Sessions yet")
+                        .foregroundStyle(Theme.fadedInk)
+                }
             }
-        }
     }
 }
 

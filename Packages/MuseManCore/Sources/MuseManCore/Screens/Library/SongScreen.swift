@@ -17,6 +17,7 @@ struct SongScreen: View {
                 }
             }
         }
+        .playbackBar(for: song.appleMusicSong)
         .onChange(of: song) {
             try? library.updateSong(song)
         }
@@ -52,6 +53,7 @@ struct SongHero: View {
                     .font(Theme.heroTitle)
                 HeroTextField(label: "Artist", placeholder: "Artist", text: $song.artist)
                     .font(Theme.heroSubtitle)
+                HeroAppleMusicBadge(song: song.appleMusicSong)
             }
         } panel: {
             HeroPanel {
