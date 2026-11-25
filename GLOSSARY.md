@@ -10,6 +10,9 @@ A practice journal and song library for a musician who plays several instruments
 A piece of music, identified by title and artist, independent of any instrument.
 _Avoid_: Track, tune, piece
 
+**Apple Music song**:
+The song in the Apple Music catalogue that a Song was chosen from on New Song; a Song typed in by hand has none.
+
 **Part**:
 A Song as played on one Instrument by one Musician, optionally labelled (such as "Lead" or "Drop D"); the unit whose learning progress is tracked.
 _Avoid_: Arrangement, version, entry
