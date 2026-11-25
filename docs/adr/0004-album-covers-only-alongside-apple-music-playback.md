@@ -7,6 +7,6 @@ So a Song chosen from the Apple Music search on New Song keeps its Apple Music s
 ## Consequences
 
 - The badge is the official en-us SVG from the Apple Marketing Toolbox, shipped unaltered in MuseManCore's resources. It's the black badge with its grey border, which works on light and dark backgrounds.
-- Songs added before this change have no Apple Music song and aren't looked up again; the Musician re-adds them.
+- Songs added before this change have no Apple Music song and aren't looked up again: they keep their cover, with no badge or playback bar beside it, until the Musician re-adds them.
 - The cover mosaics on Collections and Practice Sessions are unchanged for now, pending a question to Apple's App Review about whether they're allowed.
 - The two new Song fields reach the CloudKit development schema the same way the Song Note did, and the production schema only ever gains fields (ADR 0001).
