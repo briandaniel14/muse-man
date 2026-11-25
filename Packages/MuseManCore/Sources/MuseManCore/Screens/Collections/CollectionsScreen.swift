@@ -13,32 +13,35 @@ struct CollectionsScreen: View {
             .paperRow()
         }
         .listStyle(.plain)
-        .overlay {
-            if collections.isEmpty {
-                Text("No Collections yet")
-                    .foregroundStyle(Theme.fadedInk)
-            }
-        }
-        .navigationDestination(for: Collection.self) { collection in
-            CollectionScreen(collection: collection)
-        }
-        .navigationDestination(for: Song.self) { song in
-            SongScreen(song: song)
-        }
-        .navigationDestination(for: Part.self) { part in
-            PartScreen(part: part)
-        }
-        .toolbar {
-            ToolbarItem(placement: .primaryAction) {
-                Button("Add Collection", systemImage: "plus") {
-                    isAddingCollection = true
+        #if os(macOS)
+            .safeAreaPadding(.top, 10)
+        #endif
+            .overlay {
+                if collections.isEmpty {
+                    Text("No Collections yet")
+                        .foregroundStyle(Theme.fadedInk)
                 }
             }
-        }
-        .sheet(isPresented: $isAddingCollection) {
-            AddCollectionSheet()
-        }
-        .paperScreen(title: Destination.collections.title)
+            .navigationDestination(for: Collection.self) { collection in
+                CollectionScreen(collection: collection)
+            }
+            .navigationDestination(for: Song.self) { song in
+                SongScreen(song: song)
+            }
+            .navigationDestination(for: Part.self) { part in
+                PartScreen(part: part)
+            }
+            .toolbar {
+                ToolbarItem(placement: .primaryAction) {
+                    Button("Add Collection", systemImage: "plus") {
+                        isAddingCollection = true
+                    }
+                }
+            }
+            .sheet(isPresented: $isAddingCollection) {
+                AddCollectionSheet()
+            }
+            .paperScreen(title: Destination.collections.title, isFullWidth: true)
     }
 }
 
