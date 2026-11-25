@@ -35,6 +35,7 @@ struct PlaybackBar: View {
             content = PlaybackBarContent.shown(
                 appleMusicSong: appleMusicSong,
                 canPlayCatalogContent: canPlay,
+                isSongFound: song != nil,
                 previewURL: song?.previewAssets?.first?.url,
             )
             self.song = song
@@ -46,42 +47,22 @@ struct FullSongBar: View {
     @Environment(AudioPlayer.self) private var player
     @ObservedObject private var state = ApplicationMusicPlayer.shared.state
     let song: MusicKit.Song
-    @State private var source = UUID()
-    @State private var time: TimeInterval = 0
 
     var body: some View {
-        PlaybackControls(
-            isPlaying: isPlaying,
-            time: $time,
-            duration: duration,
-            position: { player.song == song.id ? player.songTime : nil },
-            toggle: toggle,
+        PlaybackBarControls(
+            audio: .appleMusicSong(song.id),
+            isRunning: state.playbackStatus == .playing,
+            duration: song.duration ?? 0,
+            position: { player.songTime },
+            play: play,
+            pause: player.pauseSong,
             seek: player.seekSong,
         )
-        .onChange(of: song.id) {
-            player.stop(from: source)
-            time = 0
-        }
-        .onDisappear {
-            player.stop(from: source)
-        }
     }
 
-    private var duration: TimeInterval {
-        max(song.duration ?? 0, 1)
-    }
-
-    private var isPlaying: Bool {
-        player.song == song.id && state.playbackStatus == .playing
-    }
-
-    private func toggle() {
-        if isPlaying {
-            player.pauseSong()
-        } else {
-            Task {
-                await player.play(song, at: time, from: source)
-            }
+    private func play(at time: TimeInterval, ownerID: UUID) {
+        Task {
+            await player.play(song, at: time, ownerID: ownerID)
         }
     }
 }
