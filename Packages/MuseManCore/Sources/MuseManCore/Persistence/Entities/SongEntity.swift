@@ -7,6 +7,23 @@ import CoreData
     @NSManaged var tempo: NSNumber?
     @NSManaged var artworkURL: URL?
     @NSManaged var note: String?
+    @NSManaged var appleMusicID: String?
+    @NSManaged var appleMusicURL: URL?
+}
+
+extension SongObject {
+    var appleMusicSong: AppleMusicSong? {
+        get {
+            guard let appleMusicID, let appleMusicURL else {
+                return nil
+            }
+            return AppleMusicSong(id: appleMusicID, url: appleMusicURL)
+        }
+        set {
+            appleMusicID = newValue?.id
+            appleMusicURL = newValue?.url
+        }
+    }
 }
 
 extension MuseManModel {
@@ -18,6 +35,8 @@ extension MuseManModel {
             attribute("tempo", .integer32),
             attribute("artworkURL", .uri),
             attribute("note", .string),
+            attribute("appleMusicID", .string),
+            attribute("appleMusicURL", .uri),
         ])
     }
 }

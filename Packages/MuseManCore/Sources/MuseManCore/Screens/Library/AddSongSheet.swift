@@ -10,6 +10,7 @@ struct AddSongSheet: View {
     @State private var key: String?
     @State private var tempo: Int?
     @State private var artworkURL: URL?
+    @State private var appleMusicSong: AppleMusicSong?
 
     var body: some View {
         NavigationStack {
@@ -43,6 +44,7 @@ struct AddSongSheet: View {
                             key: key,
                             tempo: tempo,
                             artworkURL: artworkURL,
+                            appleMusicSong: appleMusicSong,
                         )
                         dismiss()
                     }
@@ -62,6 +64,7 @@ struct AddSongSheet: View {
         title = song.title
         artist = song.artist
         artworkURL = song.artworkURL
+        appleMusicSong = song.appleMusicSong
         search = ""
     }
 
