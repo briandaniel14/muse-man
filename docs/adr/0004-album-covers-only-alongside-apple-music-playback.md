@@ -4,6 +4,8 @@ Album covers from Apple Music appear only next to Apple Music playback of that S
 
 So a Song chosen from the Apple Music search on New Song keeps its Apple Music song (the catalogue id and its share URL), which syncs with the Song like its other details. The URL lets the badge open the song without a lookup; the id is what playback fetches the song by. A Song typed in by hand has none and shows no badge.
 
+The APIs, badge source and Apple's rules behind this are in [docs/research/apple-music.md](../research/apple-music.md).
+
 ## Consequences
 
 - The badge is the official en-us SVG from the Apple Marketing Toolbox, shipped unaltered in MuseManCore's resources. It's the black badge with its grey border, which works on light and dark backgrounds.
