@@ -17,6 +17,7 @@ struct SongScreen: View {
                 }
             }
         }
+        .playbackBar(for: song.appleMusicSong)
         .onChange(of: song) {
             try? library.updateSong(song)
         }
