@@ -14,3 +14,14 @@ struct AppleMusicBadge: View {
         .accessibilityLabel("Listen on Apple Music")
     }
 }
+
+struct HeroAppleMusicBadge: View {
+    let song: AppleMusicSong?
+
+    var body: some View {
+        if let song {
+            AppleMusicBadge(song: song)
+                .padding(.top, Theme.heroBadgeSpacing)
+        }
+    }
+}

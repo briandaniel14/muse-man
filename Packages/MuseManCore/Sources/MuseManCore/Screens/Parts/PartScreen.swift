@@ -53,10 +53,7 @@ struct PartHero: View {
                     .font(Theme.heroTitle)
                 Text(part.displayName)
                     .font(Theme.heroSubtitle)
-                if let appleMusicSong = part.song.appleMusicSong {
-                    AppleMusicBadge(song: appleMusicSong)
-                        .padding(.top, 8)
-                }
+                HeroAppleMusicBadge(song: part.song.appleMusicSong)
             }
         } panel: {
             HeroPanel {

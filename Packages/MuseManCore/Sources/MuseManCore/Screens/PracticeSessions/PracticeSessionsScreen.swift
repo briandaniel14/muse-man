@@ -36,7 +36,7 @@ struct PracticeSessionList: View {
         }
         .listStyle(.plain)
         #if os(macOS)
-            .safeAreaPadding(.top, 10)
+            .safeAreaPadding(.top, Theme.listTopInset)
         #endif
             .overlay {
                 if sessions.isEmpty {

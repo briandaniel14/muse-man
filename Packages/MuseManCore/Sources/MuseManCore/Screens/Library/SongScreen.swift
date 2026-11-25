@@ -53,10 +53,7 @@ struct SongHero: View {
                     .font(Theme.heroTitle)
                 HeroTextField(label: "Artist", placeholder: "Artist", text: $song.artist)
                     .font(Theme.heroSubtitle)
-                if let appleMusicSong = song.appleMusicSong {
-                    AppleMusicBadge(song: appleMusicSong)
-                        .padding(.top, 8)
-                }
+                HeroAppleMusicBadge(song: song.appleMusicSong)
             }
         } panel: {
             HeroPanel {
