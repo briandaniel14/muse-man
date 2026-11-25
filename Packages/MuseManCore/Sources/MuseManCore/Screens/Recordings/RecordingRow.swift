@@ -10,7 +10,7 @@ struct RecordingRow: View {
     var body: some View {
         HStack(spacing: 0) {
             PlayRecordingButton(recording: recording)
-            if player.playing == recording.id {
+            if player.nowPlaying?.audio == .recording(recording.id) {
                 PlaybackMeter()
                     .padding(.trailing, 10)
             }
@@ -74,7 +74,7 @@ struct PlayRecordingButton: View {
     @Environment(PracticeLibrary.self) private var library
     @Environment(AudioPlayer.self) private var player
     let recording: Recording
-    @State private var source = UUID()
+    @State private var ownerID = UUID()
 
     var body: some View {
         Button(isPlaying ? "Stop" : "Play", systemImage: isPlaying ? "stop.fill" : "play.fill", action: toggle)
@@ -84,22 +84,22 @@ struct PlayRecordingButton: View {
             .buttonStyle(.plain)
             .foregroundStyle(Theme.accent)
             .onChange(of: recording.id) {
-                player.stop(from: source)
+                player.stop(ownedBy: ownerID)
             }
             .onDisappear {
-                player.stop(from: source)
+                player.stop(ownedBy: ownerID)
             }
     }
 
     private var isPlaying: Bool {
-        player.playing == recording.id
+        player.nowPlaying?.audio == .recording(recording.id)
     }
 
     private func toggle() {
         if isPlaying {
             player.stop()
         } else if let audio = library.audio(of: recording.id) {
-            try? player.play(audio, of: recording.id, from: source)
+            try? player.play(audio, of: recording.id, ownerID: ownerID)
         }
     }
 }

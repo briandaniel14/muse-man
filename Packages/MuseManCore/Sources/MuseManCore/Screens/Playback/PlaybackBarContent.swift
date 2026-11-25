@@ -7,12 +7,13 @@ public enum PlaybackBarContent: Equatable {
     public static func shown(
         appleMusicSong: AppleMusicSong?,
         canPlayCatalogContent: Bool,
+        isSongFound: Bool,
         previewURL: URL?,
     ) -> PlaybackBarContent? {
         guard appleMusicSong != nil else {
             return nil
         }
-        if canPlayCatalogContent {
+        if canPlayCatalogContent, isSongFound {
             return .fullSong
         }
         return previewURL.map(PlaybackBarContent.preview)
