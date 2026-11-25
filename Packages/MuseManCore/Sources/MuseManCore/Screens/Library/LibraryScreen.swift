@@ -15,7 +15,7 @@ struct LibraryScreen: View {
             }
             .toolbar {
                 ToolbarItem(placement: .primaryAction) {
-                    SearchButton(prompt: "Title or artist", text: $search)
+                    ToolbarSearchField(prompt: "Title or artist", text: $search)
                 }
                 ToolbarItem(placement: .primaryAction) {
                     Button("Add Song", systemImage: "plus") {
