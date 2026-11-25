@@ -7,7 +7,7 @@ public enum PersistentStore {
     public static func app() -> NSPersistentCloudKitContainer {
         #if DEBUG
             if ProcessInfo.processInfo.arguments.contains("-scratchStore") {
-                return scratch()
+                return ProcessInfo.processInfo.arguments.contains("-emptyStore") ? container() : scratch()
             }
         #endif
         let container = container(

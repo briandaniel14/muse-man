@@ -21,8 +21,10 @@ usage: scripts/mac-app [--window <n|title>] <command>
   --window <n|title>  act on window n from \`windows\` (oldest first), or the one with this title,
                     instead of the largest window
   build             build the macOS app
-  launch [--scratch]  quit any copy this script started, launch fresh in the background,
-                    log stdout/stderr; --scratch opens a seeded in-memory store instead of the real one
+  launch [--scratch | --scratch-empty]
+                    quit any copy this script started, launch fresh in the background,
+                    log stdout/stderr; --scratch opens a seeded in-memory store instead of the real one,
+                    --scratch-empty an empty one
   quit              quit the app this script launched
   screenshot [name] capture the window to $SHOTS/<name>.png
                     (outside the repo, so it survives worktree cleanup; default name is a timestamp)
@@ -40,6 +42,8 @@ usage: scripts/mac-app [--window <n|title>] <command>
   resize <w> <h>    resize the window to w×h points (half the screenshot pixels)
   windows           list the app's windows, oldest first: number, title, size in points
   type <text>       type text into the focused field
+  choose-file <path>
+                    pick this file in the open file panel (Go to Folder, then Open)
   log               print the app's stdout/stderr since launch
 EOF
     exit 1
@@ -96,6 +100,7 @@ launch)
     : >"$LOG"
     args=()
     [[ "${2:-}" == "--scratch" ]] && args=(--args -scratchStore)
+    [[ "${2:-}" == "--scratch-empty" ]] && args=(--args -scratchStore -emptyStore)
     open -g -n --stdout "$LOG" --stderr "$LOG" "$APP" ${args[@]+"${args[@]}"}
     for _ in $(seq 20); do
         p=$(pid)
@@ -157,6 +162,26 @@ type)
     unlocked
     focus
     osascript -e "tell application \"System Events\" to keystroke \"${2//\"/\\\"}\""
+    ;;
+choose-file)
+    [[ $# -eq 2 && -e "$2" ]] || usage
+    file="$(cd "$(dirname "$2")" && pwd)/$(basename "$2")"
+    running_pid >/dev/null
+    unlocked
+    focus
+    osascript - "$file" <<'EOF'
+on run argv
+    tell application "System Events"
+        keystroke "g" using {command down, shift down}
+        delay 0.8
+        keystroke item 1 of argv
+        delay 0.5
+        key code 36
+        delay 0.8
+        key code 36
+    end tell
+end run
+EOF
     ;;
 log)
     cat "$LOG"
