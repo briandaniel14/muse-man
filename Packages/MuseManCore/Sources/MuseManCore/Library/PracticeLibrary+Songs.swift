@@ -17,9 +17,11 @@ public extension PracticeLibrary {
         key: String? = nil,
         tempo: Int? = nil,
         artworkURL: URL? = nil,
+        appleMusicSong: AppleMusicSong? = nil,
     ) throws -> Song {
         let object = SongObject(context: context)
         object.set(title: title, artist: artist, key: key, tempo: tempo, artworkURL: artworkURL)
+        object.appleMusicSong = appleMusicSong
         try save()
         return Song(object)
     }
@@ -35,6 +37,7 @@ public extension PracticeLibrary {
             tempo: song.tempo,
             artworkURL: song.artworkURL,
         )
+        object.appleMusicSong = song.appleMusicSong
         object.note = song.note
         try save()
     }

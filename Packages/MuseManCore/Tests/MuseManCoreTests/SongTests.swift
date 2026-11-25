@@ -39,6 +39,26 @@ struct SongTests {
         #expect(library.song(id: song.id)?.artworkURL == replacement)
     }
 
+    @Test func `a Song added from Apple Music keeps its Apple Music song after editing`() throws {
+        let library = PracticeLibrary.inMemory()
+        let url = try #require(URL(string: "https://music.apple.com/us/album/wonderwall/1517447039?i=1517447333"))
+        let appleMusicSong = AppleMusicSong(id: "1517447333", url: url)
+
+        var song = try library.addSong(title: "Wonderwall", artist: "Oasis", appleMusicSong: appleMusicSong)
+        song.title = "Wonderwall (Remastered)"
+        try library.updateSong(song)
+
+        #expect(library.song(id: song.id)?.appleMusicSong == appleMusicSong)
+    }
+
+    @Test func `a Song typed in by hand has no Apple Music song`() throws {
+        let library = PracticeLibrary.inMemory()
+
+        let song = try library.addSong(title: "Untitled Riff", artist: "Me")
+
+        #expect(library.song(id: song.id)?.appleMusicSong == nil)
+    }
+
     @Test func `a Song keeps its Song Note, empty until written`() throws {
         let library = PracticeLibrary.inMemory()
         var song = try library.addSong(title: "Wonderwall", artist: "Oasis")

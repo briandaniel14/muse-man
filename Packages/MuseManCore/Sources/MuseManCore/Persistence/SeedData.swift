@@ -2,6 +2,7 @@ import CoreData
 
 enum SeedData {
     private static let artworkHost = "https://is1-ssl.mzstatic.com/image/thumb/"
+    private static let appleMusicAlbums = "https://music.apple.com/us/album/"
 
     static func fill(_ container: NSPersistentContainer, today: Date = Calendar.current.startOfDay(for: .now)) {
         let library = PracticeLibrary(container: container, now: { today })
@@ -41,30 +42,46 @@ enum SeedData {
 
     private static func addSongs(to library: PracticeLibrary) -> [String: Song.ID] {
         var songs: [String: Song.ID] = [:]
-        func add(_ title: String, _ artist: String, key: String? = nil, tempo: Int? = nil, artwork: String? = nil) {
+        func add(
+            _ title: String,
+            _ artist: String,
+            key: String? = nil,
+            tempo: Int? = nil,
+            artwork: String? = nil,
+            appleMusic: (id: String, album: String)? = nil,
+        ) {
             songs[title] = try? library.addSong(
                 title: title,
                 artist: artist,
                 key: key,
                 tempo: tempo,
                 artworkURL: artwork.flatMap { URL(string: "\(artworkHost)\($0)/600x600bb.jpg") },
+                appleMusicSong: appleMusic.flatMap { song in
+                    URL(string: "\(appleMusicAlbums)\(song.album)?i=\(song.id)").map {
+                        AppleMusicSong(id: song.id, url: $0)
+                    }
+                },
             ).id
         }
         add(
             "Smells Like Teen Spirit", "Nirvana", key: "F minor", tempo: 117,
             artwork: "Music115/v4/95/fd/b9/95fdb9b2-6d2b-92a6-97f2-51c1a6d77f1a/00602527874609.rgb.jpg",
+            appleMusic: ("1440783625", "smells-like-teen-spirit/1440783617"),
         )
         add(
             "Wonderwall", "Oasis", key: "F♯ minor", tempo: 87,
             artwork: "Music113/v4/04/92/e0/0492e08b-cbcc-9969-9ad6-8f5a0888068c/5051961007107.jpg",
+            appleMusic: ("1517447333", "wonderwall/1517447039"),
         )
         add(
             "Blackbird", "The Beatles", key: "G major", tempo: 94,
             artwork: "Music115/v4/fa/5b/89/fa5b898d-bad6-e053-4195-260e5c74f2bb/00602567725466.rgb.jpg",
+            appleMusic: ("1441133834", "blackbird/1441133180"),
         )
         add(
             "Hotel California", "Eagles", key: "B minor", tempo: 74,
             artwork: "Music115/v4/88/16/2c/88162c3d-46db-8321-61f3-3a47404cfe76/075596050920.jpg",
+            appleMusic: ("635770202", "hotel-california/635770200"),
         )
         add("Alien", "Manchester Orchestra", key: "A", tempo: 100)
         add("Untitled Riff", "Me")
