@@ -5,6 +5,7 @@ public struct PracticeSession: Identifiable, Hashable {
     public var startDate: Date
     public var duration: TimeInterval?
     public var note: String
+    public var name: String?
 }
 
 extension PracticeSession {
@@ -16,5 +17,6 @@ extension PracticeSession {
         self.startDate = startDate
         duration = object.duration?.doubleValue
         note = object.note ?? ""
+        name = object.name
     }
 }

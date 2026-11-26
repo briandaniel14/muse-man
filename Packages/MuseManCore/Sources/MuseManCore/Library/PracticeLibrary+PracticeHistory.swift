@@ -53,6 +53,7 @@ public extension PracticeLibrary {
             object.duration = NSNumber(value: duration)
         }
         object.note = session.note
+        object.rename(to: session.name)
         if moved {
             reschedule(partIdentifiers: object.entries?.map(\.partID) ?? [])
         }
