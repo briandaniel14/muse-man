@@ -12,7 +12,7 @@ struct PartScreen: View {
                 PartHero(part: $part)
                 PageColumn {
                     PartRecordingsSection(part: part)
-                    PartHistorySection(partID: part.id)
+                    PartHistorySection(part: part)
                 }
             }
         }

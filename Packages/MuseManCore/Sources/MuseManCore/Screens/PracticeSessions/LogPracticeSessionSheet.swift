@@ -8,7 +8,11 @@ struct LogPracticeSessionSheet: View {
     @State private var minutesAgo: Int? = 30
     @State private var minutes: Int? = 30
     @State private var note = ""
-    @State private var entries: [PracticeEntryDraft] = []
+    @State private var entries: [PracticeEntryDraft]
+
+    init(drafts: [PracticeEntryDraft] = []) {
+        _entries = State(initialValue: drafts)
+    }
 
     var body: some View {
         NavigationStack {
