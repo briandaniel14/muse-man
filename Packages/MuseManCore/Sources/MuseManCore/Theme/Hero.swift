@@ -65,17 +65,30 @@ extension ArtworkHero where Artwork == SongArtwork {
 }
 
 struct HeroArtworkLayout: Layout {
-    private let spacing: CGFloat = 32
-
-    func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache _: inout ()) -> CGSize {
-        let width = proposal.replacingUnspecifiedDimensions().width
-        let artworkSize = artworkSize(width: width, subviews: subviews)
-        let detailsHeight = height(of: subviews[0], width: detailsWidth(width, artworkSize: artworkSize))
-        return CGSize(width: width, height: max(artworkSize, detailsHeight))
+    struct Fit {
+        let artworkSize: CGFloat
+        let detailsHeight: CGFloat
     }
 
-    func placeSubviews(in bounds: CGRect, proposal _: ProposedViewSize, subviews: Subviews, cache _: inout ()) {
-        let artworkSize = artworkSize(width: bounds.width, subviews: subviews)
+    private let spacing: CGFloat = 32
+
+    func makeCache(subviews _: Subviews) -> [CGFloat: Fit] {
+        [:]
+    }
+
+    func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout [CGFloat: Fit]) -> CGSize {
+        let width = max(0, proposal.replacingUnspecifiedDimensions().width)
+        let fit = fit(width: width, subviews: subviews, cache: &cache)
+        return CGSize(width: width, height: max(fit.artworkSize, fit.detailsHeight))
+    }
+
+    func placeSubviews(
+        in bounds: CGRect,
+        proposal _: ProposedViewSize,
+        subviews: Subviews,
+        cache: inout [CGFloat: Fit],
+    ) {
+        let artworkSize = fit(width: bounds.width, subviews: subviews, cache: &cache).artworkSize
         subviews[0].place(
             at: bounds.origin,
             proposal: ProposedViewSize(width: detailsWidth(bounds.width, artworkSize: artworkSize), height: nil),
@@ -88,22 +101,30 @@ struct HeroArtworkLayout: Layout {
         }
     }
 
-    private func artworkSize(width: CGFloat, subviews: Subviews) -> CGFloat {
-        guard subviews.count > 1 else { return 0 }
-        let largest = min(Theme.maxHeroArtworkSize, width - spacing - Theme.minHeroPanelWidth)
-        var size: CGFloat = 0
-        for _ in 0 ..< 10 {
-            let next = min(largest, height(of: subviews[0], width: detailsWidth(width, artworkSize: size)))
-            if abs(next - size) < 1 {
-                return next
-            }
-            size = next
+    private func fit(width: CGFloat, subviews: Subviews, cache: inout [CGFloat: Fit]) -> Fit {
+        if let fit = cache[width] {
+            return fit
         }
-        return size
+        let fit = subviews.count > 1
+            ? artworkFit(width: width, details: subviews[0])
+            : Fit(artworkSize: 0, detailsHeight: height(of: subviews[0], width: width))
+        cache[width] = fit
+        return fit
+    }
+
+    private func artworkFit(width: CGFloat, details: LayoutSubview) -> Fit {
+        var size = max(0, min(Theme.maxHeroArtworkSize, width - spacing - Theme.minHeroPanelWidth))
+        while true {
+            let detailsHeight = height(of: details, width: detailsWidth(width, artworkSize: size))
+            if detailsHeight > size - 1 {
+                return Fit(artworkSize: min(size, detailsHeight), detailsHeight: detailsHeight)
+            }
+            size = detailsHeight
+        }
     }
 
     private func detailsWidth(_ width: CGFloat, artworkSize: CGFloat) -> CGFloat {
-        artworkSize > 0 ? width - spacing - artworkSize : width
+        max(0, artworkSize > 0 ? width - spacing - artworkSize : width)
     }
 
     private func height(of subview: LayoutSubview, width: CGFloat) -> CGFloat {
