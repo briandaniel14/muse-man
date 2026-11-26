@@ -59,7 +59,7 @@ import Observation
         nowPlaying = NowPlaying(audio: .recording(recording), ownerID: ownerID)
     }
 
-    func play(_ song: MusicKit.Song, at time: TimeInterval, ownerID: UUID) async {
+    func play(_ song: MusicKit.Song, at time: TimeInterval, speed: PlaybackSpeed, ownerID: UUID) async {
         let audio = Audio.appleMusicSong(song.id)
         let music = ApplicationMusicPlayer.shared
         if nowPlaying?.audio != audio || music.state.playbackStatus == .stopped {
@@ -73,6 +73,16 @@ import Observation
             nowPlaying = NowPlaying(audio: audio, ownerID: ownerID)
         }
         try? await music.play()
+        if speed != .normal {
+            music.state.playbackRate = speed.rate
+        }
+    }
+
+    func setSongSpeed(_ speed: PlaybackSpeed) {
+        let music = ApplicationMusicPlayer.shared
+        if isPlayingSong, music.state.playbackStatus == .playing {
+            music.state.playbackRate = speed.rate
+        }
     }
 
     func pauseSong() {
@@ -85,7 +95,7 @@ import Observation
         }
     }
 
-    func playPreview(_ url: URL, at time: TimeInterval, ownerID: UUID) {
+    func playPreview(_ url: URL, at time: TimeInterval, speed: PlaybackSpeed, ownerID: UUID) {
         let audio = Audio.preview(url)
         if nowPlaying?.audio != audio {
             stop()
@@ -97,8 +107,16 @@ import Observation
             seekPreview(to: time)
         }
         nowPlaying = NowPlaying(audio: audio, ownerID: ownerID)
+        previewPlayer?.defaultRate = speed.rate
         previewPlayer?.play()
         isPreviewPlaying = true
+    }
+
+    func setPreviewSpeed(_ speed: PlaybackSpeed) {
+        previewPlayer?.defaultRate = speed.rate
+        if isPreviewPlaying {
+            previewPlayer?.rate = speed.rate
+        }
     }
 
     func pausePreview() {
@@ -155,6 +173,7 @@ import Observation
 
     private func loadPreview(_ url: URL) {
         let item = AVPlayerItem(url: url)
+        item.audioTimePitchAlgorithm = .spectral
         previewPlayer = AVPlayer(playerItem: item)
         previewEnd = NotificationCenter.default.addObserver(
             forName: AVPlayerItem.didPlayToEndTimeNotification,
