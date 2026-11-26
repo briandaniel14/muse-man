@@ -36,7 +36,9 @@ struct PlaybackControls: View {
                 .labelsHidden()
                 .tint(Theme.accent)
                 PlaybackTime(time: time - duration)
-                SpeedMenu(speed: $speed)
+                if showsSpeedMenu {
+                    SpeedMenu(speed: $speed)
+                }
             }
             .padding(.horizontal, Theme.margin)
             .padding(.vertical, 6)
@@ -52,6 +54,14 @@ struct PlaybackControls: View {
                     }
             }
         }
+    }
+
+    private var showsSpeedMenu: Bool {
+        #if os(iOS)
+            UIDevice.current.userInterfaceIdiom != .phone
+        #else
+            true
+        #endif
     }
 }
 
