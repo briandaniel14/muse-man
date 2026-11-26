@@ -20,24 +20,26 @@ struct Hero<Content: View>: View {
 struct ArtworkHero<Heading: View, Panel: View, Artwork: View>: View {
     @ViewBuilder let heading: Heading
     @ViewBuilder let panel: Panel
-    @ViewBuilder let artwork: (CGFloat) -> Artwork
+    let artwork: ((CGFloat) -> Artwork)?
     @State private var isWide = true
 
     var body: some View {
         Hero {
-            HStack(alignment: .top, spacing: 32) {
+            HeroArtworkLayout {
                 VStack(alignment: .leading, spacing: 20) {
                     HStack(spacing: 24) {
                         heading
                             .frame(maxWidth: .infinity, alignment: .leading)
-                        if !isWide {
-                            shadowedArtwork(Theme.compactHeroArtworkSize)
+                        if !isWide, let artwork {
+                            shadowed(artwork(Theme.compactHeroArtworkSize))
                         }
                     }
                     panel
                 }
-                if isWide {
-                    shadowedArtwork(Theme.heroArtworkSize)
+                if isWide, let artwork {
+                    GeometryReader { geometry in
+                        shadowed(artwork(geometry.size.width))
+                    }
                 }
             }
             .onGeometryChange(for: Bool.self) { geometry in
@@ -48,17 +50,85 @@ struct ArtworkHero<Heading: View, Panel: View, Artwork: View>: View {
         }
     }
 
-    private func shadowedArtwork(_ size: CGFloat) -> some View {
-        artwork(size)
+    private func shadowed(_ artwork: Artwork) -> some View {
+        artwork
             .shadow(radius: 12, y: 6)
     }
 }
 
-extension ArtworkHero where Artwork == SongArtwork? {
+extension ArtworkHero where Artwork == SongArtwork {
     init(artworkURL: URL?, @ViewBuilder heading: () -> Heading, @ViewBuilder panel: () -> Panel) {
-        self.init(heading: heading, panel: panel) { size in
-            artworkURL.map { SongArtwork(url: $0, size: size) }
+        self.init(heading: heading, panel: panel, artwork: artworkURL.map { url in
+            { size in SongArtwork(url: url, size: size) }
+        })
+    }
+}
+
+struct HeroArtworkLayout: Layout {
+    struct Fit {
+        let artworkSize: CGFloat
+        let detailsHeight: CGFloat
+    }
+
+    private let spacing: CGFloat = 32
+
+    func makeCache(subviews _: Subviews) -> [CGFloat: Fit] {
+        [:]
+    }
+
+    func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout [CGFloat: Fit]) -> CGSize {
+        let width = max(0, proposal.replacingUnspecifiedDimensions().width)
+        let fit = fit(width: width, subviews: subviews, cache: &cache)
+        return CGSize(width: width, height: max(fit.artworkSize, fit.detailsHeight))
+    }
+
+    func placeSubviews(
+        in bounds: CGRect,
+        proposal _: ProposedViewSize,
+        subviews: Subviews,
+        cache: inout [CGFloat: Fit],
+    ) {
+        let artworkSize = fit(width: bounds.width, subviews: subviews, cache: &cache).artworkSize
+        subviews[0].place(
+            at: bounds.origin,
+            proposal: ProposedViewSize(width: detailsWidth(bounds.width, artworkSize: artworkSize), height: nil),
+        )
+        if subviews.count > 1 {
+            subviews[1].place(
+                at: CGPoint(x: bounds.maxX - artworkSize, y: bounds.minY),
+                proposal: ProposedViewSize(width: artworkSize, height: artworkSize),
+            )
         }
+    }
+
+    private func fit(width: CGFloat, subviews: Subviews, cache: inout [CGFloat: Fit]) -> Fit {
+        if let fit = cache[width] {
+            return fit
+        }
+        let fit = subviews.count > 1
+            ? artworkFit(width: width, details: subviews[0])
+            : Fit(artworkSize: 0, detailsHeight: height(of: subviews[0], width: width))
+        cache[width] = fit
+        return fit
+    }
+
+    private func artworkFit(width: CGFloat, details: LayoutSubview) -> Fit {
+        var size = max(0, min(Theme.maxHeroArtworkSize, width - spacing - Theme.minHeroPanelWidth))
+        while true {
+            let detailsHeight = height(of: details, width: detailsWidth(width, artworkSize: size))
+            if detailsHeight > size - 1 {
+                return Fit(artworkSize: min(size, detailsHeight), detailsHeight: detailsHeight)
+            }
+            size = detailsHeight
+        }
+    }
+
+    private func detailsWidth(_ width: CGFloat, artworkSize: CGFloat) -> CGFloat {
+        max(0, artworkSize > 0 ? width - spacing - artworkSize : width)
+    }
+
+    private func height(of subview: LayoutSubview, width: CGFloat) -> CGFloat {
+        subview.sizeThatFits(ProposedViewSize(width: width, height: nil)).height
     }
 }
 

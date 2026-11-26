@@ -69,7 +69,7 @@ The Musician's Due Parts, most overdue first.
 _Avoid_: Queue, today, to-do
 
 **Practice Session**:
-One sitting of practice, either timed live or logged afterwards with its duration; several can happen in a day.
+One sitting of practice, either timed live or logged afterwards with its duration; several can happen in a day. It may have an optional name; without one its name field reads "Untitled" and it is titled by its date.
 _Avoid_: Workout, sitting
 
 **Practice Entry**:

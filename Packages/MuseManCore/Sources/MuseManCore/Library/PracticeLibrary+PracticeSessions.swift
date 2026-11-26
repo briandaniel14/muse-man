@@ -24,6 +24,14 @@ public extension PracticeLibrary {
         return PracticeSession(id: object.objectID, startDate: startDate, duration: duration, note: note)
     }
 
+    func renamePracticeSession(id: PracticeSession.ID, to name: String) throws {
+        guard let object = object(id, as: PracticeSessionObject.self) else {
+            return
+        }
+        object.name = name.trimmedName
+        try save()
+    }
+
     func finishPracticeSession(id: PracticeSession.ID) throws {
         guard let object = object(id, as: PracticeSessionObject.self) else {
             return

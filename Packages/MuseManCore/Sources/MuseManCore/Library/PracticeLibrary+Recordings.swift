@@ -32,8 +32,7 @@ public extension PracticeLibrary {
         guard let object = object(id, as: RecordingObject.self) else {
             return
         }
-        let name = name.trimmingCharacters(in: .whitespaces)
-        object.name = name.isEmpty ? nil : name
+        object.name = name.trimmedName
         try save()
     }
 

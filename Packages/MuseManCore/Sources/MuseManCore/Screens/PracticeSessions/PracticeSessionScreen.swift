@@ -60,7 +60,7 @@ struct PracticeSessionScreen: View {
         } message: {
             Text("Its Practice Entries will be deleted too. Recordings stay on their Parts. This can't be undone.")
         }
-        .heroScreen(title: session.startDate.formatted(date: .abbreviated, time: .omitted))
+        .heroScreen(title: session.title)
     }
 
     private var isGone: Bool {
@@ -101,9 +101,9 @@ struct PracticeSessionHero: View {
     var body: some View {
         ArtworkHero {
             VStack(alignment: .leading, spacing: 8) {
-                Text(session.startDate.formatted(date: .long, time: .omitted))
+                HeroTextField(label: "Name", placeholder: "Untitled", text: $session.name.orEmpty, axis: .vertical)
                     .font(Theme.heroTitle)
-                Text(session.startDate.formatted(date: .omitted, time: .shortened))
+                Text(session.startDate.formatted(date: .long, time: .shortened))
                     .font(Theme.heroSubtitle)
             }
         } panel: {

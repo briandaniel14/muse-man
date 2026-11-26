@@ -14,6 +14,7 @@ public extension PracticeLibrary {
     }
 
     @discardableResult func logPracticeSession(
+        name: String = "",
         startDate: Date,
         duration: TimeInterval,
         note: String,
@@ -24,6 +25,7 @@ public extension PracticeLibrary {
             return nil
         }
         let session = PracticeSessionObject(context: context)
+        session.name = name.trimmedName
         session.startDate = startDate
         session.duration = NSNumber(value: duration)
         session.note = note.trimmingCharacters(in: .whitespacesAndNewlines)

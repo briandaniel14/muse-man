@@ -12,10 +12,7 @@ struct PartRecordingsSection: View {
         VStack(alignment: .leading, spacing: 0) {
             CollapsibleSectionHeader(title: "Recordings", isExpanded: $isExpanded) {
                 AddRecordingMenu(capture: $capture)
-                    .labelStyle(.iconOnly)
-                    .buttonStyle(.plain)
-                    .foregroundStyle(Theme.accent)
-                    .fixedSize()
+                    .modifier(SectionHeaderAction())
             }
             if isExpanded {
                 let recordings = library.recordings(of: part.id)

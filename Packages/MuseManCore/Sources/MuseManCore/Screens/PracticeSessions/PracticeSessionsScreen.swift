@@ -3,9 +3,10 @@ import SwiftUI
 struct PracticeSessionsScreen: View {
     @Environment(PracticeLibrary.self) private var library
     @State private var isLoggingSession = false
+    @State private var openedSession: PracticeSession?
 
     var body: some View {
-        PracticeSessionList(sessions: library.practiceSessions())
+        PracticeSessionList(sessions: library.practiceSessions(), openedSession: $openedSession)
             .toolbar {
                 ToolbarItem(placement: .primaryAction) {
                     Button("Log Practice Session", systemImage: "plus") {
@@ -16,7 +17,7 @@ struct PracticeSessionsScreen: View {
             .sheet(isPresented: $isLoggingSession) {
                 LogPracticeSessionSheet()
             }
-            .navigationDestination(for: PracticeSession.self) { session in
+            .navigationDestination(item: $openedSession) { session in
                 PracticeSessionScreen(session: session)
             }
             .timedPracticeSessionToolbar()
@@ -26,12 +27,17 @@ struct PracticeSessionsScreen: View {
 
 struct PracticeSessionList: View {
     let sessions: [PracticeSession]
+    @Binding var openedSession: PracticeSession?
 
     var body: some View {
         List(sessions) { session in
-            NavigationLink(value: session) {
+            Button {
+                openedSession = session
+            } label: {
                 PracticeSessionRow(session: session)
+                    .contentShape(.rect)
             }
+            .buttonStyle(.plain)
             .paperRow()
         }
         .listStyle(.plain)
@@ -66,10 +72,14 @@ struct PracticeSessionSummary: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 2) {
             HStack(alignment: .firstTextBaseline) {
-                Text(session.startDate.formatted(date: .abbreviated, time: .shortened))
+                PracticeSessionNameField(session: session)
                     .font(Theme.body)
                     .foregroundStyle(Theme.ink)
-                Spacer()
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                Text(session.startDate.formatted(date: .abbreviated, time: .shortened))
+                    .font(Theme.caption)
+                    .foregroundStyle(Theme.fadedInk)
+                    .lineLimit(1)
                 if let duration = session.duration {
                     Text(Duration.seconds(duration).formatted(.units(allowed: [.hours, .minutes], width: .abbreviated)))
                         .font(Theme.caption)
@@ -85,6 +95,17 @@ struct PracticeSessionSummary: View {
                     .font(Theme.caption)
                     .foregroundStyle(Theme.fadedInk)
             }
+        }
+    }
+}
+
+struct PracticeSessionNameField: View {
+    @Environment(PracticeLibrary.self) private var library
+    let session: PracticeSession
+
+    var body: some View {
+        NameField(label: "Practice Session name", savedName: session.name) { name in
+            try? library.renamePracticeSession(id: session.id, to: name)
         }
     }
 }

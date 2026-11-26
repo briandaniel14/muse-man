@@ -5,6 +5,13 @@ public struct PracticeSession: Identifiable, Hashable {
     public var startDate: Date
     public var duration: TimeInterval?
     public var note: String
+    public var name: String?
+}
+
+public extension PracticeSession {
+    var title: String {
+        name?.trimmedName ?? startDate.formatted(date: .abbreviated, time: .omitted)
+    }
 }
 
 extension PracticeSession {
@@ -16,5 +23,6 @@ extension PracticeSession {
         self.startDate = startDate
         duration = object.duration?.doubleValue
         note = object.note ?? ""
+        name = object.name
     }
 }

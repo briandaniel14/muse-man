@@ -53,28 +53,29 @@ struct SongHero: View {
                     .font(Theme.heroTitle)
                 HeroTextField(label: "Artist", placeholder: "Artist", text: $song.artist)
                     .font(Theme.heroSubtitle)
-                HeroAppleMusicBadge(song: song.appleMusicSong)
             }
         } panel: {
             HeroPanel {
-                HStack(alignment: .top, spacing: 48) {
-                    HeroDetail(label: "Key", systemImage: "music.quarternote.3") {
-                        HeroTextField(label: "Key", placeholder: "Add", text: $song.key.orEmpty)
-                    }
-                    .fixedSize()
-                    HeroDetail(label: "Tempo", systemImage: "metronome") {
-                        HStack(alignment: .firstTextBaseline, spacing: 4) {
-                            HeroTextField(label: "Tempo", placeholder: "Add", text: $song.tempo.digits)
-                            #if os(iOS)
-                                .keyboardType(.numberPad)
-                            #endif
-                            Text("BPM")
-                                .font(Theme.caption)
-                                .foregroundStyle(Theme.bandFadedInk)
-                                .fixedSize()
+                AppleMusicBadgeRow(song: song.appleMusicSong) {
+                    HStack(alignment: .top, spacing: 48) {
+                        HeroDetail(label: "Key", systemImage: "music.quarternote.3") {
+                            HeroTextField(label: "Key", placeholder: "Add", text: $song.key.orEmpty)
                         }
+                        .fixedSize()
+                        HeroDetail(label: "Tempo", systemImage: "metronome") {
+                            HStack(alignment: .firstTextBaseline, spacing: 4) {
+                                HeroTextField(label: "Tempo", placeholder: "Add", text: $song.tempo.digits)
+                                #if os(iOS)
+                                    .keyboardType(.numberPad)
+                                #endif
+                                Text("BPM")
+                                    .font(Theme.caption)
+                                    .foregroundStyle(Theme.bandFadedInk)
+                                    .fixedSize()
+                            }
+                        }
+                        .fixedSize()
                     }
-                    .fixedSize()
                 }
                 HeroDetail(label: "Song Note", systemImage: "note.text") {
                     HeroTextField(

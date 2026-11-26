@@ -12,7 +12,7 @@ struct PartScreen: View {
                 PartHero(part: $part)
                 PageColumn {
                     PartRecordingsSection(part: part)
-                    PartHistorySection(partID: part.id)
+                    PartHistorySection(part: part)
                 }
             }
         }
@@ -53,13 +53,14 @@ struct PartHero: View {
                     .font(Theme.heroTitle)
                 Text(part.displayName)
                     .font(Theme.heroSubtitle)
-                HeroAppleMusicBadge(song: part.song.appleMusicSong)
             }
         } panel: {
             HeroPanel {
                 HeroDetail(label: "Status", systemImage: "chart.line.uptrend.xyaxis") {
-                    StatusChips(status: $part.status)
-                        .padding(.top, 4)
+                    AppleMusicBadgeRow(song: part.song.appleMusicSong) {
+                        StatusChips(status: $part.status)
+                    }
+                    .padding(.top, 4)
                 }
                 HeroDetail(label: "Part Note", systemImage: "note.text") {
                     HeroTextField(

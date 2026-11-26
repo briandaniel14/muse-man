@@ -71,13 +71,15 @@ public enum Theme {
     public static let margin: CGFloat = 20
     public static let readableWidth: CGFloat = 960
     public nonisolated static let wideHeroWidth: CGFloat = 640
-    public static let heroArtworkSize: CGFloat = 200
+    public nonisolated static let maxHeroArtworkSize: CGFloat = 360
+    public nonisolated static let minHeroPanelWidth: CGFloat = 360
     public static let compactHeroArtworkSize: CGFloat = 120
     public static let searchFieldWidth: CGFloat = 240
     public static let rowArtworkSize: CGFloat = 44
     public static let rowSpacing: CGFloat = 12
     public static let listTopInset: CGFloat = 10
-    public static let heroBadgeSpacing: CGFloat = 8
+    public static let badgeBesideDetailsSpacing: CGFloat = 24
+    public static let badgeBelowDetailsSpacing: CGFloat = 12
     public static let artworkCornerRadiusRatio: CGFloat = 0.1
     public static let artworkPlaceholderIconRatio: CGFloat = 0.4
     public static let settingsWindowSize = CGSize(width: 480, height: 420)

@@ -18,9 +18,7 @@ struct CollapsibleSectionHeader<Accessory: View>: View {
                         isExpanded.toggle()
                     }
                 }
-                .labelStyle(.iconOnly)
-                .buttonStyle(.plain)
-                .foregroundStyle(Theme.accent)
+                .modifier(SectionHeaderAction())
                 .rotationEffect(.degrees(isExpanded ? 0 : 180))
             }
             .padding(.bottom, 4)
@@ -34,5 +32,15 @@ extension CollapsibleSectionHeader where Accessory == EmptyView {
         self.init(title: title, isExpanded: isExpanded) {
             EmptyView()
         }
+    }
+}
+
+struct SectionHeaderAction: ViewModifier {
+    func body(content: Content) -> some View {
+        content
+            .labelStyle(.iconOnly)
+            .buttonStyle(.plain)
+            .foregroundStyle(Theme.accent)
+            .fixedSize()
     }
 }

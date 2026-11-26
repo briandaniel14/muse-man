@@ -140,7 +140,7 @@ struct PracticeHistoryTests {
         #expect(library.practiceEntries(in: session.id).isEmpty)
     }
 
-    @Test func `editing a Practice Session keeps its new start date, duration and note`() throws {
+    @Test func `editing a Practice Session keeps its new trimmed name, start date, duration and note`() throws {
         let library = PracticeLibrary.inMemory()
         let part = try library.addPart(song: "Wonderwall", instrument: "Guitar")
         var session = try library.addPracticeSession(startDate: TestClock.start, duration: 1800)
@@ -151,12 +151,14 @@ struct PracticeHistoryTests {
         session.startDate = start
         session.duration = duration
         session.note = "before work"
+        session.name = "Morning scales "
         try library.updatePracticeSession(session)
 
         let edited = try #require(library.practiceSession(id: session.id))
         #expect(edited.startDate == start)
         #expect(edited.duration == duration)
         #expect(edited.note == "before work")
+        #expect(edited.name == "Morning scales")
     }
 
     @Test func `editing a running Practice Session that has since finished keeps it finished`() throws {
