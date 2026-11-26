@@ -4,11 +4,7 @@ struct LogPracticeSessionSheet: View {
     @Environment(PracticeLibrary.self) private var library
     @Environment(\.dismiss) private var dismiss
     @PracticeNextSetting private var isPracticeNextOn
-    @State private var name = ""
-    @State private var hoursAgo: Int? = 0
-    @State private var minutesAgo: Int? = 30
-    @State private var minutes: Int? = 30
-    @State private var note = ""
+    @State private var details = SessionDetails()
     @State private var entries: [PracticeEntryDraft]
 
     init(drafts: [PracticeEntryDraft] = []) {
@@ -19,13 +15,7 @@ struct LogPracticeSessionSheet: View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 32) {
-                    SessionFields(
-                        name: $name,
-                        hoursAgo: $hoursAgo,
-                        minutesAgo: $minutesAgo,
-                        minutes: $minutes,
-                        note: $note,
-                    )
+                    SessionFields(details: $details)
                     DraftEntriesSection(entries: $entries)
                 }
                 .padding(.horizontal, Theme.margin)
@@ -54,7 +44,7 @@ struct LogPracticeSessionSheet: View {
     }
 
     private var duration: TimeInterval {
-        TimeInterval((minutes ?? 0) * 60)
+        TimeInterval((details.minutes ?? 0) * 60)
     }
 
     private var isIncomplete: Bool {
@@ -63,44 +53,48 @@ struct LogPracticeSessionSheet: View {
 
     private func save() {
         _ = try? library.logPracticeSession(
-            name: name,
-            startDate: library.startDate(hoursAgo: hoursAgo ?? 0, minutesAgo: minutesAgo ?? 0),
+            name: details.name,
+            startDate: library.startDate(hoursAgo: details.hoursAgo ?? 0, minutesAgo: details.minutesAgo ?? 0),
             duration: duration,
-            note: note,
+            note: details.note,
             drafts: entries,
             isPracticeNextOn: isPracticeNextOn,
         )
     }
 }
 
+struct SessionDetails {
+    var name = ""
+    var hoursAgo: Int? = 0
+    var minutesAgo: Int? = 30
+    var minutes: Int? = 30
+    var note = ""
+}
+
 struct SessionFields: View {
-    @Binding var name: String
-    @Binding var hoursAgo: Int?
-    @Binding var minutesAgo: Int?
-    @Binding var minutes: Int?
-    @Binding var note: String
+    @Binding var details: SessionDetails
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             FieldRow(label: "Name") {
-                TextField("Name", text: $name, prompt: Text("Untitled").foregroundStyle(Theme.fadedInk))
+                TextField("Name", text: $details.name, prompt: Text("Untitled").foregroundStyle(Theme.fadedInk))
             }
             FieldRow(label: "Started") {
                 HStack(alignment: .firstTextBaseline, spacing: 8) {
-                    NumberField(value: $hoursAgo)
-                    Text(hoursAgo == 1 ? "hour" : "hours")
-                    NumberField(value: $minutesAgo)
-                    Text(minutesAgo == 1 ? "minute ago" : "minutes ago")
+                    NumberField(value: $details.hoursAgo)
+                    Text(details.hoursAgo == 1 ? "hour" : "hours")
+                    NumberField(value: $details.minutesAgo)
+                    Text(details.minutesAgo == 1 ? "minute ago" : "minutes ago")
                 }
             }
             FieldRow(label: "Duration") {
                 HStack(alignment: .firstTextBaseline, spacing: 8) {
-                    NumberField(value: $minutes)
-                    Text(minutes == 1 ? "minute" : "minutes")
+                    NumberField(value: $details.minutes)
+                    Text(details.minutes == 1 ? "minute" : "minutes")
                 }
             }
             FieldRow(label: "Note") {
-                TextField("Optional", text: $note, axis: .vertical)
+                TextField("Optional", text: $details.note, axis: .vertical)
                     .lineLimit(2...)
             }
         }
