@@ -47,6 +47,23 @@ struct TimedPracticeSessionTests {
         #expect(library.runningPracticeSession() == nil)
     }
 
+    @Test func `a running Practice Session named while the timer runs keeps its name once finished`() throws {
+        let clock = TestClock()
+        let library = PracticeLibrary.inMemory(clock: clock)
+        let part = try library.addGuitarPart()
+        let session = try library.startPracticeSession()
+
+        try library.renamePracticeSession(id: session.id, to: "Scales warm-up")
+        #expect(library.runningPracticeSession()?.name == "Scales warm-up")
+        clock.now += 10 * 60
+        try library.addPracticeEntry(to: session.id, part: part.id, rating: .good)
+        try library.finishPracticeSession(id: session.id)
+
+        let finished = try #require(library.practiceSession(id: session.id))
+        #expect(finished.name == "Scales warm-up")
+        #expect(library.practiceSessions().map(\.name) == ["Scales warm-up"])
+    }
+
     @Test func `an empty running Practice Session is kept across launches and is still running`() throws {
         let storeURL = URL.temporaryDirectory.appending(path: "\(UUID().uuidString).sqlite")
         let start = TestClock.start

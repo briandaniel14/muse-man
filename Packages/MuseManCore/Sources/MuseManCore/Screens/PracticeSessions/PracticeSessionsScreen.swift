@@ -105,8 +105,10 @@ struct PracticeSessionNameField: View {
     var body: some View {
         TextField("Practice Session name", text: $name, prompt: Text("Untitled").foregroundStyle(Theme.fadedInk))
             .textFieldStyle(.plain)
-            .onAppear {
-                name = session.name ?? ""
+            .onChange(of: session.name, initial: true) {
+                if name.trimmingCharacters(in: .whitespaces) != (session.name ?? "") {
+                    name = session.name ?? ""
+                }
             }
             .onChange(of: name) {
                 if name != (session.name ?? "") {

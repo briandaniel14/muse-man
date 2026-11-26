@@ -44,6 +44,39 @@ struct LogPracticeSessionTests {
         #expect(piano.recordingID == nil)
     }
 
+    @Test func `a logged Practice Session keeps the trimmed name it was given`() throws {
+        let library = PracticeLibrary.inMemory()
+        let part = try library.addPart(song: "Wonderwall", instrument: "Guitar")
+
+        let session = try #require(try library.logPracticeSession(
+            name: "  Scales warm-up ",
+            startDate: TestClock.start,
+            duration: 30 * 60,
+            note: "",
+            drafts: [PracticeEntryDraft(part: part, rating: .good)],
+            isPracticeNextOn: true,
+        ))
+
+        #expect(library.practiceSession(id: session.id)?.name == "Scales warm-up")
+        #expect(library.practiceSessions().map(\.name) == ["Scales warm-up"])
+    }
+
+    @Test func `a Practice Session logged with an empty name is unnamed`() throws {
+        let library = PracticeLibrary.inMemory()
+        let part = try library.addPart(song: "Wonderwall", instrument: "Guitar")
+
+        let session = try #require(try library.logPracticeSession(
+            name: " ",
+            startDate: TestClock.start,
+            duration: 30 * 60,
+            note: "",
+            drafts: [PracticeEntryDraft(part: part, rating: .good)],
+            isPracticeNextOn: true,
+        ))
+
+        #expect(library.practiceSession(id: session.id)?.name == nil)
+    }
+
     @Test func `logging a Practice Session moves its Want to learn Parts to Learning and schedules them`() throws {
         let library = PracticeLibrary.inMemory()
         let part = try library.addPart(song: "Wonderwall", instrument: "Guitar")

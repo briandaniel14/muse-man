@@ -4,6 +4,7 @@ struct LogPracticeSessionSheet: View {
     @Environment(PracticeLibrary.self) private var library
     @Environment(\.dismiss) private var dismiss
     @PracticeNextSetting private var isPracticeNextOn
+    @State private var name = ""
     @State private var hoursAgo: Int? = 0
     @State private var minutesAgo: Int? = 30
     @State private var minutes: Int? = 30
@@ -18,7 +19,13 @@ struct LogPracticeSessionSheet: View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 32) {
-                    SessionFields(hoursAgo: $hoursAgo, minutesAgo: $minutesAgo, minutes: $minutes, note: $note)
+                    SessionFields(
+                        name: $name,
+                        hoursAgo: $hoursAgo,
+                        minutesAgo: $minutesAgo,
+                        minutes: $minutes,
+                        note: $note,
+                    )
                     DraftEntriesSection(entries: $entries)
                 }
                 .padding(.horizontal, Theme.margin)
@@ -56,6 +63,7 @@ struct LogPracticeSessionSheet: View {
 
     private func save() {
         _ = try? library.logPracticeSession(
+            name: name,
             startDate: library.startDate(hoursAgo: hoursAgo ?? 0, minutesAgo: minutesAgo ?? 0),
             duration: duration,
             note: note,
@@ -66,6 +74,7 @@ struct LogPracticeSessionSheet: View {
 }
 
 struct SessionFields: View {
+    @Binding var name: String
     @Binding var hoursAgo: Int?
     @Binding var minutesAgo: Int?
     @Binding var minutes: Int?
@@ -73,6 +82,9 @@ struct SessionFields: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
+            FieldRow(label: "Name") {
+                TextField("Name", text: $name, prompt: Text("Untitled").foregroundStyle(Theme.fadedInk))
+            }
             FieldRow(label: "Started") {
                 HStack(alignment: .firstTextBaseline, spacing: 8) {
                     NumberField(value: $hoursAgo)
