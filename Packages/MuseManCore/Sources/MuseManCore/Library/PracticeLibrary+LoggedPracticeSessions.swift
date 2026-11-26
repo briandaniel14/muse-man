@@ -25,7 +25,7 @@ public extension PracticeLibrary {
             return nil
         }
         let session = PracticeSessionObject(context: context)
-        session.rename(to: name)
+        session.name = name.trimmedName
         session.startDate = startDate
         session.duration = NSNumber(value: duration)
         session.note = note.trimmingCharacters(in: .whitespacesAndNewlines)

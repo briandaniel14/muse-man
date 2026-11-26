@@ -28,7 +28,7 @@ public extension PracticeLibrary {
         guard let object = object(id, as: PracticeSessionObject.self) else {
             return
         }
-        object.rename(to: name)
+        object.name = name.trimmedName
         try save()
     }
 
@@ -116,12 +116,5 @@ extension PracticeLibrary {
             part.status = Part.Status.learning.rawValue
         }
         return entry
-    }
-}
-
-extension PracticeSessionObject {
-    func rename(to name: String?) {
-        let name = name?.trimmingCharacters(in: .whitespaces) ?? ""
-        self.name = name.isEmpty ? nil : name
     }
 }
