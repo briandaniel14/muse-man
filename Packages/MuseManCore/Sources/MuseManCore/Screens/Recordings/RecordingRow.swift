@@ -43,19 +43,11 @@ struct RecordingRow: View {
 struct RecordingNameField: View {
     @Environment(PracticeLibrary.self) private var library
     let recording: Recording
-    @State private var name = ""
 
     var body: some View {
-        TextField("Recording name", text: $name, prompt: Text("Untitled").foregroundStyle(Theme.fadedInk))
-            .textFieldStyle(.plain)
-            .onAppear {
-                name = recording.name ?? ""
-            }
-            .onChange(of: name) {
-                if name != (recording.name ?? "") {
-                    try? library.renameRecording(id: recording.id, to: name)
-                }
-            }
+        NameField(label: "Recording name", savedName: recording.name) { name in
+            try? library.renameRecording(id: recording.id, to: name)
+        }
     }
 }
 
