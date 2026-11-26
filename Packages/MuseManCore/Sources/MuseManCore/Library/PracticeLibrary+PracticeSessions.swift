@@ -24,6 +24,14 @@ public extension PracticeLibrary {
         return PracticeSession(id: object.objectID, startDate: startDate, duration: duration, note: note)
     }
 
+    func renamePracticeSession(id: PracticeSession.ID, to name: String) throws {
+        guard let object = object(id, as: PracticeSessionObject.self) else {
+            return
+        }
+        object.rename(to: name)
+        try save()
+    }
+
     func finishPracticeSession(id: PracticeSession.ID) throws {
         guard let object = object(id, as: PracticeSessionObject.self) else {
             return
@@ -108,5 +116,12 @@ extension PracticeLibrary {
             part.status = Part.Status.learning.rawValue
         }
         return entry
+    }
+}
+
+extension PracticeSessionObject {
+    func rename(to name: String?) {
+        let name = name?.trimmingCharacters(in: .whitespaces) ?? ""
+        self.name = name.isEmpty ? nil : name
     }
 }

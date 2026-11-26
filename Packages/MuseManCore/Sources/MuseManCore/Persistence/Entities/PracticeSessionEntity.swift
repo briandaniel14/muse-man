@@ -4,6 +4,7 @@ import CoreData
     @NSManaged var startDate: Date?
     @NSManaged var duration: NSNumber?
     @NSManaged var note: String?
+    @NSManaged var name: String?
     @NSManaged var entries: Set<PracticeEntryObject>?
 }
 
@@ -13,6 +14,7 @@ extension MuseManModel {
             attribute("startDate", .date),
             attribute("duration", .double),
             attribute("note", .string),
+            attribute("name", .string),
         ])
     }
 }
