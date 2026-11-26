@@ -4,6 +4,7 @@ struct PlaybackControls: View {
     let isPlaying: Bool
     @Binding var time: TimeInterval
     let duration: TimeInterval
+    @Binding var speed: PlaybackSpeed
     let position: () -> TimeInterval?
     let toggle: () -> Void
     let seek: (TimeInterval) -> Void
@@ -35,6 +36,9 @@ struct PlaybackControls: View {
                 .labelsHidden()
                 .tint(Theme.accent)
                 PlaybackTime(time: time - duration)
+                if showsSpeedMenu {
+                    SpeedMenu(speed: $speed)
+                }
             }
             .padding(.horizontal, Theme.margin)
             .padding(.vertical, 6)
@@ -50,6 +54,14 @@ struct PlaybackControls: View {
                     }
             }
         }
+    }
+
+    private var showsSpeedMenu: Bool {
+        #if os(iOS)
+            UIDevice.current.userInterfaceIdiom != .phone
+        #else
+            true
+        #endif
     }
 }
 

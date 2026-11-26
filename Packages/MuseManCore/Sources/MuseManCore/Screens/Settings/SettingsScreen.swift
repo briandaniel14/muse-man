@@ -7,6 +7,7 @@ public struct SettingsScreen: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 32) {
                 PracticeNextSection()
+                PlaybackSection()
                 InstrumentsSection()
             }
             .padding(.horizontal, Theme.margin)
