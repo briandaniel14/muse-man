@@ -31,12 +31,14 @@ struct PracticeSessionList: View {
 
     var body: some View {
         List(sessions) { session in
-            PracticeSessionRow(session: session)
-                .contentShape(.rect)
-                .onTapGesture {
-                    openedSession = session
-                }
-                .paperRow()
+            Button {
+                openedSession = session
+            } label: {
+                PracticeSessionRow(session: session)
+                    .contentShape(.rect)
+            }
+            .buttonStyle(.plain)
+            .paperRow()
         }
         .listStyle(.plain)
         #if os(macOS)
