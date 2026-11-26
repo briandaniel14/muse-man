@@ -15,13 +15,24 @@ struct AppleMusicBadge: View {
     }
 }
 
-struct HeroAppleMusicBadge: View {
+struct AppleMusicBadgeRow<Details: View>: View {
     let song: AppleMusicSong?
+    @ViewBuilder let details: Details
 
     var body: some View {
         if let song {
-            AppleMusicBadge(song: song)
-                .padding(.top, Theme.heroBadgeSpacing)
+            ViewThatFits(in: .horizontal) {
+                HStack(spacing: Theme.heroBadgeSpacing) {
+                    details
+                    AppleMusicBadge(song: song)
+                }
+                VStack(alignment: .leading, spacing: 12) {
+                    details
+                    AppleMusicBadge(song: song)
+                }
+            }
+        } else {
+            details
         }
     }
 }
