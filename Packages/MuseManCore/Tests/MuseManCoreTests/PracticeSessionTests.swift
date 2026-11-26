@@ -102,6 +102,27 @@ struct PracticeSessionTests {
         #expect(library.practiceNext().map(\.id) == [part.id])
     }
 
+    @Test func `a renamed Practice Session keeps its trimmed name`() throws {
+        let library = PracticeLibrary.inMemory()
+        let session = try library.addPracticeSession(startDate: TestClock.start, duration: 30 * 60)
+        #expect(library.practiceSession(id: session.id)?.name == nil)
+
+        try library.renamePracticeSession(id: session.id, to: "  Scales warm-up ")
+
+        #expect(library.practiceSessions().map(\.name) == ["Scales warm-up"])
+        #expect(library.practiceSession(id: session.id)?.startDate == TestClock.start)
+    }
+
+    @Test func `clearing a Practice Session's name leaves it unnamed`() throws {
+        let library = PracticeLibrary.inMemory()
+        let session = try library.addPracticeSession(startDate: TestClock.start, duration: 30 * 60)
+        try library.renamePracticeSession(id: session.id, to: "Scales warm-up")
+
+        try library.renamePracticeSession(id: session.id, to: " ")
+
+        #expect(library.practiceSession(id: session.id)?.name == nil)
+    }
+
     @Test func `a Practice Session finished with no Practice Entries is deleted`() throws {
         let library = PracticeLibrary.inMemory()
         let session = try library.addPracticeSession(startDate: TestClock.start, duration: 10 * 60)
