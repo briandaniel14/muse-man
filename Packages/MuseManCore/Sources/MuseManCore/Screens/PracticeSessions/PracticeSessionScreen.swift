@@ -60,7 +60,7 @@ struct PracticeSessionScreen: View {
         } message: {
             Text("Its Practice Entries will be deleted too. Recordings stay on their Parts. This can't be undone.")
         }
-        .heroScreen(title: session.name ?? session.startDate.formatted(date: .abbreviated, time: .omitted))
+        .heroScreen(title: session.title)
     }
 
     private var isGone: Bool {

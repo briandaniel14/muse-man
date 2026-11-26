@@ -12,9 +12,7 @@ struct PartHistorySection: View {
                 Button("Log Practice Session", systemImage: "plus") {
                     isLoggingSession = true
                 }
-                .labelStyle(.iconOnly)
-                .buttonStyle(.plain)
-                .foregroundStyle(Theme.accent)
+                .modifier(SectionHeaderAction())
             }
             if isExpanded {
                 let entries = library.practiceEntries(of: part.id)

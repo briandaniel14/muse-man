@@ -31,12 +31,14 @@ struct PracticeSessionList: View {
 
     var body: some View {
         List(sessions) { session in
-            PracticeSessionRow(session: session)
-                .contentShape(.rect)
-                .onTapGesture {
-                    openedSession = session
-                }
-                .paperRow()
+            Button {
+                openedSession = session
+            } label: {
+                PracticeSessionRow(session: session)
+                    .contentShape(.rect)
+            }
+            .buttonStyle(.plain)
+            .paperRow()
         }
         .listStyle(.plain)
         #if os(macOS)
@@ -100,20 +102,10 @@ struct PracticeSessionSummary: View {
 struct PracticeSessionNameField: View {
     @Environment(PracticeLibrary.self) private var library
     let session: PracticeSession
-    @State private var name = ""
 
     var body: some View {
-        TextField("Practice Session name", text: $name, prompt: Text("Untitled").foregroundStyle(Theme.fadedInk))
-            .textFieldStyle(.plain)
-            .onChange(of: session.name, initial: true) {
-                if name.trimmingCharacters(in: .whitespaces) != (session.name ?? "") {
-                    name = session.name ?? ""
-                }
-            }
-            .onChange(of: name) {
-                if name != (session.name ?? "") {
-                    try? library.renamePracticeSession(id: session.id, to: name)
-                }
-            }
+        NameField(label: "Practice Session name", savedName: session.name) { name in
+            try? library.renamePracticeSession(id: session.id, to: name)
+        }
     }
 }

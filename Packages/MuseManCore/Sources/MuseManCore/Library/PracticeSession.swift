@@ -8,6 +8,12 @@ public struct PracticeSession: Identifiable, Hashable {
     public var name: String?
 }
 
+public extension PracticeSession {
+    var title: String {
+        name?.trimmedName ?? startDate.formatted(date: .abbreviated, time: .omitted)
+    }
+}
+
 extension PracticeSession {
     init?(_ object: PracticeSessionObject) {
         guard let startDate = object.startDate else {
