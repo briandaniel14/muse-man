@@ -13,7 +13,12 @@ struct TimedPracticeSessionSheet: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 32) {
                     if let session = library.practiceSession(id: sessionID) {
-                        ElapsedTime(since: session.startDate, isEmpty: entries.isEmpty)
+                        VStack(alignment: .leading, spacing: 16) {
+                            ElapsedTime(since: session.startDate, isEmpty: entries.isEmpty)
+                            FieldRow(label: "Name") {
+                                PracticeSessionNameField(session: session)
+                            }
+                        }
                     }
                     PendingPartsSection(parts: toPractise, drafts: $drafts, logged: entries, log: log) { part in
                         picked.append(part)
